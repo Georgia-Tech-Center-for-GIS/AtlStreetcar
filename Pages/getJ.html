@@ -1,0 +1,38 @@
+<!doctype html>
+<html>
+  <head>
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+	<script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
+	
+	<script type="text/javascript" src="mustache.js" ></script>
+    <script>
+    function handler(d) {	
+		var template = document.getElementById('sample_template').innerHTML;
+		var output = Mustache.render(template, d);
+		document.getElementById('person').innerHTML = output;
+    }
+	function querier() {
+		var key = "AIzaSyDPjZMmqMBfnyJX1Idt9pElUSY-m7LFbXM";
+		var table = "1SC-3PwcRiAiJC6QNFPyAStYqWGBtS5QkWxYc6XeC";
+		var url = 'https://www.googleapis.com/fusiontables/v1/query?sql=SELECT%20*%20FROM%20' + table + '&key=' + key + '&typed=false&callback=jsonp';
+		$.ajax({
+			url: url,
+			dataType: 'jsonp',
+			jsonpCallback: 'jsonp',
+			success: handler,
+			error: handler
+		});
+	}
+    </script>
+    <title>Google Fusion Tables API Example</title>
+  </head>
+	
+  <body onload="querier()">
+    <div id="person"></div>
+	<script id="sample_template" type="text/html">
+		<h2 data-group="{{{columns}}}">
+            <span class="group-name">{{{columns}}}</span>
+        </h2>
+	</script>
+  </body>
+</html>

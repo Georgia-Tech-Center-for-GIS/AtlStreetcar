@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <title>Mustache.js Inline Method</title>
+    <script type="text/javascript" src="mustache.js" ></script>
+    <script>
+      var view = {
+        name : "Joe",
+        occupation : "Web Developer"
+      };
+ 
+      function loadtemp(){
+        var template = document.getElementById('sample_template').innerHTML;
+		var output = Mustache.render(template, view);
+		document.getElementById('person').innerHTML = output;
+      }
+    </script>
+  </head>
+  <body onload="loadtemp()" >
+    <p id="person"></p>
+	<script id="sample_template" type="text/html">
+		<h1>{{name}}</h1>
+	</script>
+  </body>
+</html>
