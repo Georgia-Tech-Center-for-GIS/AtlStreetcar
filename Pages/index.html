@@ -116,6 +116,7 @@ var wpUIOpts = {"wpUrl":"http:\/\/streetcar.atlantaga.gov","pluginUrl":"http:\/\
 			"dojo/number",
 			"esri/map",
 			"esri/layers/GraphicsLayer",
+			"esri/layers/CSVLayer",
 			"esri/layers/KMLLayer",
 			"esri/layers/LabelLayer",
 			"esri/Color", "esri/symbols/Font",
@@ -128,12 +129,17 @@ var wpUIOpts = {"wpUrl":"http:\/\/streetcar.atlantaga.gov","pluginUrl":"http:\/\
 			"dijit/layout/BorderContainer", "dijit/layout/ContentPane", "dojo/domReady!"
 			], function(
 				number,
-				Map, GraphicsLayer, KMLLayer, LabelLayer, Color, Font, GeometryService, SimpleFillSymbol,
+				Map, GraphicsLayer, CSVLayer, KMLLayer, LabelLayer, Color, Font, GeometryService, SimpleFillSymbol,
 				TextSymbol, SimpleRenderer, Graphic,
 				parser, domStyle
 				) {
 				
 				function init() {
+					esriConfig.defaults.io.proxyUrl = "http://carto.gis.gatech.edu/proxypage_net/proxy.ashx";
+					//esriConfig.defaults.io.alwaysUseProxy = true;
+					
+					esri.config.defaults.io.corsEnabledServers.push("http://carto.gis.gatech.edu");
+
 					map = new Map("map", { 
 					  basemap: "gray",
 					  center: [-84.38373544973749, 33.757773938307224],
@@ -142,56 +148,89 @@ var wpUIOpts = {"wpUrl":"http:\/\/streetcar.atlantaga.gov","pluginUrl":"http:\/\
 
 					parser.parse();
 				}
-							
-				function loadKMLLayerAndLabel(url, labelString) {
-					kml = new KMLLayer(url, {"id": labelString});
-					map.addLayer(kml);
-
-					kml.on("load", function() {
-						//domStyle.set("loading", "display", "none");
-						if(labelString != "") {
-							try {
-								var tempGraphicsLayer = new GraphicsLayer({"id":labelString+"_Graphics"});
-	//							setInfoTemplate(new esri.InfoTemplate("${CITY_NAME}","${*}"));
-
-								while(kml.getLayers().length == 0);
-								console.debug(kml.getLayers());
-								
-								//tempGraphicsLayer.graphics = kml.getLayers()[0].graphics;
-							
-								dojo.forEach(kml.getLayers()[0].graphics, function(feature) {
-									tempGraphicsLayer.graphics.push(feature);
-								});
-								//tempGraphicsLayer.graphics.add ( kml.getLayers()[0].graphics );
-								//
-								
-								map.addLayer(tempGraphicsLayer);
-							
-								var labelTextSymbol = new TextSymbol().setColor(new Color("#664"));
-								labelTextSymbol.font.setWeight(Font.WEIGHT_BOLD);
-								labelTextSymbol.font.setSize("12pt");
-								labelTextSymbol.font.setFamily("arial");
-																										
-								if(labelLayer == null) {
-									labelLayer = new LabelLayer({id:"labelLayer"});
-									map.addLayer(labelLayer);
-								}
-								
-								labelLayer.addFeatureLayer(tempGraphicsLayer, new SimpleRenderer(labelTextSymbol), "${name}");
-							}
-							catch(e) {
-								console.debug(e);
-							}
+				
+				/** Do we label the next KML file to finish loading.... */
+				var doLabels = false;
+				
+				function whenGraphicsLoaded(evt) {
+					console.debug("IAMHERE");
+					
+					try {						
+						var labelTextSymbol = new TextSymbol().setColor(new Color("#664"));
+						labelTextSymbol.font.setWeight(Font.WEIGHT_BOLD);
+						labelTextSymbol.font.setSize("12pt");
+						labelTextSymbol.font.setFamily("arial");
+																								
+						if(labelLayer == null) {
+							labelLayer = new LabelLayer({id:"labelLayer"});
+							map.addLayer(labelLayer);
 						}
+						
+						labelLayer.addFeatureLayer(evt.layer,
+							new SimpleRenderer(labelTextSymbol), "${name}");
+						labelLayer.refresh();
+					}
+					catch(e) {
+						console.debug(e);
+					}
+
+				}
+				
+				/** Label the kml features when done loading */
+				function whenLoadedAndLabel(evt) {					
+					if(! evt.layer.loaded) {
+						evt.layer.on("load", whenLoadedAndLabel);
+					}
+								
+					var tempGraphicsLayer = new GraphicsLayer({id: evt.layer.url + "Graphics" });
+
+					dojo.forEach(evt.layer.getLayers()[0].graphics, function(feature) {
+						feature.attributes.balloonStyleText =
+							"<a href='https://www.google.com/#q=" +
+							feature.attributes.name + "\'>" + feature.attributes.name + "</a>";
+						tempGraphicsLayer.graphics.push(feature);
 					});
+					
+					map.addLayer(tempGraphicsLayer);
+						
+					//tempGraphicsLayer.on("load", whenGraphicsLoaded);
+					whenGraphicsLoaded( {layer : tempGraphicsLayer} );
+				}
+
+				
+				function whenLoadedDontLabel() {
+				}
+				
+				function loadLayerAndLabel(url, labelString) {
+					lastUrl = url;
+					doLabels = "";
+					
+					if(url.lastIndexOf(".csv") > -1) {
+						esriConfig.defaults.io.alwaysUseProxy = true;
+						kml = new CSVLayer(url, {"id": labelString});
+					}
+					else if(url.lastIndexOf(".kmz") > -1) {
+						esriConfig.defaults.io.alwaysUseProxy = false;
+						kml = new KMLLayer(url, {"id": labelString });
+					}
+					
+					map.addLayer(kml);
+					
+					if(labelString == null || labelString.length == 0)
+						kml.on("load", whenLoadedDontLabel);
+					else
+						kml.on("load", whenLoadedAndLabel);
 				}
 				
 				init();
 				
-				loadKMLLayerAndLabel("http://carto.gis.gatech.edu/StreetcarData/Hospitality_Hotel.kmz", "Hotel");
-				loadKMLLayerAndLabel("http://carto.gis.gatech.edu/StreetcarData/Hospitality_Historic.kmz", "Historic");
-				//loadKMLLayerAndLabel("http://carto.gis.gatech.edu/StreetcarData/Streetcar_Base.kmz", "");
-				//loadKMLLayerAndLabel("http://carto.gis.gatech.edu/StreetcarData/Hospitality_Landmark.kmz", "Landmark");
+				//loadKMLLayerAndLabel("http://carto.gis.gatech.edu/StreetcarData/Hospitality_Hotel.kmz", "Hotel");			
+				//loadLayerAndLabel("http://carto.gis.gatech.edu/StreetcarData/Historic_Buffer.csv", "TITLE");
+				loadLayerAndLabel("http://carto.gis.gatech.edu/StreetcarData/Streetcar_Base.kmz", "");
+				
+				//loadLayerAndLabel("http://carto.gis.gatech.edu/coast/Hospitality_Hotel.kmz", "name");
+				loadLayerAndLabel("http://carto.gis.gatech.edu/coast/Hospitality_Historic.kmz", "name");
+				//loadLayerAndLabel("http://carto.gis.gatech.edu/coast/Landmark.kmz", "name");
 		});
 	</script>
 	</head>
