@@ -110,14 +110,16 @@ var wpUIOpts = {"wpUrl":"http:\/\/streetcar.atlantaga.gov","pluginUrl":"http:\/\
 	<script>
 		var map;
 		var kml = null;
-		var labelLayer = null;
+		var labelLayerScale = null;
+		var labelLayerNoScale = null;
 		var tempGraphicsLayer = null;
 		
 		function init() {
 			require([
 				"esri/map",
+				"esri/layers/LabelLayer",
 				"dojo/parser", "dojo/dom-style", 
-				"dojo/domReady!"], function( Map, parser, domStyle ) {
+				"dojo/domReady!"], function( Map, LabelLayer, parser, domStyle ) {
 				
 				esriConfig.defaults.io.proxyUrl = "http://carto.gis.gatech.edu/proxypage_net/proxy.ashx";
 				//esriConfig.defaults.io.alwaysUseProxy = true;
@@ -125,11 +127,23 @@ var wpUIOpts = {"wpUrl":"http:\/\/streetcar.atlantaga.gov","pluginUrl":"http:\/\
 				esri.config.defaults.io.corsEnabledServers.push("http://carto.gis.gatech.edu");
 
 				map = new Map("map", { 
-					basemap: "gray",
+					basemap: "streets",
 					center: [-84.38373544973749, 33.757773938307224],
 					zoom: 15
 				});
 
+				labelLayerNoScale = new LabelLayer({id:"labelLayer_NoLimit"});
+				labelLayerScale = new LabelLayer( {id:"labelLayer_ScaleLimit",
+					minScale: 10500,
+					maxScale: 0});
+				
+				map.addLayer(labelLayerScale);
+				map.addLayer(labelLayerNoScale);
+
+				map.on("load", function () {
+					map.getLayer(map.basemapLayerIds[0]).setOpacity(0.4);
+				});
+				
 				parser.parse();
 			});
 		}
@@ -144,33 +158,34 @@ var wpUIOpts = {"wpUrl":"http:\/\/streetcar.atlantaga.gov","pluginUrl":"http:\/\
 				"esri/symbols/TextSymbol",
 				"esri/symbols/SimpleMarkerSymbol",
 				"esri/renderers/SimpleRenderer",
-				"esri/layers/LabelLayer",
 				"dojo/parser", "dojo/dom-style",
 				"dojo/domReady!"],
 				
 				function(Color, Font, SimpleFillSymbol, TextSymbol, SimpleMarkerSymbol,
-					SimpleRenderer, LabelLayer,
+					SimpleRenderer,
 					parser, domStyle) {
 			
-				try {						
-					
-					var marker = new SimpleMarkerSymbol(SimpleMarkerSymbol.STYLE_CIRCLE, 18, null, new Color("#456"));
-					if(evt.layer.renderer == null)
-						evt.layer.setRenderer(new SimpleRenderer(marker));
-					
-					var labelTextSymbol = new TextSymbol().setColor(new Color("#664"));
+				try {
+					var labelTextSymbol = new TextSymbol().setColor(new Color("#0"));
 					labelTextSymbol.font.setWeight(Font.WEIGHT_BOLD);
 					labelTextSymbol.font.setSize("12pt");
 					labelTextSymbol.font.setFamily("arial");
-																							
-					if(labelLayer == null) {
-						labelLayer = new LabelLayer({id:"labelLayer"});
-						map.addLayer(labelLayer);
+									
+					if(evt.name.lastIndexOf("Historic") > -1) {
+						labelLayerNoScale.addFeatureLayer(evt.layer,
+							new SimpleRenderer(labelTextSymbol), "${name}");
+						didScale = !didScale;
+						labelLayerNoScale.refresh();
+					}
+					else {
+						labelLayerScale.addFeatureLayer(evt.layer,
+							new SimpleRenderer(labelTextSymbol), "${name}");
+						didScale = !didScale;
+						labelLayerScale.refresh();
 					}
 					
-					labelLayer.addFeatureLayer(evt.layer,
-						new SimpleRenderer(labelTextSymbol), "${name}");
-					labelLayer.refresh();
+					map.reorderLayer( map.getLayer("labelLayer_NoLimit"), 200);
+					map.reorderLayer( map.getLayer("labelLayer_ScaleLimit"), 200);
 				}
 				catch(e) {
 					console.debug(e);
@@ -182,9 +197,13 @@ var wpUIOpts = {"wpUrl":"http:\/\/streetcar.atlantaga.gov","pluginUrl":"http:\/\
 		function whenLoadedAndLabel(evt) {
 			require([
 				"esri/layers/GraphicsLayer",
+				"esri/Color", "esri/symbols/Font",
+				"esri/symbols/SimpleMarkerSymbol",
+				"esri/renderers/SimpleRenderer",
 				"dojo/parser", "dojo/dom-style",
 				"dojo/domReady!"],
-				function(GraphicsLayer, parser, domStyle) {
+				function(GraphicsLayer, Color, Font, SimpleMarkerSymbol,
+				SimpleRenderer, parser, domStyle) {
 				
 				if(! evt.layer.loaded) {
 					evt.layer.on("load", whenLoadedAndLabel);
@@ -200,9 +219,13 @@ var wpUIOpts = {"wpUrl":"http:\/\/streetcar.atlantaga.gov","pluginUrl":"http:\/\
 				});
 				
 				map.addLayer(tempGraphicsLayer);
+				
+				var marker = new SimpleMarkerSymbol(SimpleMarkerSymbol.STYLE_CIRCLE, 8, null, new Color("#008"));
+				evt.layer.getLayers()[0].setRenderer(null);
+				tempGraphicsLayer.setRenderer(new SimpleRenderer(marker));
 					
 				//tempGraphicsLayer.on("load", whenGraphicsLoaded);
-				whenGraphicsLoaded( {layer : tempGraphicsLayer} );
+				whenGraphicsLoaded( {layer : tempGraphicsLayer, name: evt.layer.url } );
 			});
 		}
 		
@@ -230,6 +253,7 @@ var wpUIOpts = {"wpUrl":"http:\/\/streetcar.atlantaga.gov","pluginUrl":"http:\/\
 				}
 				
 				map.addLayer(kml);
+				map.reorderLayer(kml,1);
 				
 				if(labelString == null || labelString.length == 0)
 					kml.on("load", whenLoadedDontLabel);
@@ -237,12 +261,24 @@ var wpUIOpts = {"wpUrl":"http:\/\/streetcar.atlantaga.gov","pluginUrl":"http:\/\
 					kml.on("load", whenLoadedAndLabel);
 			});
 		}
+		  $("document").ready(function($) {
+				$.fn.accordion.defaults.container = false; 
+				$("#menu-accordion").accordion({
+					heightStyle: "content",
+					obj: "div", 
+					wrapper: "div", 
+					el: ".h", 
+					head: "h2, h3", 
+					next: "div",
+					initShow : "div.shown",
+				});
+		  });
 		
 		init();
 				
 		//loadKMLLayerAndLabel("http://carto.gis.gatech.edu/StreetcarData/Hospitality_Hotel.kmz", "Hotel");			
 		//loadLayerAndLabel("http://carto.gis.gatech.edu/StreetcarData/Historic_Buffer.csv", "TITLE");
-		//loadLayerAndLabel("http://carto.gis.gatech.edu/StreetcarData/Streetcar_Base.kmz", "");
+		loadLayerAndLabel("http://carto.gis.gatech.edu/StreetcarData/Streetcar_Base.kmz", "");
 		
 		loadLayerAndLabel("http://carto.gis.gatech.edu/coast/Hospitality_Hotel.kmz", "name");
 		loadLayerAndLabel("http://carto.gis.gatech.edu/coast/Hospitality_Historic.kmz", "name");
@@ -329,10 +365,17 @@ var wpUIOpts = {"wpUrl":"http:\/\/streetcar.atlantaga.gov","pluginUrl":"http:\/\
 				<!-- article -->
 				<article id="post-" class="">					
 					<p style="margin: 50px 10px 20px 10px;font-size: 120%">Learn more about Atlanta's Neighborhood Planning Units, which are neighborhood-scale, citizen-advisory units formalized by the City of Atlanta. Click on an NPU to get facts and statistics on geography, landmarks, health and quality of life. If you don't know your NPU, search for your neighborhood or address in the box below. </p>
-					<div id="menu-accordion">
-						<h2 class="accordion-category">Economic Development</h2>
+					<div id="menu-accordion" style='height: 90%;'>
+						<h2 class="accordion-category">Employment</h2>				
+						<h2 class="accordion-category">Development</h2>
 						<div class="inner">
-							<h3>Employment</h3>
+							<h3>Economic</h3>
+							<div id="employee-table"></div>
+							
+							<h3>Office</h3>
+							<div id="employee-table"></div>
+							
+							<h3>Residential</h3>
 							<div id="employee-table"></div>
 						</div>
 						<h2 class="accordion-category">Hospitality</h2>
@@ -367,19 +410,19 @@ var wpUIOpts = {"wpUrl":"http:\/\/streetcar.atlantaga.gov","pluginUrl":"http:\/\
 							<h3>Bike Lanes</h3>
 							<div id="bikelanes-table"></div>
 						</div>
-						
-						
-						
 					</div>
 					<div id="map"></div>
-						
+					<div id="featureTable">
+						Here is the table...
+						<table>
+						</table>
+					</div>
 				</article>
 				<!-- /article -->
 			</section>
 			<!-- /section -->	
 		</div>
 	</div>
-	
 	<div class="container-fluid">
 		<div class="row-fluid">
 			<footer id="footer" class="span12" role="contentinfo">
