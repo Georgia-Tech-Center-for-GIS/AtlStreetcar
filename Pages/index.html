@@ -108,6 +108,90 @@ var wpUIOpts = {"wpUrl":"http:\/\/streetcar.atlantaga.gov","pluginUrl":"http:\/\
 	<script src="http://js.arcgis.com/3.9/"></script>
 
 	<script>
+		function parseXml(xml, arrayTags)
+		{
+			var dom = null;
+			if (window.DOMParser)
+			{
+				dom = (new DOMParser()).parseFromString(xml, "text/xml");
+			}
+			else if (window.ActiveXObject)
+			{
+				dom = new ActiveXObject('Microsoft.XMLDOM');
+				dom.async = false;
+				if (!dom.loadXML(xml))
+				{
+					throw dom.parseError.reason + " " + dom.parseError.srcText;
+				}
+			}
+			else
+			{
+				throw "cannot parse xml string!";
+			}
+
+			function isArray(o)
+			{
+				return Object.prototype.toString.apply(o) === '[object Array]';
+			}
+
+			function parseNode(xmlNode, result)
+			{
+				if(xmlNode.nodeName == "#text" && xmlNode.nodeValue.trim() == "")
+				{
+					return;
+				}
+
+				var jsonNode = {};
+				var existing = result[xmlNode.nodeName];
+				if(existing)
+				{
+					if(!isArray(existing))
+					{
+						result[xmlNode.nodeName] = [existing, jsonNode];
+					}
+					else
+					{
+						result[xmlNode.nodeName].push(jsonNode);
+					}
+				}
+				else
+				{
+					if(arrayTags && arrayTags.indexOf(xmlNode.nodeName) != -1)
+					{
+						result[xmlNode.nodeName] = [jsonNode];
+					}
+					else
+					{
+						result[xmlNode.nodeName] = jsonNode;
+					}
+				}
+
+				if(xmlNode.attributes)
+				{
+					var length = xmlNode.attributes.length;
+					for(var i = 0; i < length; i++)
+					{
+						var attribute = xmlNode.attributes[i];
+						jsonNode[attribute.nodeName] = attribute.nodeValue;
+					}
+				}
+
+				var length = xmlNode.childNodes.length;
+				for(var i = 0; i < length; i++)
+				{
+					parseNode(xmlNode.childNodes[i], jsonNode);
+				}
+			}
+
+			var result = {};
+			if(dom.childNodes.length)
+			{
+				parseNode(dom.childNodes[0], result);
+			}
+
+			return result;
+		}
+		
 		var map;
 		var kml = null;
 		var labelLayerScale = null;
@@ -174,13 +258,11 @@ var wpUIOpts = {"wpUrl":"http:\/\/streetcar.atlantaga.gov","pluginUrl":"http:\/\
 					if(evt.name.lastIndexOf("Historic") > -1) {
 						labelLayerNoScale.addFeatureLayer(evt.layer,
 							new SimpleRenderer(labelTextSymbol), "${name}");
-						didScale = !didScale;
 						labelLayerNoScale.refresh();
 					}
 					else {
 						labelLayerScale.addFeatureLayer(evt.layer,
 							new SimpleRenderer(labelTextSymbol), "${name}");
-						didScale = !didScale;
 						labelLayerScale.refresh();
 					}
 					
@@ -215,6 +297,8 @@ var wpUIOpts = {"wpUrl":"http:\/\/streetcar.atlantaga.gov","pluginUrl":"http:\/\
 					feature.attributes.balloonStyleText =
 						"<a href='https://www.google.com/#q=" +
 						feature.attributes.name + "\'>" + feature.attributes.name + "</a>";
+					//console.debug( parseXml(feature.attributes.description) );
+					
 					tempGraphicsLayer.graphics.push(feature);
 				});
 				
@@ -282,6 +366,7 @@ var wpUIOpts = {"wpUrl":"http:\/\/streetcar.atlantaga.gov","pluginUrl":"http:\/\
 		
 		loadLayerAndLabel("http://carto.gis.gatech.edu/coast/Hospitality_Hotel.kmz", "name");
 		loadLayerAndLabel("http://carto.gis.gatech.edu/coast/Hospitality_Historic.kmz", "name");
+		loadLayerAndLabel("http://carto.gis.gatech.edu/StreetcarData/HHOwnRenter.kmz", "");
 //		loadLayerAndLabel("http://carto.gis.gatech.edu/coast/Landmark.kmz", "name");
 	</script>
 	</head>
@@ -366,7 +451,63 @@ var wpUIOpts = {"wpUrl":"http:\/\/streetcar.atlantaga.gov","pluginUrl":"http:\/\
 				<article id="post-" class="">					
 					<p style="margin: 50px 10px 20px 10px;font-size: 120%">Learn more about Atlanta's Neighborhood Planning Units, which are neighborhood-scale, citizen-advisory units formalized by the City of Atlanta. Click on an NPU to get facts and statistics on geography, landmarks, health and quality of life. If you don't know your NPU, search for your neighborhood or address in the box below. </p>
 					<div id="menu-accordion" style='height: 90%;'>
-						<h2 class="accordion-category">Employment</h2>				
+						<div class='accordion'>
+							<h3 class="accordion-category">Population</h3>
+							<div>
+								<ul>
+									<li>Residential/Student Population</li>
+									<li>Number of Homeowners/Renters</li>
+									<li>Age Groups by Census</li>
+									<li>Average Median Income</li>
+								</ul>
+							</div>
+													
+							<h3 class="accordion-category">Land Use/Development</h3>
+							<div>
+								<ul>
+									<li>Land-use Type</li>
+									<li>Floor-Area Ratio</li>
+								</ul>
+							</div>
+							
+							<h3 class="accordion-category">Residential Development</h3>
+							<div>
+								<ul>
+									<li>Number of Single Family Homes</li>
+									<li>Number of Apartment Condo Units</li>
+									<li>Number of Dorm Beds</li>
+									<li>Vacancy Rates</li>
+								</ul>
+							</div>
+							<h3 class='accordion-category'>Retail Development</h3>
+							<div>
+								<ul>
+									<li>Retail Square Footage</li>
+									<li>Revenue</li>
+								</ul>
+							</div>
+							
+							<h3 class='accordion-category'>Office Development</h3>
+							<div>
+							</div>
+							
+							<h3 class='accordion-category'>Hospitality</h3>
+							<div>
+							</div>
+							
+							<h3 class='accordion-category'>Economic Development</h3>
+							<div>
+							</div>
+
+							<h3 class='accordion-category'>Traffic</h3>
+							<div>
+							</div>
+
+							<h3 class='accordion-category'>Transportation Network</h3>
+							<div>
+							</div>
+						</div>
+						<!--h2 class="accordion-category">Employment</h2>				
 						<h2 class="accordion-category">Development</h2>
 						<div class="inner">
 							<h3>Economic</h3>
@@ -409,7 +550,7 @@ var wpUIOpts = {"wpUrl":"http:\/\/streetcar.atlantaga.gov","pluginUrl":"http:\/\
 						<div class="inner">
 							<h3>Bike Lanes</h3>
 							<div id="bikelanes-table"></div>
-						</div>
+						</div-->
 					</div>
 					<div id="map"></div>
 					<div id="featureTable">
