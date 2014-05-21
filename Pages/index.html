@@ -516,7 +516,8 @@
 							<h3 class='accordion-category' data-bind='text: $data["@attributes"].name'> </h3>
 							<div class='inner'>
 								<ul data-bind='foreach: $data.layer'>
-									<li data-bind='text: $data["#text"], click: function(d){console.debug(d);} '></li>
+									<li 
+										data-bind='attr: "name" : $data["@attributes"].url, text: $data["#text"], click: function(d){console.debug(d);} '></li>
 								</ul>
 							</div>
 						<!-- /ko -->
