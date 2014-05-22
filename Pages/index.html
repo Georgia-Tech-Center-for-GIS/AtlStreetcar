@@ -118,7 +118,6 @@
 			if (xml.attributes != null && xml.attributes.length > 0) {
 			obj["@attributes"] = {};
 			  for (var j = 0; j < xml.attributes.length; j++) {
-				console.debug(xml.attributes[j]);
 				var attribute = xml.attributes[j];
 				obj["@attributes"][attribute.nodeName] = attribute.nodeValue;
 			  }
@@ -416,19 +415,44 @@
 					kml.on("load", whenLoadedAndLabel);
 			});
 		}
-		  $("document").ready(function($) {
-		  });
+
+		var urlsLoaded = ko.observableArray();
+		
+		function loadURL_UI(evt_value) {
+			//console.debug(evt_value["@attributes"].url);
+			var iFound = -1;
+			
+			for(var j = 0; j < urlsLoaded().length; j++ ) {
+				if( urlsLoaded()[j].url == evt_value["@attributes"].url) {
+					iFound = j;
+				}
+				
+				map.getLayer(urlsLoaded()[j].mapId).hide();
+			}
+			
+			if(evt_value["@attributes"].url == "") return;
+			
+			if(iFound == -1) {
+				loadLayerAndLabel( evt_value["@attributes"].url, "");
+				urlsLoaded.push( { url: evt_value["@attributes"].url, mapId: kml.id });
+			}
+			else {
+				var mapLayerId = urlsLoaded()[iFound].mapId;
+				map.getLayer(mapLayerId).show();
+			}
+		}
 		
 		init();
 				
 		//loadKMLLayerAndLabel("http://carto.gis.gatech.edu/StreetcarData/Hospitality_Hotel.kmz", "Hotel");			
 		//loadLayerAndLabel("http://carto.gis.gatech.edu/StreetcarData/Historic_Buffer.csv", "TITLE");
-		loadLayerAndLabel("http://carto.gis.gatech.edu/StreetcarData/Streetcar_Base.kmz", "");
 		
-		loadLayerAndLabel("http://carto.gis.gatech.edu/coast/Hospitality_Hotel.kmz", "name");
-		loadLayerAndLabel("http://carto.gis.gatech.edu/coast/Hospitality_Historic.kmz", "name");
-		loadLayerAndLabel("http://carto.gis.gatech.edu/StreetcarData/HHOwnRenter.kmz", "");
+//		loadLayerAndLabel("http://carto.gis.gatech.edu/coast/Hospitality_Hotel.kmz", "name");
+//		loadLayerAndLabel("http://carto.gis.gatech.edu/coast/Hospitality_Historic.kmz", "name");
+//		loadLayerAndLabel("http://carto.gis.gatech.edu/StreetcarData/HHOwnRenter.kmz", "");
 //		loadLayerAndLabel("http://carto.gis.gatech.edu/coast/Landmark.kmz", "name");
+
+		loadLayerAndLabel("http://carto.gis.gatech.edu/StreetcarData/Streetcar_Base.kmz", "");
 	</script>
 	</head>
 	
@@ -456,11 +480,11 @@
 		
 						<nav id="top-nav">
 							<ul id="menu-top-navigation" class="menu menu-inline"><li id="menu-item-26" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-26"><a href="http://streetcar.atlantaga.gov/construction-updates/" >Construction Updates</a></li>
-<li id="menu-item-755" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-755"><a href="http://streetcar.atlantaga.gov/faqs/" >FAQs</a></li>
-<li id="menu-item-25" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-25"><a href="http://streetcar.atlantaga.gov/about/" >About</a></li>
-<li id="menu-item-24" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-24"><a href="http://streetcar.atlantaga.gov/events/" >Events</a></li>
-<li id="menu-item-22" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-22"><a href="http://streetcar.atlantaga.gov/news-press/" >News &#038; Press</a></li>
-<li id="menu-item-21" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-21"><a href="http://streetcar.atlantaga.gov/contact/" >Contact</a></li>
+								<li id="menu-item-755" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-755"><a href="http://streetcar.atlantaga.gov/faqs/" >FAQs</a></li>
+								<li id="menu-item-25" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-25"><a href="http://streetcar.atlantaga.gov/about/" >About</a></li>
+								<li id="menu-item-24" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-24"><a href="http://streetcar.atlantaga.gov/events/" >Events</a></li>
+								<li id="menu-item-22" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-22"><a href="http://streetcar.atlantaga.gov/news-press/" >News &#038; Press</a></li>
+								<li id="menu-item-21" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-21"><a href="http://streetcar.atlantaga.gov/contact/" >Contact</a></li>
 							</ul>
 						</nav>
 					</div>
@@ -516,10 +540,16 @@
 							<h3 class='accordion-category' data-bind='text: $data["@attributes"].name'> </h3>
 							<div class='inner'>
 								<ul data-bind='foreach: $data.layer'>
-									<li 
-										data-bind='attr: "name" : $data["@attributes"].url, text: $data["#text"], click: function(d){console.debug(d);} '></li>
+									<li data-bind='text: $data["#text"], click: loadURL_UI'></li>
 								</ul>
-							</div>
+							
+								<!-- ko foreach: $data.Analysis -->
+									<div data-bind='text: $data["@attributes"].name'> </div>
+									<ul data-bind='foreach: $data.layer'>
+										<li data-bind='text: $data["#text"], click: loadURL_UI'></li>
+									</ul>
+								<!-- /ko -->
+							</div>							
 						<!-- /ko -->
 					</div>
 					<div id="map"></div>
