@@ -362,7 +362,7 @@
 				if(! evt.layer.loaded) {
 					evt.layer.on("load", whenLoadedAndLabel);
 				}
-							
+				
 				tempGraphicsLayer = new GraphicsLayer({/*id: evt.layer.url */});
 
 				dojo.forEach(evt.layer.getLayers()[0].graphics, function(feature) {
@@ -381,11 +381,14 @@
 				
 				map.addLayer(tempGraphicsLayer);
 				
+				currentLayer(evt.layer.getLayers()[0]);
+				setupTableHeadings();
+				
 				var marker = new SimpleMarkerSymbol(SimpleMarkerSymbol.STYLE_CIRCLE, 8, null, new Color("#008"));
 				evt.layer.getLayers()[0].setRenderer(null);
 				
-				/*var renderer = new SimpleRenderer(marker);
-				renderer.setColorInfo({
+				var renderer = new SimpleRenderer(marker);
+				/*renderer.setColorInfo({
 					field: "Rooms_2014",
 					minDataValue: 0,
 					maxDataValue: 500,
@@ -402,7 +405,21 @@
 			});
 		}
 		
-		function whenLoadedDontLabel() {
+		function whenLoadedDontLabel(evt) {
+			dojo.forEach(evt.layer.getLayers()[0].graphics, function(feature) {
+				feature.attributes.balloonStyleText =
+					"<a href='https://www.google.com/#q=" +
+					feature.attributes.name + "\'>" + feature.attributes.name + "</a>";
+				
+				var xmlObject = dojox.xml.DomParser.parse(feature.attributes.description);
+				var jsoObject = xmlToJson(xmlObject);
+				dojo.forEach(jsoObject.html.head.META.body.table.tr[1].td.table.tr, function(attribPair) {
+					feature.attributes[ attribPair.td[0]["#text"] ] = attribPair.td[1]["#text"];
+				});					
+			});
+
+			currentLayer(evt.layer.getLayers()[0]);
+			setupTableHeadings();
 		}
 		
 		function loadLayerAndLabel(url, labelString) {
@@ -436,6 +453,24 @@
 		}
 
 		var urlsLoaded = ko.observableArray();
+		var currentLayer = ko.observable(null);
+		var headings = ko.observableArray();
+		
+		function setupTableHeadings() {
+			require([
+				"dojo/_base/array"],
+				function(array) {
+				
+				if(currentLayer() != null) {
+					var DisplayAttribs = array.filter( (Object.keys(currentLayer().graphics[0].attributes)) , function(item, index, array) {
+						if( item == "description" || item == "balloonStyleText" ||
+							item == "styleUrl" || item == "id" || item == "FID") return false;
+						return true;
+					});
+					headings(DisplayAttribs);
+				}
+			});
+		}
 		
 		function loadURL_UI(evt_value) {
 			//console.debug(evt_value["@attributes"].url);
@@ -461,6 +496,8 @@
 			else {
 				var mapLayerId = urlsLoaded()[iFound].mapId;
 				map.getLayer(mapLayerId).show();
+				currentLayer(map.getLayer(mapLayerId).getLayers()[0]);
+				setupTableHeadings();
 			}
 		}
 		
@@ -575,10 +612,23 @@
 						<!-- /ko -->
 					</div>
 					<div id="map"></div>
-					<div id="featureTable">
-						Here is the table...
+					<div id="featureTable" style='overflow: scroll; width: 90%; height: 300px;'>
+						<!-- ko if: currentLayer() != null -->
 						<table>
+							<tr>
+								<!-- ko foreach: headings() -->
+									<th style='width: 25em;'><div data-bind='text: $data'> </div> </th>
+								<!-- /ko -->
+							</tr>
+							<!-- ko foreach: { data: currentLayer().graphics, as: 'currFeature'} -->
+							<tr>
+								<!-- ko foreach: { data: headings(), as: 'attrib'} -->
+									<td style='width: 25em;'><div data-bind='text: currFeature.attributes[ attrib ]'> </div> </td>
+								<!-- /ko -->
+							</tr>
+							<!-- /ko -->
 						</table>
+						<!-- /ko -->
 					</div>
 				</article>
 				<!-- /article -->
