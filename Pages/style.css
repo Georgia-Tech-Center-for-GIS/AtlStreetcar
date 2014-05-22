@@ -22,9 +22,30 @@
 	margin: 10px;
 	width: 350px;
 }
+#menu-accordion h3 {
+	color: #fff;
+}
+#menu-accordion .acord  h3{
+	padding: 5px;
+	font-size: 14px;
+	font-weight: 200;
+	background: url(./images/corner-purple-right-top.png) no-repeat top right #63619a;
+}
+#menu-accordion .inner  h3{
+	padding: 3px;
+	font-size: 14px;
+	font-weight: 200;
+	background: url(./images/corner-green-right-top.png) no-repeat top right #7ac142;
+}
+.accordion-contents {
+	padding: 0;
+	margin: 0;
+	margin-top: 10px;
+	margin-left: -27px;
+}
 .accordion-category{
 	font-size: 15px;
-	font-weight: 400;
+	font-weight: 400; 
 	font-family: 'PT Sans Caption',sans-serif;
 	color: #fff;
 	background: url(./images/corner-green-right-top.png) no-repeat top right #7ac142;
@@ -35,20 +56,9 @@
 .accordion-category:hover{
 	background:url(./images/corner-purple-right-top.png) no-repeat top right #63619a;
 }
-#menu-accordion  a{
-	color: #fff;
-	text-decoration: none;
+.accordion-contents {
+	margin-bottom: 10px;
 }
-#menu-accordion #visualization {
-	padding: 0px;
-	margin: 0;
-}
-#menu-accordion .inner {
-	padding-left: 20px;
-}
-#menu-accordion .inner  h3{
-	padding: 5px;
-	font-size: 14px;
-	font-weight: 200;
-	background: url(./images/corner-purple-right-top.png) no-repeat top right #63619a;
+.accordion-contents a{
+	margin-top: 5px;
 }
