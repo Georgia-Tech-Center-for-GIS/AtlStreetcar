@@ -31,12 +31,12 @@
 
 <Analysis name='Hospitality'>
 	<Analysis name='Attractions'>
-		<layer url=''>Historic Attractions</layer>
-		<layer url=''>Landmark Attractions</layer>
+		<layer label='name' url=''>Historic Attractions</layer>
+		<layer label='name' url=''>Landmark Attractions</layer>
 	</Analysis>
 	<Analysis name='Hotels'>
-		<layer url=''>Employment</layer>
-		<layer url='http://carto.gis.gatech.edu/coast/Hospitality_Hotel.kmz'>Number of Rooms</layer>
+		<layer label='name' url=''>Employment</layer>
+		<layer label='name' url='http://carto.gis.gatech.edu/coast/Hospitality_Hotel.kmz'>Number of Rooms</layer>
 	</Analysis>
 </Analysis>
 

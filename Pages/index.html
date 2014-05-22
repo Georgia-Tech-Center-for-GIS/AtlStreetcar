@@ -345,6 +345,8 @@
 			});
 		}
 		
+		var LayerAttributes = ko.observableArray();
+		
 		/** Label the kml features when done loading */
 		function whenLoadedAndLabel(evt) {
 			require([
@@ -367,7 +369,12 @@
 					feature.attributes.balloonStyleText =
 						"<a href='https://www.google.com/#q=" +
 						feature.attributes.name + "\'>" + feature.attributes.name + "</a>";
-					//console.debug( parseXml(feature.attributes.description) );
+					
+					var xmlObject = dojox.xml.DomParser.parse(feature.attributes.description);
+					var jsoObject = xmlToJson(xmlObject);
+					dojo.forEach(jsoObject.html.head.META.body.table.tr[1].td.table.tr, function(attribPair) {
+						feature.attributes[ attribPair.td[0]["#text"] ] = attribPair.td[1]["#text"];
+					});
 					
 					tempGraphicsLayer.graphics.push(feature);
 				});
@@ -376,8 +383,20 @@
 				
 				var marker = new SimpleMarkerSymbol(SimpleMarkerSymbol.STYLE_CIRCLE, 8, null, new Color("#008"));
 				evt.layer.getLayers()[0].setRenderer(null);
-				tempGraphicsLayer.setRenderer(new SimpleRenderer(marker));
-					
+				
+				/*var renderer = new SimpleRenderer(marker);
+				renderer.setColorInfo({
+					field: "Rooms_2014",
+					minDataValue: 0,
+					maxDataValue: 500,
+					colors: [
+						new Color([255, 255, 255]),
+						new Color([127, 127, 0])
+					]
+				});*/
+				
+				tempGraphicsLayer.setRenderer(renderer);
+				
 				//tempGraphicsLayer.on("load", whenGraphicsLoaded);
 				whenGraphicsLoaded( {layer : tempGraphicsLayer, name: evt.layer.url } );
 			});
@@ -433,7 +452,10 @@
 			if(evt_value["@attributes"].url == "") return;
 			
 			if(iFound == -1) {
-				loadLayerAndLabel( evt_value["@attributes"].url, "");
+				if(evt_value["@attributes"].hasOwnProperty("label"))
+					loadLayerAndLabel( evt_value["@attributes"].url, evt_value["@attributes"].label);
+				else
+					loadLayerAndLabel( evt_value["@attributes"].url, "");
 				urlsLoaded.push( { url: evt_value["@attributes"].url, mapId: kml.id });
 			}
 			else {
