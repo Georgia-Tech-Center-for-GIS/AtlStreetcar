@@ -5,16 +5,16 @@
 	<!--[if gt IE 8]><!--> <html class="no-js" lang="en-US" prefix="og: http://ogp.me/ns#"> <!--<![endif]-->
 	<head>
 	<meta charset="UTF-8">
-	
+
 	<!-- meta -->
 	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 	<!-- meta name="viewport" content="width=device-width,initial-scale=1.0" -->
 	<meta name="viewport" content="initial-scale=1, maximum-scale=1,user-scalable=no">
-		
+
 	<!-- css + javascript -->
 	<link href='http://fonts.googleapis.com/css?family=PT+Sans+Caption:400,700' rel='stylesheet' type='text/css'>
 	<link href='http://fonts.googleapis.com/css?family=Lato:300,400,700,900,400italic,700italic' rel='stylesheet' type='text/css'>
-		
+
 	<script type="text/javascript">
 	window.admin_url = "http://streetcar.atlantaga.gov/wp-admin/admin-ajax.php";
 	window.template_directory = "http://streetcar.atlantaga.gov/wp-content/themes/streetcar";
@@ -91,7 +91,7 @@
 	  <script type="text/javascript" src="http://streetcar.atlantaga.gov/wp-content/themes/streetcar/js/respond.min.js"></script>
 	  <script type="text/javascript" src="http://streetcar.atlantaga.gov/wp-content/themes/streetcar/js/selectivizr-min.js"></script>
 	<![endif]-->
-		
+
 	<script type="text/javascript">var switchTo5x=true;</script>
 	<script type="text/javascript" src="http://w.sharethis.com/button/buttons.js"></script>
 	<script type="text/javascript">stLight.options({publisher: "ur-88f33a53-b5df-7672-4e39-c4dc4a63bf18", doNotHash: true, doNotCopy: true, hashAddressBar: false});</script>
@@ -104,7 +104,7 @@
   
 	<script src='http://cdnjs.cloudflare.com/ajax/libs/knockout/3.1.0/knockout-min.js'></script>
 	<!--script src='http://cdnjs.cloudflare.com/ajax/libs/knockout/3.1.0/knockout-bindings.js'></script -->
-	
+
 	<script src="http://js.arcgis.com/3.9/"></script>
 
 	<script>
@@ -130,7 +130,7 @@
 			if (xml.childNodes != null && xml.childNodes.length > 0) {
 			for(var i = 0; i < xml.childNodes.length; i++) {
 			  var item = xml.childNodes[i];
-			  
+
 			  var nodeName = item.nodeName;
 			  if (typeof(obj[nodeName]) == "undefined") {
 				obj[nodeName] = xmlToJson(item);
@@ -155,7 +155,7 @@
 		function parseXml(xml, arrayTags)
 		{
 			var dom = null;
-			
+
 			if (window.DOMParser)
 			{
 				dom = (new DOMParser()).parseFromString(xml, "text/xml");
@@ -236,28 +236,28 @@
 
 			return result;
 		}
-		
+
 		var map;
 		var kml = null;
 		var labelLayerScale = null;
 		var labelLayerNoScale = null;
 		var tempGraphicsLayer = null;
-		
+
 		dojo.require("dojox.xml.DomParser");
-		
+
 		var jsDom = null;
 		var layerList = ko.observable();
-		
+
 		function init() {
 			require([
 				"esri/map",
 				"esri/layers/LabelLayer",
 				"dojo/parser", "dojo/dom-style", 
 				"dojo/domReady!"], function( Map, LabelLayer, parser, domStyle ) {
-				
+
 				esriConfig.defaults.io.proxyUrl = "http://carto.gis.gatech.edu/proxypage_net/proxy.ashx";
 				//esriConfig.defaults.io.alwaysUseProxy = true;
-			
+
 				esri.config.defaults.io.corsEnabledServers.push("http://carto.gis.gatech.edu");
 
 				map = new Map("map", { 
@@ -270,13 +270,13 @@
 				labelLayerScale = new LabelLayer( {id:"labelLayer_ScaleLimit",
 					minScale: 10500,
 					maxScale: 0});
-				
+
 				map.addLayer(labelLayerScale);
 				map.addLayer(labelLayerNoScale);
 
 				map.on("load", function () {
 					map.getLayer(map.basemapLayerIds[0]).setOpacity(0.4);
-					
+
 					esri.request({
 						url: "../layers.xml",
 						handleAs: "text",
@@ -284,7 +284,7 @@
 							jsDom = dojox.xml.DomParser.parse(e);
 							layerList = ko.observable(xmlToJson(jsDom));
 							ko.applyBindings();
-							
+
 							$.fn.accordion.defaults.container = false; 
 							$("#menu-accordion").accordion({
 								heightStyle: "content",
@@ -297,14 +297,14 @@
 							});
 					}});
 				});
-				
+
 				parser.parse();
 			});
 		}
-		
+
 		/** Do we label the next KML file to finish loading.... */
 		var doLabels = false;
-		
+
 		function whenGraphicsLoaded(evt) {
 			require([
 				"esri/Color", "esri/symbols/Font",
@@ -314,17 +314,17 @@
 				"esri/renderers/SimpleRenderer",
 				"dojo/parser", "dojo/dom-style",
 				"dojo/domReady!"],
-				
+
 				function(Color, Font, SimpleFillSymbol, TextSymbol, SimpleMarkerSymbol,
 					SimpleRenderer,
 					parser, domStyle) {
-			
+
 				try {
 					var labelTextSymbol = new TextSymbol().setColor(new Color("#0"));
 					labelTextSymbol.font.setWeight(Font.WEIGHT_BOLD);
 					labelTextSymbol.font.setSize("12pt");
 					labelTextSymbol.font.setFamily("arial");
-									
+
 					if(evt.name.lastIndexOf("Historic") > -1) {
 						labelLayerNoScale.addFeatureLayer(evt.layer,
 							new SimpleRenderer(labelTextSymbol), "${name}");
@@ -335,7 +335,7 @@
 							new SimpleRenderer(labelTextSymbol), "${name}");
 						labelLayerScale.refresh();
 					}
-					
+
 					map.reorderLayer( map.getLayer("labelLayer_NoLimit"), 200);
 					map.reorderLayer( map.getLayer("labelLayer_ScaleLimit"), 200);
 				}
@@ -344,7 +344,9 @@
 				}
 			});
 		}
-		
+
+		var LayerAttributes = ko.observableArray();
+
 		/** Label the kml features when done loading */
 		function whenLoadedAndLabel(evt) {
 			require([
@@ -356,44 +358,70 @@
 				"dojo/domReady!"],
 				function(GraphicsLayer, Color, Font, SimpleMarkerSymbol,
 				SimpleRenderer, parser, domStyle) {
-				
+
 				if(! evt.layer.loaded) {
 					evt.layer.on("load", whenLoadedAndLabel);
 				}
-							
-				tempGraphicsLayer = new GraphicsLayer({/*id: evt.layer.url */});
+
+				tempGraphicsLayer = new GraphicsLayer();
 
 				dojo.forEach(evt.layer.getLayers()[0].graphics, function(feature) {
 					feature.attributes.balloonStyleText =
 						"<a href='https://www.google.com/#q=" +
 						feature.attributes.name + "\'>" + feature.attributes.name + "</a>";
-					//console.debug( parseXml(feature.attributes.description) );
-					
+
+					var xmlObject = dojox.xml.DomParser.parse(feature.attributes.description);
+					var jsoObject = xmlToJson(xmlObject);
+					dojo.forEach(jsoObject.html.head.META.body.table.tr[1].td.table.tr, function(attribPair) {
+						feature.attributes[ attribPair.td[0]["#text"] ] = attribPair.td[1]["#text"];
+					});
+
 					tempGraphicsLayer.graphics.push(feature);
 				});
-				
+
 				map.addLayer(tempGraphicsLayer);
-				
+
+				currentLayer(evt.layer.getLayers()[0]);
+				setupTableHeadings();
+
 				var marker = new SimpleMarkerSymbol(SimpleMarkerSymbol.STYLE_CIRCLE, 8, null, new Color("#008"));
 				evt.layer.getLayers()[0].setRenderer(null);
-				tempGraphicsLayer.setRenderer(new SimpleRenderer(marker));
-					
+
+				var renderer = new SimpleRenderer(marker);
+				/*renderer.setColorInfo({
+					field: "Rooms_2014",
+					minDataValue: 0,
+					maxDataValue: 500,
+					colors: [
+						new Color([255, 255, 255]),
+						new Color([127, 127, 0])
+					]
+				});*/
+
+				tempGraphicsLayer.setRenderer(renderer);
+
 				//tempGraphicsLayer.on("load", whenGraphicsLoaded);
-				//whenGraphicsLoaded( {layer : tempGraphicsLayer, name: evt.layer.url } );
+				whenGraphicsLoaded( {layer : tempGraphicsLayer, name: evt.layer.url } );
 			});
 		}
-		
+
 		function whenLoadedDontLabel(evt) {
 			dojo.forEach(evt.layer.getLayers()[0].graphics, function(feature) {
 				feature.attributes.balloonStyleText =
 					"<a href='https://www.google.com/#q=" +
 					feature.attributes.name + "\'>" + feature.attributes.name + "</a>";
-				//console.debug( parseXml(feature.attributes.description) );
-				
-				//tempGraphicsLayer.graphics.push(feature);
+
+				var xmlObject = dojox.xml.DomParser.parse(feature.attributes.description);
+				var jsoObject = xmlToJson(xmlObject);
+				dojo.forEach(jsoObject.html.head.META.body.table.tr[1].td.table.tr, function(attribPair) {
+					feature.attributes[ attribPair.td[0]["#text"] ] = attribPair.td[1]["#text"];
+				});					
 			});
+
+			currentLayer(evt.layer.getLayers()[0]);
+			setupTableHeadings();
 		}
-		
+
 		function loadLayerAndLabel(url, labelString) {
 			require([
 				"esri/layers/CSVLayer",
@@ -404,19 +432,19 @@
 
 				lastUrl = url;
 				doLabels = "";
-				
+
 				if(url.lastIndexOf(".csv") > -1) {
 					esriConfig.defaults.io.alwaysUseProxy = true;
 					kml = new CSVLayer(url, {"id": labelString});
 				}
 				else if(url.lastIndexOf(".kmz") > -1) {
 					esriConfig.defaults.io.alwaysUseProxy = false;
-					kml = new KMLLayer(url, {"id": labelString });
+					kml = new KMLLayer(url, {"id": url });
 				}
-				
+
 				map.addLayer(kml);
 				map.reorderLayer(kml,1);
-				
+
 				if(labelString == null || labelString.length == 0)
 					kml.on("load", whenLoadedDontLabel);
 				else
@@ -425,36 +453,74 @@
 		}
 
 		var urlsLoaded = ko.observableArray();
-		
+		var currentLayer = ko.observable(null);
+		var headings = ko.observableArray();
+
+		function setupTableHeadings() {
+			require([
+				"dojo/_base/array"],
+				function(array) {
+
+				if(currentLayer() != null) {
+					var DisplayAttribs = array.filter( (Object.keys(currentLayer().graphics[0].attributes)) , function(item, index, array) {
+						if( item == "description" || item == "balloonStyleText" ||
+							item == "styleUrl" || item == "id" || item == "FID") return false;
+						return true;
+					});
+					headings(DisplayAttribs);
+				}
+			});
+		}
+
 		function loadURL_UI(evt_value) {
 			//console.debug(evt_value["@attributes"].url);
 			var iFound = -1;
-			
+
 			for(var j = 0; j < urlsLoaded().length; j++ ) {
 				if( urlsLoaded()[j].url == evt_value["@attributes"].url) {
 					iFound = j;
 				}
-				
-				map.getLayer(urlsLoaded()[j].mapId).hide();
+
+//				var lyr = map.getLayer(urlsLoaded()[j].mapId);
+//				lyr.hide();
+				//var lyr = map.getLayer(urlsLoaded()[j].mapId + "_2" );
+				//lyr.hide();
 			}
-			
+
 			if(evt_value["@attributes"].url == "") return;
-			
+
 			if(iFound == -1) {
-				loadLayerAndLabel( evt_value["@attributes"].url, "");
-				urlsLoaded.push( { url: evt_value["@attributes"].url, mapId: kml.id });
+				if(evt_value["@attributes"].hasOwnProperty("label"))
+					loadLayerAndLabel( evt_value["@attributes"].url, evt_value["@attributes"].label);
+				else
+					loadLayerAndLabel( evt_value["@attributes"].url, "");
+				urlsLoaded.push( { url: evt_value["@attributes"].url, mapId: evt_value["@attributes"].url });
 			}
 			else {
 				var mapLayerId = urlsLoaded()[iFound].mapId;
-				map.getLayer(mapLayerId).show();
+				currentLayer(map.getLayer(mapLayerId).getLayers()[0]);
+				setupTableHeadings();
+
+//				map.getLayer(mapLayerId).show();
+//				map.getLayer(mapLayerId+"_2").show();
 			}
 		}
-		
+
+		function zoomToFeature( feature ){
+			b = feature.geometry;
+			if(b.type == "point") {
+				map.setExtent( new esri.geometry.Extent(b.x-150,b.y-150,b.x+150,b.y+150, map.spatialReference) );
+			}
+			else {
+				map.setExtent( b.getExtent().expand(1.75) );
+			}
+		}
+
 		init();
-				
+
 		//loadKMLLayerAndLabel("http://carto.gis.gatech.edu/StreetcarData/Hospitality_Hotel.kmz", "Hotel");			
 		//loadLayerAndLabel("http://carto.gis.gatech.edu/StreetcarData/Historic_Buffer.csv", "TITLE");
-		
+
 //		loadLayerAndLabel("http://carto.gis.gatech.edu/coast/Hospitality_Hotel.kmz", "name");
 //		loadLayerAndLabel("http://carto.gis.gatech.edu/coast/Hospitality_Historic.kmz", "name");
 //		loadLayerAndLabel("http://carto.gis.gatech.edu/StreetcarData/HHOwnRenter.kmz", "");
@@ -463,13 +529,13 @@
 		loadLayerAndLabel("http://carto.gis.gatech.edu/StreetcarData/Streetcar_Base.kmz", "");
 	</script>
 	</head>
-	
+
 <body class="page where-will-the-streetcar-go">
 	<div id="header-container" class="container-fluid">
 		<div class="row-fluid">
 			<!-- header -->
 			<header id="header" class="clear" role="banner">
-				
+
 				<div id="header-inner" class="row-fluid">
 					<div class="span6">
 						<div class="logo">
@@ -478,14 +544,14 @@
 							</a>
 						</div>
 					</div>
-					
+
 					<div class="span6">
 						<div class="clearfix">
 							<div class="social-buttons-list clearfix">
 								<span class='st_facebook' displayText=''></span><span class='st_twitter' displayText=''></span><span class='st_googleplus' displayText=''></span><span class='st_linkedin' displayText=''></span><span class='st_sharethis' displayText=''></span><span class='st_email' displayText=''></span>
 							</div>
 						</div>
-		
+
 						<nav id="top-nav">
 							<ul id="menu-top-navigation" class="menu menu-inline"><li id="menu-item-26" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-26"><a href="http://streetcar.atlantaga.gov/construction-updates/" >Construction Updates</a></li>
 								<li id="menu-item-755" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-755"><a href="http://streetcar.atlantaga.gov/faqs/" >FAQs</a></li>
@@ -497,45 +563,45 @@
 						</nav>
 					</div>
 				</div>
-					
+
 				<!-- nav -->
 				<nav id="main-nav" role="navigation">
 					<a href="#" id="pull"><span id="pulltext">Expand Menu</span></a>
 					<ul id="menu-primary-navigation" class="menu menu-inline clearfix"><li id="menu-item-20" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-20"><a href="http://streetcar.atlantaga.gov/what-is-the-atlanta-streetcar/" ><b>What</b> is the Atlanta Streetcar?</a>
-					<ul class="sub-menu">
-						<li id="menu-item-727" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-727"><a href="http://streetcar.atlantaga.gov/what-is-the-atlanta-streetcar/" >Overview</a></li>
-						<li id="menu-item-543" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-543"><a href="http://streetcar.atlantaga.gov/similar-projects/" >Similar Projects</a></li>
-						<li id="menu-item-1169" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-1169"><a href="http://streetcar.atlantaga.gov/construction-gallery/" >Photo Gallery</a></li>
-					</ul>
-					</li>
-					<li id="menu-item-19" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-19"><a href="http://streetcar.atlantaga.gov/where-will-the-streetcar-go/" ><b>Where</b> will the Streetcar go?</a></li>
-					<li id="menu-item-18" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-18"><a href="http://streetcar.atlantaga.gov/when-will-the-project-be-done/" ><b>When</b> will the project be done?</a></li>
-					<li id="menu-item-17" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-17"><a href="http://streetcar.atlantaga.gov/why-do-we-need-a-streetcar/" ><b>Why</b> do we need a Streetcar?</a>
-					<ul class="sub-menu">
-						<li id="menu-item-746" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-746"><a href="http://streetcar.atlantaga.gov/why-do-we-need-a-streetcar/" >Overview</a></li>
-						<li id="menu-item-843" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-843"><a href="http://streetcar.atlantaga.gov/connectivity-benefits/" >Connectivity Benefits</a></li>
-						<li id="menu-item-842" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-842"><a href="http://streetcar.atlantaga.gov/economic-benefits/" >Economic Benefits</a></li>
-						<li id="menu-item-840" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-840"><a href="http://streetcar.atlantaga.gov/environmental-benefits/" >Environmental Benefits</a></li>
-						<li id="menu-item-841" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-841"><a href="http://streetcar.atlantaga.gov/infrastructure-benefits/" >Infrastructure Benefits</a></li>
-					</ul>
-					</li>
-					<li id="menu-item-16" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-16"><a href="http://streetcar.atlantaga.gov/how-is-the-project-funded/" ><b>How</b> is the project funded?</a>
-					<ul class="sub-menu">
-						<li id="menu-item-747" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-747"><a href="http://streetcar.atlantaga.gov/how-is-the-project-funded/" >Overview</a></li>
-						<li id="menu-item-545" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-545"><a href="http://streetcar.atlantaga.gov/partners/" >Partners</a></li>
-						<li id="menu-item-544" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-544"><a href="http://streetcar.atlantaga.gov/investment-opportunities/" >Investment Opportunities</a></li>
-						<li id="menu-item-1033" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-1033"><a href="http://streetcar.atlantaga.gov/budget/" >Budget</a></li>
-					</ul>
-					</li>
+<ul class="sub-menu">
+	<li id="menu-item-727" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-727"><a href="http://streetcar.atlantaga.gov/what-is-the-atlanta-streetcar/" >Overview</a></li>
+	<li id="menu-item-543" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-543"><a href="http://streetcar.atlantaga.gov/similar-projects/" >Similar Projects</a></li>
+	<li id="menu-item-1169" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-1169"><a href="http://streetcar.atlantaga.gov/construction-gallery/" >Photo Gallery</a></li>
+</ul>
+</li>
+<li id="menu-item-19" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-19"><a href="http://streetcar.atlantaga.gov/where-will-the-streetcar-go/" ><b>Where</b> will the Streetcar go?</a></li>
+<li id="menu-item-18" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-18"><a href="http://streetcar.atlantaga.gov/when-will-the-project-be-done/" ><b>When</b> will the project be done?</a></li>
+<li id="menu-item-17" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-17"><a href="http://streetcar.atlantaga.gov/why-do-we-need-a-streetcar/" ><b>Why</b> do we need a Streetcar?</a>
+<ul class="sub-menu">
+	<li id="menu-item-746" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-746"><a href="http://streetcar.atlantaga.gov/why-do-we-need-a-streetcar/" >Overview</a></li>
+	<li id="menu-item-843" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-843"><a href="http://streetcar.atlantaga.gov/connectivity-benefits/" >Connectivity Benefits</a></li>
+	<li id="menu-item-842" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-842"><a href="http://streetcar.atlantaga.gov/economic-benefits/" >Economic Benefits</a></li>
+	<li id="menu-item-840" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-840"><a href="http://streetcar.atlantaga.gov/environmental-benefits/" >Environmental Benefits</a></li>
+	<li id="menu-item-841" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-841"><a href="http://streetcar.atlantaga.gov/infrastructure-benefits/" >Infrastructure Benefits</a></li>
+</ul>
+</li>
+<li id="menu-item-16" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-16"><a href="http://streetcar.atlantaga.gov/how-is-the-project-funded/" ><b>How</b> is the project funded?</a>
+<ul class="sub-menu">
+	<li id="menu-item-747" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-747"><a href="http://streetcar.atlantaga.gov/how-is-the-project-funded/" >Overview</a></li>
+	<li id="menu-item-545" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-545"><a href="http://streetcar.atlantaga.gov/partners/" >Partners</a></li>
+	<li id="menu-item-544" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-544"><a href="http://streetcar.atlantaga.gov/investment-opportunities/" >Investment Opportunities</a></li>
+	<li id="menu-item-1033" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-1033"><a href="http://streetcar.atlantaga.gov/budget/" >Budget</a></li>
+</ul>
+</li>
 					</ul>
 				</nav>
 				<!-- /nav -->
 			</header>
 			<!-- /header -->
-			
+
 		</div>
 	</div>
-			
+
 	<div id="main-container" class="container-fluid clearfix">
 		<div id="main" class="row-fluid">
 			<!-- section -->
@@ -548,9 +614,9 @@
 							<h3 class='accordion-category' data-bind='text: $data["@attributes"].name'> </h3>
 							<div class='inner'>
 								<ul data-bind='foreach: $data.layer'>
-									<li data-bind='text: $data["#text"], click: loadURL_UI'></li>
+									<li data-bind='text: $data["#text"], click: loadURL_UI, style { color: ($data["@attributes"].url == "")? "red" : "black" }'></li>
 								</ul>
-							
+
 								<!-- ko foreach: $data.Analysis -->
 									<div data-bind='text: $data["@attributes"].name'> </div>
 									<ul data-bind='foreach: $data.layer'>
@@ -561,10 +627,23 @@
 						<!-- /ko -->
 					</div>
 					<div id="map"></div>
-					<div id="featureTable">
-						Here is the table...
+					<div id="featureTable" style='overflow: scroll; height: 300px;'>
+						<!-- ko if: currentLayer() != null -->
 						<table>
+							<tr>
+								<!-- ko foreach: headings() -->
+									<th style='width: 25em;'><div data-bind='text: $data'> </div> </th>
+								<!-- /ko -->
+							</tr>
+							<!-- ko foreach: { data: currentLayer().graphics, as: 'currFeature'} -->
+							<tr data-bind='click: zoomToFeature'>
+								<!-- ko foreach: { data: headings(), as: 'attrib'} -->
+									<td style='width: 25em;'><div data-bind='text: currFeature.attributes[ attrib ]'> </div> </td>
+								<!-- /ko -->
+							</tr>
+							<!-- /ko -->
 						</table>
+						<!-- /ko -->
 					</div>
 				</article>
 				<!-- /article -->
