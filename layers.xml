@@ -9,7 +9,7 @@
 						
 <Analysis name='Land Use/Development'>
 	<layer url=''>Land-use Type</layer>
-	<layer url=''>Floor-Area Ratio</layer>
+	<layer url='http://carto.gis.gatech.edu/StreetcarData/FAR.kmz'>Floor-Area Ratio</layer>
 </Analysis>
 
 <Analysis name='Residential Development'>
@@ -31,12 +31,12 @@
 
 <Analysis name='Hospitality'>
 	<Analysis name='Attractions'>
-		<layer label='name' url='http://carto.gis.gatech.edu/coast/Hospitality_Historic.kmz'>Historic Attractions</layer>
-		<layer label='name' url='http://carto.gis.gatech.edu/coast/Landmark.kmz'>Landmark Attractions</layer>
+		<layer url=''>Historic Attractions</layer>
+		<layer url=''>Landmark Attractions</layer>
 	</Analysis>
 	<Analysis name='Hotels'>
-		<layer label='name' url=''>Employment</layer>
-		<layer label='name' url='http://carto.gis.gatech.edu/coast/Hospitality_Hotel.kmz'>Number of Rooms</layer>
+		<layer url=''>Employment</layer>
+		<layer url='http://carto.gis.gatech.edu/StreetcarData/LabelHotels.kmz'>Number of Rooms</layer>
 	</Analysis>
 </Analysis>
 

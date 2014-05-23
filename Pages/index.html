@@ -345,8 +345,6 @@
 			});
 		}
 		
-		var LayerAttributes = ko.observableArray();
-		
 		/** Label the kml features when done loading */
 		function whenLoadedAndLabel(evt) {
 			require([
@@ -362,46 +360,26 @@
 				if(! evt.layer.loaded) {
 					evt.layer.on("load", whenLoadedAndLabel);
 				}
-				
-				tempGraphicsLayer = new GraphicsLayer();
+							
+				tempGraphicsLayer = new GraphicsLayer({/*id: evt.layer.url */});
 
 				dojo.forEach(evt.layer.getLayers()[0].graphics, function(feature) {
 					feature.attributes.balloonStyleText =
 						"<a href='https://www.google.com/#q=" +
 						feature.attributes.name + "\'>" + feature.attributes.name + "</a>";
-					
-					var xmlObject = dojox.xml.DomParser.parse(feature.attributes.description);
-					var jsoObject = xmlToJson(xmlObject);
-					dojo.forEach(jsoObject.html.head.META.body.table.tr[1].td.table.tr, function(attribPair) {
-						feature.attributes[ attribPair.td[0]["#text"] ] = attribPair.td[1]["#text"];
-					});
+					//console.debug( parseXml(feature.attributes.description) );
 					
 					tempGraphicsLayer.graphics.push(feature);
 				});
 				
 				map.addLayer(tempGraphicsLayer);
 				
-				currentLayer(evt.layer.getLayers()[0]);
-				setupTableHeadings();
-				
 				var marker = new SimpleMarkerSymbol(SimpleMarkerSymbol.STYLE_CIRCLE, 8, null, new Color("#008"));
 				evt.layer.getLayers()[0].setRenderer(null);
-				
-				var renderer = new SimpleRenderer(marker);
-				/*renderer.setColorInfo({
-					field: "Rooms_2014",
-					minDataValue: 0,
-					maxDataValue: 500,
-					colors: [
-						new Color([255, 255, 255]),
-						new Color([127, 127, 0])
-					]
-				});*/
-				
-				tempGraphicsLayer.setRenderer(renderer);
-				
+				tempGraphicsLayer.setRenderer(new SimpleRenderer(marker));
+					
 				//tempGraphicsLayer.on("load", whenGraphicsLoaded);
-				whenGraphicsLoaded( {layer : tempGraphicsLayer, name: evt.layer.url } );
+				//whenGraphicsLoaded( {layer : tempGraphicsLayer, name: evt.layer.url } );
 			});
 		}
 		
@@ -410,16 +388,10 @@
 				feature.attributes.balloonStyleText =
 					"<a href='https://www.google.com/#q=" +
 					feature.attributes.name + "\'>" + feature.attributes.name + "</a>";
+				//console.debug( parseXml(feature.attributes.description) );
 				
-				var xmlObject = dojox.xml.DomParser.parse(feature.attributes.description);
-				var jsoObject = xmlToJson(xmlObject);
-				dojo.forEach(jsoObject.html.head.META.body.table.tr[1].td.table.tr, function(attribPair) {
-					feature.attributes[ attribPair.td[0]["#text"] ] = attribPair.td[1]["#text"];
-				});					
+				//tempGraphicsLayer.graphics.push(feature);
 			});
-
-			currentLayer(evt.layer.getLayers()[0]);
-			setupTableHeadings();
 		}
 		
 		function loadLayerAndLabel(url, labelString) {
@@ -439,7 +411,7 @@
 				}
 				else if(url.lastIndexOf(".kmz") > -1) {
 					esriConfig.defaults.io.alwaysUseProxy = false;
-					kml = new KMLLayer(url, {"id": url });
+					kml = new KMLLayer(url, {"id": labelString });
 				}
 				
 				map.addLayer(kml);
@@ -453,24 +425,6 @@
 		}
 
 		var urlsLoaded = ko.observableArray();
-		var currentLayer = ko.observable(null);
-		var headings = ko.observableArray();
-		
-		function setupTableHeadings() {
-			require([
-				"dojo/_base/array"],
-				function(array) {
-				
-				if(currentLayer() != null) {
-					var DisplayAttribs = array.filter( (Object.keys(currentLayer().graphics[0].attributes)) , function(item, index, array) {
-						if( item == "description" || item == "balloonStyleText" ||
-							item == "styleUrl" || item == "id" || item == "FID") return false;
-						return true;
-					});
-					headings(DisplayAttribs);
-				}
-			});
-		}
 		
 		function loadURL_UI(evt_value) {
 			//console.debug(evt_value["@attributes"].url);
@@ -481,38 +435,18 @@
 					iFound = j;
 				}
 				
-//				var lyr = map.getLayer(urlsLoaded()[j].mapId);
-//				lyr.hide();
-				//var lyr = map.getLayer(urlsLoaded()[j].mapId + "_2" );
-				//lyr.hide();
+				map.getLayer(urlsLoaded()[j].mapId).hide();
 			}
 			
 			if(evt_value["@attributes"].url == "") return;
 			
 			if(iFound == -1) {
-				if(evt_value["@attributes"].hasOwnProperty("label"))
-					loadLayerAndLabel( evt_value["@attributes"].url, evt_value["@attributes"].label);
-				else
-					loadLayerAndLabel( evt_value["@attributes"].url, "");
-				urlsLoaded.push( { url: evt_value["@attributes"].url, mapId: evt_value["@attributes"].url });
+				loadLayerAndLabel( evt_value["@attributes"].url, "");
+				urlsLoaded.push( { url: evt_value["@attributes"].url, mapId: kml.id });
 			}
 			else {
 				var mapLayerId = urlsLoaded()[iFound].mapId;
-				currentLayer(map.getLayer(mapLayerId).getLayers()[0]);
-				setupTableHeadings();
-				
-//				map.getLayer(mapLayerId).show();
-//				map.getLayer(mapLayerId+"_2").show();
-			}
-		}
-		
-		function zoomToFeature( feature ){
-			b = feature.geometry;
-			if(b.type == "point") {
-				map.setExtent( new esri.geometry.Extent(b.x-150,b.y-150,b.x+150,b.y+150, map.spatialReference) );
-			}
-			else {
-				map.setExtent( b.getExtent().expand(1.75) );
+				map.getLayer(mapLayerId).show();
 			}
 		}
 		
@@ -568,31 +502,31 @@
 				<nav id="main-nav" role="navigation">
 					<a href="#" id="pull"><span id="pulltext">Expand Menu</span></a>
 					<ul id="menu-primary-navigation" class="menu menu-inline clearfix"><li id="menu-item-20" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-20"><a href="http://streetcar.atlantaga.gov/what-is-the-atlanta-streetcar/" ><b>What</b> is the Atlanta Streetcar?</a>
-<ul class="sub-menu">
-	<li id="menu-item-727" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-727"><a href="http://streetcar.atlantaga.gov/what-is-the-atlanta-streetcar/" >Overview</a></li>
-	<li id="menu-item-543" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-543"><a href="http://streetcar.atlantaga.gov/similar-projects/" >Similar Projects</a></li>
-	<li id="menu-item-1169" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-1169"><a href="http://streetcar.atlantaga.gov/construction-gallery/" >Photo Gallery</a></li>
-</ul>
-</li>
-<li id="menu-item-19" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-19"><a href="http://streetcar.atlantaga.gov/where-will-the-streetcar-go/" ><b>Where</b> will the Streetcar go?</a></li>
-<li id="menu-item-18" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-18"><a href="http://streetcar.atlantaga.gov/when-will-the-project-be-done/" ><b>When</b> will the project be done?</a></li>
-<li id="menu-item-17" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-17"><a href="http://streetcar.atlantaga.gov/why-do-we-need-a-streetcar/" ><b>Why</b> do we need a Streetcar?</a>
-<ul class="sub-menu">
-	<li id="menu-item-746" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-746"><a href="http://streetcar.atlantaga.gov/why-do-we-need-a-streetcar/" >Overview</a></li>
-	<li id="menu-item-843" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-843"><a href="http://streetcar.atlantaga.gov/connectivity-benefits/" >Connectivity Benefits</a></li>
-	<li id="menu-item-842" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-842"><a href="http://streetcar.atlantaga.gov/economic-benefits/" >Economic Benefits</a></li>
-	<li id="menu-item-840" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-840"><a href="http://streetcar.atlantaga.gov/environmental-benefits/" >Environmental Benefits</a></li>
-	<li id="menu-item-841" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-841"><a href="http://streetcar.atlantaga.gov/infrastructure-benefits/" >Infrastructure Benefits</a></li>
-</ul>
-</li>
-<li id="menu-item-16" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-16"><a href="http://streetcar.atlantaga.gov/how-is-the-project-funded/" ><b>How</b> is the project funded?</a>
-<ul class="sub-menu">
-	<li id="menu-item-747" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-747"><a href="http://streetcar.atlantaga.gov/how-is-the-project-funded/" >Overview</a></li>
-	<li id="menu-item-545" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-545"><a href="http://streetcar.atlantaga.gov/partners/" >Partners</a></li>
-	<li id="menu-item-544" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-544"><a href="http://streetcar.atlantaga.gov/investment-opportunities/" >Investment Opportunities</a></li>
-	<li id="menu-item-1033" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-1033"><a href="http://streetcar.atlantaga.gov/budget/" >Budget</a></li>
-</ul>
-</li>
+					<ul class="sub-menu">
+						<li id="menu-item-727" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-727"><a href="http://streetcar.atlantaga.gov/what-is-the-atlanta-streetcar/" >Overview</a></li>
+						<li id="menu-item-543" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-543"><a href="http://streetcar.atlantaga.gov/similar-projects/" >Similar Projects</a></li>
+						<li id="menu-item-1169" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-1169"><a href="http://streetcar.atlantaga.gov/construction-gallery/" >Photo Gallery</a></li>
+					</ul>
+					</li>
+					<li id="menu-item-19" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-19"><a href="http://streetcar.atlantaga.gov/where-will-the-streetcar-go/" ><b>Where</b> will the Streetcar go?</a></li>
+					<li id="menu-item-18" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-18"><a href="http://streetcar.atlantaga.gov/when-will-the-project-be-done/" ><b>When</b> will the project be done?</a></li>
+					<li id="menu-item-17" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-17"><a href="http://streetcar.atlantaga.gov/why-do-we-need-a-streetcar/" ><b>Why</b> do we need a Streetcar?</a>
+					<ul class="sub-menu">
+						<li id="menu-item-746" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-746"><a href="http://streetcar.atlantaga.gov/why-do-we-need-a-streetcar/" >Overview</a></li>
+						<li id="menu-item-843" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-843"><a href="http://streetcar.atlantaga.gov/connectivity-benefits/" >Connectivity Benefits</a></li>
+						<li id="menu-item-842" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-842"><a href="http://streetcar.atlantaga.gov/economic-benefits/" >Economic Benefits</a></li>
+						<li id="menu-item-840" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-840"><a href="http://streetcar.atlantaga.gov/environmental-benefits/" >Environmental Benefits</a></li>
+						<li id="menu-item-841" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-841"><a href="http://streetcar.atlantaga.gov/infrastructure-benefits/" >Infrastructure Benefits</a></li>
+					</ul>
+					</li>
+					<li id="menu-item-16" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-16"><a href="http://streetcar.atlantaga.gov/how-is-the-project-funded/" ><b>How</b> is the project funded?</a>
+					<ul class="sub-menu">
+						<li id="menu-item-747" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-747"><a href="http://streetcar.atlantaga.gov/how-is-the-project-funded/" >Overview</a></li>
+						<li id="menu-item-545" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-545"><a href="http://streetcar.atlantaga.gov/partners/" >Partners</a></li>
+						<li id="menu-item-544" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-544"><a href="http://streetcar.atlantaga.gov/investment-opportunities/" >Investment Opportunities</a></li>
+						<li id="menu-item-1033" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-1033"><a href="http://streetcar.atlantaga.gov/budget/" >Budget</a></li>
+					</ul>
+					</li>
 					</ul>
 				</nav>
 				<!-- /nav -->
@@ -614,7 +548,7 @@
 							<h3 class='accordion-category' data-bind='text: $data["@attributes"].name'> </h3>
 							<div class='inner'>
 								<ul data-bind='foreach: $data.layer'>
-									<li data-bind='text: $data["#text"], click: loadURL_UI, style { color: ($data["@attributes"].url == "")? "red" : "black" }'></li>
+									<li data-bind='text: $data["#text"], click: loadURL_UI'></li>
 								</ul>
 							
 								<!-- ko foreach: $data.Analysis -->
@@ -627,23 +561,10 @@
 						<!-- /ko -->
 					</div>
 					<div id="map"></div>
-					<div id="featureTable" style='overflow: scroll; height: 300px;'>
-						<!-- ko if: currentLayer() != null -->
+					<div id="featureTable">
+						Here is the table...
 						<table>
-							<tr>
-								<!-- ko foreach: headings() -->
-									<th style='width: 25em;'><div data-bind='text: $data'> </div> </th>
-								<!-- /ko -->
-							</tr>
-							<!-- ko foreach: { data: currentLayer().graphics, as: 'currFeature'} -->
-							<tr data-bind='click: zoomToFeature'>
-								<!-- ko foreach: { data: headings(), as: 'attrib'} -->
-									<td style='width: 25em;'><div data-bind='text: currFeature.attributes[ attrib ]'> </div> </td>
-								<!-- /ko -->
-							</tr>
-							<!-- /ko -->
 						</table>
-						<!-- /ko -->
 					</div>
 				</article>
 				<!-- /article -->
