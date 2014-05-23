@@ -363,7 +363,7 @@
 					evt.layer.on("load", whenLoadedAndLabel);
 				}
 				
-				tempGraphicsLayer = new GraphicsLayer({/*id: evt.layer.url */});
+				tempGraphicsLayer = new GraphicsLayer();
 
 				dojo.forEach(evt.layer.getLayers()[0].graphics, function(feature) {
 					feature.attributes.balloonStyleText =
@@ -439,7 +439,7 @@
 				}
 				else if(url.lastIndexOf(".kmz") > -1) {
 					esriConfig.defaults.io.alwaysUseProxy = false;
-					kml = new KMLLayer(url, {"id": labelString });
+					kml = new KMLLayer(url, {"id": url });
 				}
 				
 				map.addLayer(kml);
@@ -481,7 +481,10 @@
 					iFound = j;
 				}
 				
-				map.getLayer(urlsLoaded()[j].mapId).hide();
+//				var lyr = map.getLayer(urlsLoaded()[j].mapId);
+//				lyr.hide();
+				//var lyr = map.getLayer(urlsLoaded()[j].mapId + "_2" );
+				//lyr.hide();
 			}
 			
 			if(evt_value["@attributes"].url == "") return;
@@ -491,13 +494,25 @@
 					loadLayerAndLabel( evt_value["@attributes"].url, evt_value["@attributes"].label);
 				else
 					loadLayerAndLabel( evt_value["@attributes"].url, "");
-				urlsLoaded.push( { url: evt_value["@attributes"].url, mapId: kml.id });
+				urlsLoaded.push( { url: evt_value["@attributes"].url, mapId: evt_value["@attributes"].url });
 			}
 			else {
 				var mapLayerId = urlsLoaded()[iFound].mapId;
-				map.getLayer(mapLayerId).show();
 				currentLayer(map.getLayer(mapLayerId).getLayers()[0]);
 				setupTableHeadings();
+				
+//				map.getLayer(mapLayerId).show();
+//				map.getLayer(mapLayerId+"_2").show();
+			}
+		}
+		
+		function zoomToFeature( feature ){
+			b = feature.geometry;
+			if(b.type == "point") {
+				map.setExtent( new esri.geometry.Extent(b.x-150,b.y-150,b.x+150,b.y+150, map.spatialReference) );
+			}
+			else {
+				map.setExtent( b.getExtent().expand(1.75) );
 			}
 		}
 		
@@ -599,7 +614,7 @@
 							<h3 class='accordion-category' data-bind='text: $data["@attributes"].name'> </h3>
 							<div class='inner'>
 								<ul data-bind='foreach: $data.layer'>
-									<li data-bind='text: $data["#text"], click: loadURL_UI'></li>
+									<li data-bind='text: $data["#text"], click: loadURL_UI, style { color: ($data["@attributes"].url == "")? "red" : "black" }'></li>
 								</ul>
 							
 								<!-- ko foreach: $data.Analysis -->
@@ -612,7 +627,7 @@
 						<!-- /ko -->
 					</div>
 					<div id="map"></div>
-					<div id="featureTable" style='overflow: scroll; width: 90%; height: 300px;'>
+					<div id="featureTable" style='overflow: scroll; height: 300px;'>
 						<!-- ko if: currentLayer() != null -->
 						<table>
 							<tr>
@@ -621,7 +636,7 @@
 								<!-- /ko -->
 							</tr>
 							<!-- ko foreach: { data: currentLayer().graphics, as: 'currFeature'} -->
-							<tr>
+							<tr data-bind='click: zoomToFeature'>
 								<!-- ko foreach: { data: headings(), as: 'attrib'} -->
 									<td style='width: 25em;'><div data-bind='text: currFeature.attributes[ attrib ]'> </div> </td>
 								<!-- /ko -->

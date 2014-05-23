@@ -31,8 +31,8 @@
 
 <Analysis name='Hospitality'>
 	<Analysis name='Attractions'>
-		<layer label='name' url=''>Historic Attractions</layer>
-		<layer label='name' url=''>Landmark Attractions</layer>
+		<layer label='name' url='http://carto.gis.gatech.edu/coast/Hospitality_Historic.kmz'>Historic Attractions</layer>
+		<layer label='name' url='http://carto.gis.gatech.edu/coast/Landmark.kmz'>Landmark Attractions</layer>
 	</Analysis>
 	<Analysis name='Hotels'>
 		<layer label='name' url=''>Employment</layer>
