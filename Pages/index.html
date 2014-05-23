@@ -363,7 +363,7 @@
 					evt.layer.on("load", whenLoadedAndLabel);
 				}
 
-				tempGraphicsLayer = new GraphicsLayer();
+/*				tempGraphicsLayer = new GraphicsLayer();
 
 				dojo.forEach(evt.layer.getLayers()[0].graphics, function(feature) {
 					feature.attributes.balloonStyleText =
@@ -379,16 +379,16 @@
 					tempGraphicsLayer.graphics.push(feature);
 				});
 
-				map.addLayer(tempGraphicsLayer);
+				map.addLayer(tempGraphicsLayer); */
 
-				currentLayer(evt.layer.getLayers()[0]);
+				currentLayer(evt.layer);
 				setupTableHeadings();
 
 				var marker = new SimpleMarkerSymbol(SimpleMarkerSymbol.STYLE_CIRCLE, 8, null, new Color("#008"));
-				evt.layer.getLayers()[0].setRenderer(null);
+				//evt.layer.setRenderer(null);
 
 				var renderer = new SimpleRenderer(marker);
-				/*renderer.setColorInfo({
+				renderer.setColorInfo({
 					field: "Rooms_2014",
 					minDataValue: 0,
 					maxDataValue: 500,
@@ -396,17 +396,17 @@
 						new Color([255, 255, 255]),
 						new Color([127, 127, 0])
 					]
-				});*/
+				});
 
-				tempGraphicsLayer.setRenderer(renderer);
+				evt.layer.setRenderer(renderer);
 
 				//tempGraphicsLayer.on("load", whenGraphicsLoaded);
-				whenGraphicsLoaded( {layer : tempGraphicsLayer, name: evt.layer.url } );
+				whenGraphicsLoaded( {layer : evt.layer, name: evt.layer.url } );
 			});
 		}
 
 		function whenLoadedDontLabel(evt) {
-			dojo.forEach(evt.layer.getLayers()[0].graphics, function(feature) {
+			/*dojo.forEach(evt.layer.getLayers()[0].graphics, function(feature) {
 				feature.attributes.balloonStyleText =
 					"<a href='https://www.google.com/#q=" +
 					feature.attributes.name + "\'>" + feature.attributes.name + "</a>";
@@ -419,7 +419,7 @@
 			});
 
 			currentLayer(evt.layer.getLayers()[0]);
-			setupTableHeadings();
+			setupTableHeadings(); */
 		}
 
 		function loadLayerAndLabel(url, labelString) {
@@ -443,7 +443,7 @@
 				}
 
 				map.addLayer(kml);
-				map.reorderLayer(kml,1);
+				//map.reorderLayer(kml,1);
 
 				if(labelString == null || labelString.length == 0)
 					kml.on("load", whenLoadedDontLabel);
@@ -526,7 +526,7 @@
 //		loadLayerAndLabel("http://carto.gis.gatech.edu/StreetcarData/HHOwnRenter.kmz", "");
 //		loadLayerAndLabel("http://carto.gis.gatech.edu/coast/Landmark.kmz", "name");
 
-		loadLayerAndLabel("http://carto.gis.gatech.edu/StreetcarData/Streetcar_Base.kmz", "");
+		//loadLayerAndLabel("http://carto.gis.gatech.edu/StreetcarData/Streetcar_Base.kmz", "");
 	</script>
 	</head>
 
