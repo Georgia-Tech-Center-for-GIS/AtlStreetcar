@@ -238,7 +238,6 @@
 		}
 
 		var map;
-		var kml = null;
 		var labelLayerScale = null;
 		var labelLayerNoScale = null;
 		var tempGraphicsLayer = null;
@@ -265,14 +264,6 @@
 					center: [-84.38373544973749, 33.757773938307224],
 					zoom: 15
 				});
-
-				labelLayerNoScale = new LabelLayer({id:"labelLayer_NoLimit"});
-				labelLayerScale = new LabelLayer( {id:"labelLayer_ScaleLimit",
-					minScale: 10500,
-					maxScale: 0});
-
-				map.addLayer(labelLayerScale);
-				map.addLayer(labelLayerNoScale);
 
 				map.on("load", function () {
 					map.getLayer(map.basemapLayerIds[0]).setOpacity(0.4);
@@ -320,24 +311,6 @@
 					parser, domStyle) {
 
 				try {
-					var labelTextSymbol = new TextSymbol().setColor(new Color("#0"));
-					labelTextSymbol.font.setWeight(Font.WEIGHT_BOLD);
-					labelTextSymbol.font.setSize("12pt");
-					labelTextSymbol.font.setFamily("arial");
-
-					if(evt.name.lastIndexOf("Historic") > -1) {
-						labelLayerNoScale.addFeatureLayer(evt.layer,
-							new SimpleRenderer(labelTextSymbol), "${name}");
-						labelLayerNoScale.refresh();
-					}
-					else {
-						labelLayerScale.addFeatureLayer(evt.layer,
-							new SimpleRenderer(labelTextSymbol), "${name}");
-						labelLayerScale.refresh();
-					}
-
-					map.reorderLayer( map.getLayer("labelLayer_NoLimit"), 200);
-					map.reorderLayer( map.getLayer("labelLayer_ScaleLimit"), 200);
 				}
 				catch(e) {
 					console.debug(e);
@@ -363,50 +336,20 @@
 					evt.layer.on("load", whenLoadedAndLabel);
 				}
 
-/*				tempGraphicsLayer = new GraphicsLayer();
-
-				dojo.forEach(evt.layer.getLayers()[0].graphics, function(feature) {
-					feature.attributes.balloonStyleText =
-						"<a href='https://www.google.com/#q=" +
-						feature.attributes.name + "\'>" + feature.attributes.name + "</a>";
-
-					var xmlObject = dojox.xml.DomParser.parse(feature.attributes.description);
-					var jsoObject = xmlToJson(xmlObject);
-					dojo.forEach(jsoObject.html.head.META.body.table.tr[1].td.table.tr, function(attribPair) {
-						feature.attributes[ attribPair.td[0]["#text"] ] = attribPair.td[1]["#text"];
-					});
-
-					tempGraphicsLayer.graphics.push(feature);
-				});
-
-				map.addLayer(tempGraphicsLayer); */
-
 				currentLayer(evt.layer);
 				setupTableHeadings();
-
-				var marker = new SimpleMarkerSymbol(SimpleMarkerSymbol.STYLE_CIRCLE, 8, null, new Color("#008"));
-				//evt.layer.setRenderer(null);
-
-				var renderer = new SimpleRenderer(marker);
-				renderer.setColorInfo({
-					field: "Rooms_2014",
-					minDataValue: 0,
-					maxDataValue: 500,
-					colors: [
-						new Color([255, 255, 255]),
-						new Color([127, 127, 0])
-					]
-				});
-
-				evt.layer.setRenderer(renderer);
 
 				//tempGraphicsLayer.on("load", whenGraphicsLoaded);
 				whenGraphicsLoaded( {layer : evt.layer, name: evt.layer.url } );
 			});
 		}
 
+		var lastLayer = null;
+		
 		function whenLoadedDontLabel(evt) {
-			/*dojo.forEach(evt.layer.getLayers()[0].graphics, function(feature) {
+			lastLayer = evt.layer;
+			
+			dojo.forEach(evt.layer.getLayers()[0].graphics, function(feature) {
 				feature.attributes.balloonStyleText =
 					"<a href='https://www.google.com/#q=" +
 					feature.attributes.name + "\'>" + feature.attributes.name + "</a>";
@@ -419,23 +362,37 @@
 			});
 
 			currentLayer(evt.layer.getLayers()[0]);
-			setupTableHeadings(); */
+			setupTableHeadings();
 		}
 
-		function loadLayerAndLabel(url, labelString) {
+		function loadLayerAndLabel(url, label, markerSize) {
 			require([
 				"esri/layers/CSVLayer",
 				"esri/layers/KMLLayer",
+
+				"esri/layers/GraphicsLayer",
+				"esri/Color", "esri/symbols/Font",
+				"esri/symbols/SimpleMarkerSymbol",
+				"esri/renderers/SimpleRenderer",
+
+				"esri/symbols/SimpleFillSymbol",
+
 				"dojo/parser", "dojo/dom-style",
 				"dojo/domReady!"],
-				function(CSVLayer, KMLLayer, parser, domStyle) {
+				function(CSVLayer, KMLLayer,
+				GraphicsLayer, Color, Font, SimpleMarkerSymbol, SimpleRenderer,
+				SimpleFillSymbol, TextSymbol, LabelLayer,
+				
+				parser, domStyle) {
 
+				var kml = null;
+				
 				lastUrl = url;
 				doLabels = "";
 
 				if(url.lastIndexOf(".csv") > -1) {
 					esriConfig.defaults.io.alwaysUseProxy = true;
-					kml = new CSVLayer(url, {"id": labelString});
+					kml = new CSVLayer(url, {"id": url});
 				}
 				else if(url.lastIndexOf(".kmz") > -1) {
 					esriConfig.defaults.io.alwaysUseProxy = false;
@@ -445,11 +402,65 @@
 				map.addLayer(kml);
 				//map.reorderLayer(kml,1);
 
-				if(labelString == null || labelString.length == 0)
+				if(url.lastIndexOf(".kmz") > -1) {
 					kml.on("load", whenLoadedDontLabel);
-				else
-					kml.on("load", whenLoadedAndLabel);
+				}
+				else {
+					//kml.on("load", whenLoadedAndLabel);
+
+					var marker = new SimpleMarkerSymbol(SimpleMarkerSymbol.STYLE_CIRCLE, markerSize, null, new Color("#008"));
+					
+					//evt.layer.setRenderer(null);
+
+					var renderer = new SimpleRenderer(marker);
+					renderer.setColorInfo({
+						field: "Rooms_2014",
+						minDataValue: 0,
+						maxDataValue: 500,
+						colors: [
+							new Color([255, 255, 255]),
+							new Color([127, 127, 0])
+						]
+					});
+
+					kml.setRenderer(renderer);
+
+					doLabelLayer(kml, url, label);
+				}
 			});
+		}
+		
+		function doLabelLayer(lyr, url, field) {
+			require([
+				"esri/symbols/TextSymbol", "esri/layers/LabelLayer",
+				"esri/renderers/SimpleRenderer",
+				"esri/Color", "esri/symbols/Font",
+				],
+				function(TextSymbol, LabelLayer, SimpleRenderer, Color, Font) {					
+					labelLayerNoScale = new LabelLayer({id:"labelLayer_NoLimit"});
+					labelLayerScale = new LabelLayer( {id:"labelLayer_ScaleLimit",
+						minScale: 10500,
+						maxScale: 0});
+
+					map.addLayer(labelLayerScale);
+					map.addLayer(labelLayerNoScale);
+
+					var labelTextSymbol = new TextSymbol().setColor(new Color("#0"));
+					labelTextSymbol.font.setWeight(Font.WEIGHT_BOLD);
+					labelTextSymbol.font.setSize("12pt");
+					labelTextSymbol.font.setFamily("arial");
+					
+					if(lyr.url.lastIndexOf("Hotel") > -1) {
+						labelLayerScale.addFeatureLayer(lyr,
+							new SimpleRenderer(labelTextSymbol), "${"+field+"}");
+						labelLayerScale.refresh();
+					}
+					else {
+						labelLayerNoScale.addFeatureLayer(lyr,
+							new SimpleRenderer(labelTextSymbol), "${"+field+"}");
+						labelLayerNoScale.refresh();
+					}
+				});
 		}
 
 		var urlsLoaded = ko.observableArray();
@@ -476,13 +487,17 @@
 			//console.debug(evt_value["@attributes"].url);
 			var iFound = -1;
 
+			
+			if(labelLayerNoScale != null) map.removeLayer( labelLayerNoScale );
+			if(labelLayerScale   != null) map.removeLayer( labelLayerScale );
+
 			for(var j = 0; j < urlsLoaded().length; j++ ) {
 				if( urlsLoaded()[j].url == evt_value["@attributes"].url) {
 					iFound = j;
 				}
 
-//				var lyr = map.getLayer(urlsLoaded()[j].mapId);
-//				lyr.hide();
+				var lyr = map.getLayer(urlsLoaded()[j].mapId);
+				lyr.hide();
 				//var lyr = map.getLayer(urlsLoaded()[j].mapId + "_2" );
 				//lyr.hide();
 			}
@@ -490,18 +505,32 @@
 			if(evt_value["@attributes"].url == "") return;
 
 			if(iFound == -1) {
-				if(evt_value["@attributes"].hasOwnProperty("label"))
-					loadLayerAndLabel( evt_value["@attributes"].url, evt_value["@attributes"].label);
-				else
+				if(evt_value["@attributes"].hasOwnProperty("label")) {
+					loadLayerAndLabel( evt_value["@attributes"].url, evt_value["@attributes"].label, 9);
+					
+					
+				}
+				else {
 					loadLayerAndLabel( evt_value["@attributes"].url, "");
+				}
+					
 				urlsLoaded.push( { url: evt_value["@attributes"].url, mapId: evt_value["@attributes"].url });
 			}
 			else {
 				var mapLayerId = urlsLoaded()[iFound].mapId;
-				currentLayer(map.getLayer(mapLayerId).getLayers()[0]);
+				var mapLyrObj = map.getLayer(mapLayerId);
+				
+				if(mapLyrObj.name == "csv") {
+					currentLayer(mapLyrObj);
+					doLabelLayer(mapLyrObj, urlsLoaded()[iFound].url, evt_value["@attributes"].label);
+				}
+				else {
+					currentLayer(mapLyrObj.getLayers()[0]);
+				}
+				
 				setupTableHeadings();
 
-//				map.getLayer(mapLayerId).show();
+				map.getLayer(mapLayerId).show();
 //				map.getLayer(mapLayerId+"_2").show();
 			}
 		}
