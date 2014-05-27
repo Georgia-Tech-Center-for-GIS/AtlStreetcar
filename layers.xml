@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Layers>
 <Analysis name='Population'>
-	<layer url='http://carto.gis.gatech.edu/StreetcarData/Population.kmz'>Residential/Student Population</layer>
-	<layer url='http://carto.gis.gatech.edu/StreetcarData/OwnerRenter.kmz'>Number of Homeowners/Renters</layer>
-	<layer url='http://carto.gis.gatech.edu/StreetcarData/Population.kmz'>Age Groups by Census</layer>
-	<layer url='http://carto.gis.gatech.edu/StreetcarData/Population.kmz'>Average Median Income</layer>
+	<layer url=''>Residential/Student Population</layer>
+	<layer url='http://tulip.gis.gatech.edu:6080/arcgis/rest/services/AtlStreetcar/PopulationAndHospitality/MapServer/2'>Number of Homeowners/Renters</layer>
+	<layer url=''>Age Groups by Census</layer>
+	<layer url=''>Average Median Income</layer>
 </Analysis>
-						
+
 <Analysis name='Land Use/Development'>
 	<layer url=''>Land-use Type</layer>
-	<layer url='http://carto.gis.gatech.edu/StreetcarData/FAR.kmz'>Floor-Area Ratio</layer>
+	<layer url='http://tulip.gis.gatech.edu:6080/arcgis/rest/services/AtlStreetcar/PopulationAndHospitality/MapServer/4'>Floor-Area Ratio</layer>
 </Analysis>
 
 <Analysis name='Residential Development'>
@@ -35,8 +35,8 @@
 		<layer url='http://carto.gis.gatech.edu/StreetcarData/Landmark.csv' label='Landmark'>Landmark Attractions</layer>
 	</Analysis>
 	<Analysis name='Hotels'>
-		<layer url=''>Employment</layer>
-		<layer url='http://carto.gis.gatech.edu/StreetcarData/Hotel.csv' label='TITLE'>Number of Rooms</layer>
+		<layer url='http://carto.gis.gatech.edu/StreetcarData/Hotel.csv' label='Company_Na' symbolField='EMP' min='10' max='1200'>Employment</layer>
+		<layer url='http://carto.gis.gatech.edu/StreetcarData/Hotel.csv' label='Company_Na' symbolField='Rooms_2014' min='50' max='1600'>Number of Rooms</layer>
 	</Analysis>
 </Analysis>
 

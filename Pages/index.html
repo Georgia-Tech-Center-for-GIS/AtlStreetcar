@@ -272,6 +272,10 @@
 						url: "../layers.xml",
 						handleAs: "text",
 						load: function(e) {
+							loadLayerAndLabel("http://tulip.gis.gatech.edu:6080/arcgis/rest/services/AtlStreetcar/PopulationAndHospitality/MapServer/8", "");
+							loadLayerAndLabel("http://tulip.gis.gatech.edu:6080/arcgis/rest/services/AtlStreetcar/PopulationAndHospitality/MapServer/7", "");
+							loadLayerAndLabel("http://tulip.gis.gatech.edu:6080/arcgis/rest/services/AtlStreetcar/PopulationAndHospitality/MapServer/6", "");
+
 							jsDom = dojox.xml.DomParser.parse(e);
 							layerList = ko.observable(xmlToJson(jsDom));
 							ko.applyBindings();
@@ -349,6 +353,11 @@
 		function whenLoadedDontLabel(evt) {
 			lastLayer = evt.layer;
 			
+			if(evt.layer.getLayers().length == 0) return;
+
+			currentLayer(evt.layer.getLayers()[0]);
+			setupTableHeadings();
+
 			dojo.forEach(evt.layer.getLayers()[0].graphics, function(feature) {
 				feature.attributes.balloonStyleText =
 					"<a href='https://www.google.com/#q=" +
@@ -360,15 +369,13 @@
 					feature.attributes[ attribPair.td[0]["#text"] ] = attribPair.td[1]["#text"];
 				});					
 			});
-
-			currentLayer(evt.layer.getLayers()[0]);
-			setupTableHeadings();
 		}
 
-		function loadLayerAndLabel(url, label, markerSize) {
+		function loadLayerAndLabel(url, label, markerSize, symField, minVal, maxVal) {
 			require([
 				"esri/layers/CSVLayer",
 				"esri/layers/KMLLayer",
+				"esri/layers/FeatureLayer",
 
 				"esri/layers/GraphicsLayer",
 				"esri/Color", "esri/symbols/Font",
@@ -379,7 +386,7 @@
 
 				"dojo/parser", "dojo/dom-style",
 				"dojo/domReady!"],
-				function(CSVLayer, KMLLayer,
+				function(CSVLayer, KMLLayer, FeatureLayer,
 				GraphicsLayer, Color, Font, SimpleMarkerSymbol, SimpleRenderer,
 				SimpleFillSymbol, TextSymbol, LabelLayer,
 				
@@ -398,25 +405,29 @@
 					esriConfig.defaults.io.alwaysUseProxy = false;
 					kml = new KMLLayer(url, {"id": url });
 				}
+				else {
+					esriConfig.defaults.io.alwaysUseProxy = true;
+					kml = new FeatureLayer( url, {"id":url});
+				}
 
 				map.addLayer(kml);
-				//map.reorderLayer(kml,1);
 
 				if(url.lastIndexOf(".kmz") > -1) {
-					kml.on("load", whenLoadedDontLabel);
-				}
-				else {
-					//kml.on("load", whenLoadedAndLabel);
-
-					var marker = new SimpleMarkerSymbol(SimpleMarkerSymbol.STYLE_CIRCLE, markerSize, null, new Color("#008"));
-					
 					//evt.layer.setRenderer(null);
 
+					kml.on("load", whenLoadedDontLabel);
+				}
+				else if(url.lastIndexOf(".csv") > -1) {
+					//kml.on("load", whenLoadedAndLabel);
+
+					var marker = new SimpleMarkerSymbol(SimpleMarkerSymbol.STYLE_CIRCLE, markerSize, null, new Color("#008"));				
 					var renderer = new SimpleRenderer(marker);
+					console.debug(symField + " " + minVal + " " + maxVal);
+					
 					renderer.setColorInfo({
-						field: "Rooms_2014",
-						minDataValue: 0,
-						maxDataValue: 500,
+						field: symField,
+						minDataValue: minVal,
+						maxDataValue: maxVal,
 						colors: [
 							new Color([255, 255, 255]),
 							new Color([127, 127, 0])
@@ -426,6 +437,9 @@
 					kml.setRenderer(renderer);
 
 					doLabelLayer(kml, url, label);
+				}
+				else {
+					
 				}
 			});
 		}
@@ -505,14 +519,14 @@
 			if(evt_value["@attributes"].url == "") return;
 
 			if(iFound == -1) {
-				if(evt_value["@attributes"].hasOwnProperty("label")) {
-					loadLayerAndLabel( evt_value["@attributes"].url, evt_value["@attributes"].label, 9);
-					
-					
-				}
-				else {
-					loadLayerAndLabel( evt_value["@attributes"].url, "");
-				}
+				console.debug(evt_value["@attributes"]);
+				loadLayerAndLabel(
+					evt_value["@attributes"].url,
+					evt_value["@attributes"].label,
+					9,
+					evt_value["@attributes"].symbolField,
+					evt_value["@attributes"].min,
+					evt_value["@attributes"].max);
 					
 				urlsLoaded.push( { url: evt_value["@attributes"].url, mapId: evt_value["@attributes"].url });
 			}
@@ -520,11 +534,11 @@
 				var mapLayerId = urlsLoaded()[iFound].mapId;
 				var mapLyrObj = map.getLayer(mapLayerId);
 				
-				if(mapLyrObj.name == "csv") {
+				if(mapLyrObj.name != "kml") {
 					currentLayer(mapLyrObj);
 					doLabelLayer(mapLyrObj, urlsLoaded()[iFound].url, evt_value["@attributes"].label);
 				}
-				else {
+				else if(mapLyrObj.name == "kml") {
 					currentLayer(mapLyrObj.getLayers()[0]);
 				}
 				
@@ -546,7 +560,7 @@
 		}
 
 		init();
-
+		
 		//loadKMLLayerAndLabel("http://carto.gis.gatech.edu/StreetcarData/Hospitality_Hotel.kmz", "Hotel");			
 		//loadLayerAndLabel("http://carto.gis.gatech.edu/StreetcarData/Historic_Buffer.csv", "TITLE");
 
@@ -554,8 +568,6 @@
 //		loadLayerAndLabel("http://carto.gis.gatech.edu/coast/Hospitality_Historic.kmz", "name");
 //		loadLayerAndLabel("http://carto.gis.gatech.edu/StreetcarData/HHOwnRenter.kmz", "");
 //		loadLayerAndLabel("http://carto.gis.gatech.edu/coast/Landmark.kmz", "name");
-
-		//loadLayerAndLabel("http://carto.gis.gatech.edu/StreetcarData/Streetcar_Base.kmz", "");
 	</script>
 	</head>
 
