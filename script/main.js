@@ -127,7 +127,7 @@ function parseXml(xml, arrayTags)
 	return result;
 }
 
-var map;
+var map = null;
 var labelLayerScale = null;
 var labelLayerNoScale = null;
 var tempGraphicsLayer = null;
@@ -141,55 +141,65 @@ var baseLayers = [10,11,12,13];
 
 function init() {
 	require([
-		"esri/map",
 		"esri/layers/ArcGISDynamicMapServiceLayer",
 		"dojo/parser", "dojo/dom-style", 
-		"dojo/domReady!"], function( Map, ArcGISDynamicMapServiceLayer, parser, domStyle ) {
+		"dojo/domReady!"], function( ArcGISDynamicMapServiceLayer, parser, domStyle ) {
 
 		esriConfig.defaults.io.proxyUrl = "http://carto.gis.gatech.edu/proxypage_net/proxy.ashx";
 		//esriConfig.defaults.io.alwaysUseProxy = true;
-
-		esri.config.defaults.io.corsEnabledServers.push("http://carto.gis.gatech.edu");
-
-		map = new Map("map", { 
-			basemap: "streets",
-			center: [-84.38373544973749, 33.757773938307224],
-			zoom: 15
-		});
 		
+		esri.config.defaults.io.corsEnabledServers.push("http://carto.gis.gatech.edu");		
 		streetcarLayer = new ArcGISDynamicMapServiceLayer("http://tulip.gis.gatech.edu:6080/arcgis/rest/services/AtlStreetcar/PopulationAndHospitality/MapServer");
-
-		map.on("load", function () {
-			map.getLayer(map.basemapLayerIds[0]).setOpacity(0.4);
-			map.addLayer(streetcarLayer);
-			streetcarLayer.setVisibleLayers(baseLayers);
-			
-			esri.request({
-				url: "layers.xml",
-				handleAs: "text",
-				load: function(e) {
-					/*loadLayerAndLabel("http://tulip.gis.gatech.edu:6080/arcgis/rest/services/AtlStreetcar/PopulationAndHospitality/MapServer/13", "");
-					loadLayerAndLabel("http://tulip.gis.gatech.edu:6080/arcgis/rest/services/AtlStreetcar/PopulationAndHospitality/MapServer/12", "");
-					loadLayerAndLabel("http://tulip.gis.gatech.edu:6080/arcgis/rest/services/AtlStreetcar/PopulationAndHospitality/MapServer/11", "");*/
-
-					jsDom = dojox.xml.DomParser.parse(e);
-					layerList = ko.observable(xmlToJson(jsDom));
-					ko.applyBindings();
-
-					$.fn.accordion.defaults.container = false; 
-					$("#menu-accordion").accordion({
-						heightStyle: "content",
-						obj: "div", 
-						wrapper: "div", 
-						el: ".h", 
-						head: "h2, h3", 
-						next: "div",
-						initShow : "div.shown",
-					});
-			}});
+/*
+		require(["http://esri.github.io/bootstrap-map-js/src/js/bootstrapmap.js"],
+			function (BootstrapMap) {
+				map = new BootstrapMap.create("map", { 
+					basemap: "streets",
+					center: [-84.38373544973749, 33.757773938307224],
+					zoom: 15
+			});
 		});
+*/
+		
+		require(["esri/map", "http://esri.github.io/bootstrap-map-js/src/js/bootstrapmap.js" ,"dojo/domReady!"],
+		function(Map, BootstrapMap) {
+			map = BootstrapMap.create("map",{
+				basemap: "streets",
+				center: [-84.38373544973749, 33.757773938307224],
+				zoom: 15
+			});
+			
+			map.on("load", function () {
+				map.getLayer(map.basemapLayerIds[0]).setOpacity(0.4);
+				map.addLayer(streetcarLayer);
+				streetcarLayer.setVisibleLayers(baseLayers);
+				
+				esri.request({
+					url: "layers.xml",
+					handleAs: "text",
+					load: function(e) {
+						/*loadLayerAndLabel("http://tulip.gis.gatech.edu:6080/arcgis/rest/services/AtlStreetcar/PopulationAndHospitality/MapServer/13", "");
+						loadLayerAndLabel("http://tulip.gis.gatech.edu:6080/arcgis/rest/services/AtlStreetcar/PopulationAndHospitality/MapServer/12", "");
+						loadLayerAndLabel("http://tulip.gis.gatech.edu:6080/arcgis/rest/services/AtlStreetcar/PopulationAndHospitality/MapServer/11", "");*/
 
-		parser.parse();
+						jsDom = dojox.xml.DomParser.parse(e);
+						layerList = ko.observable(xmlToJson(jsDom));
+						ko.applyBindings();
+
+						$.fn.accordion.defaults.container = false; 
+						$("#menu-accordion").accordion({
+							heightStyle: "content",
+							obj: "div", 
+							wrapper: "div", 
+							el: ".h", 
+							head: "h2, h3", 
+							next: "div",
+							initShow : "div.shown",
+						});
+				}});
+			});
+			parser.parse();
+		});
 	});
 }
 
