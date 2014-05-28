@@ -246,13 +246,15 @@
 
 		var jsDom = null;
 		var layerList = ko.observable();
+		var streetcarLayer = null;
+		var baseLayers = [10,11,12,13];
 
 		function init() {
 			require([
 				"esri/map",
-				"esri/layers/LabelLayer",
+				"esri/layers/ArcGISDynamicMapServiceLayer",
 				"dojo/parser", "dojo/dom-style", 
-				"dojo/domReady!"], function( Map, LabelLayer, parser, domStyle ) {
+				"dojo/domReady!"], function( Map, ArcGISDynamicMapServiceLayer, parser, domStyle ) {
 
 				esriConfig.defaults.io.proxyUrl = "http://carto.gis.gatech.edu/proxypage_net/proxy.ashx";
 				//esriConfig.defaults.io.alwaysUseProxy = true;
@@ -264,17 +266,21 @@
 					center: [-84.38373544973749, 33.757773938307224],
 					zoom: 15
 				});
+				
+				streetcarLayer = new ArcGISDynamicMapServiceLayer("http://tulip.gis.gatech.edu:6080/arcgis/rest/services/AtlStreetcar/PopulationAndHospitality/MapServer");
 
 				map.on("load", function () {
 					map.getLayer(map.basemapLayerIds[0]).setOpacity(0.4);
-
+					map.addLayer(streetcarLayer);
+					streetcarLayer.setVisibleLayers(baseLayers);
+					
 					esri.request({
 						url: "../layers.xml",
 						handleAs: "text",
 						load: function(e) {
-							loadLayerAndLabel("http://tulip.gis.gatech.edu:6080/arcgis/rest/services/AtlStreetcar/PopulationAndHospitality/MapServer/8", "");
-							loadLayerAndLabel("http://tulip.gis.gatech.edu:6080/arcgis/rest/services/AtlStreetcar/PopulationAndHospitality/MapServer/7", "");
-							loadLayerAndLabel("http://tulip.gis.gatech.edu:6080/arcgis/rest/services/AtlStreetcar/PopulationAndHospitality/MapServer/6", "");
+							/*loadLayerAndLabel("http://tulip.gis.gatech.edu:6080/arcgis/rest/services/AtlStreetcar/PopulationAndHospitality/MapServer/13", "");
+							loadLayerAndLabel("http://tulip.gis.gatech.edu:6080/arcgis/rest/services/AtlStreetcar/PopulationAndHospitality/MapServer/12", "");
+							loadLayerAndLabel("http://tulip.gis.gatech.edu:6080/arcgis/rest/services/AtlStreetcar/PopulationAndHospitality/MapServer/11", "");*/
 
 							jsDom = dojox.xml.DomParser.parse(e);
 							layerList = ko.observable(xmlToJson(jsDom));
@@ -375,20 +381,24 @@
 			require([
 				"esri/layers/CSVLayer",
 				"esri/layers/KMLLayer",
+				"esri/layers/ArcGISDynamicMapServiceLayer",
 				"esri/layers/FeatureLayer",
-
+				"esri/layers/LabelLayer",
+				
+				/*arcgisdynamicmapservicelayer*/
 				"esri/layers/GraphicsLayer",
 				"esri/Color", "esri/symbols/Font",
 				"esri/symbols/SimpleMarkerSymbol",
 				"esri/renderers/SimpleRenderer",
 
 				"esri/symbols/SimpleFillSymbol",
+				"esri/symbols/TextSymbol",
 
 				"dojo/parser", "dojo/dom-style",
 				"dojo/domReady!"],
-				function(CSVLayer, KMLLayer, FeatureLayer,
+				function(CSVLayer, KMLLayer, ArcGISDynamicMapServiceLayer, FeatureLayer, LabelLayer,
 				GraphicsLayer, Color, Font, SimpleMarkerSymbol, SimpleRenderer,
-				SimpleFillSymbol, TextSymbol, LabelLayer,
+				SimpleFillSymbol, TextSymbol,
 				
 				parser, domStyle) {
 
@@ -407,10 +417,15 @@
 				}
 				else {
 					esriConfig.defaults.io.alwaysUseProxy = true;
-					kml = new FeatureLayer( url, {"id":url});
+					kml = new ArcGISDynamicMapServiceLayer( url, {"id":url});
+					map.addLayer(kml);
+					
+					/*fl = new FeatureLayer("http://tulip.gis.gatech.edu:6080/arcgis/rest/services/AtlStreetcar/PopulationAndHospitality/MapServer/2");
+					map.addLayer(fl);
+					
+					fl.on("load", function(e) {
+					});*/
 				}
-
-				map.addLayer(kml);
 
 				if(url.lastIndexOf(".kmz") > -1) {
 					//evt.layer.setRenderer(null);
@@ -487,7 +502,7 @@
 				function(array) {
 
 				if(currentLayer() != null) {
-					var DisplayAttribs = array.filter( (Object.keys(currentLayer().graphics[0].attributes)) , function(item, index, array) {
+					var DisplayAttribs = array.filter( (Object.keys(currentLayer().features[0].attributes)) , function(item, index, array) {
 						if( item == "description" || item == "balloonStyleText" ||
 							item == "styleUrl" || item == "id" || item == "FID") return false;
 						return true;
@@ -498,65 +513,61 @@
 		}
 
 		function loadURL_UI(evt_value) {
-			//console.debug(evt_value["@attributes"].url);
-			var iFound = -1;
-
-			
-			if(labelLayerNoScale != null) map.removeLayer( labelLayerNoScale );
-			if(labelLayerScale   != null) map.removeLayer( labelLayerScale );
-
-			for(var j = 0; j < urlsLoaded().length; j++ ) {
-				if( urlsLoaded()[j].url == evt_value["@attributes"].url) {
-					iFound = j;
-				}
-
-				var lyr = map.getLayer(urlsLoaded()[j].mapId);
-				lyr.hide();
-				//var lyr = map.getLayer(urlsLoaded()[j].mapId + "_2" );
-				//lyr.hide();
-			}
-
-			if(evt_value["@attributes"].url == "") return;
-
-			if(iFound == -1) {
-				console.debug(evt_value["@attributes"]);
-				loadLayerAndLabel(
-					evt_value["@attributes"].url,
-					evt_value["@attributes"].label,
-					9,
-					evt_value["@attributes"].symbolField,
-					evt_value["@attributes"].min,
-					evt_value["@attributes"].max);
+			require([
+				"esri/tasks/query", "esri/tasks/QueryTask"],
+				function(Query,QueryTask) {
+					if(evt_value["@attributes"].url.length == 0)
+						return;
 					
-				urlsLoaded.push( { url: evt_value["@attributes"].url, mapId: evt_value["@attributes"].url });
-			}
-			else {
-				var mapLayerId = urlsLoaded()[iFound].mapId;
-				var mapLyrObj = map.getLayer(mapLayerId);
-				
-				if(mapLyrObj.name != "kml") {
-					currentLayer(mapLyrObj);
-					doLabelLayer(mapLyrObj, urlsLoaded()[iFound].url, evt_value["@attributes"].label);
-				}
-				else if(mapLyrObj.name == "kml") {
-					currentLayer(mapLyrObj.getLayers()[0]);
-				}
-				
-				setupTableHeadings();
-
-				map.getLayer(mapLayerId).show();
-//				map.getLayer(mapLayerId+"_2").show();
-			}
+					var qt = new QueryTask("http://tulip.gis.gatech.edu:6080/arcgis/rest/services/AtlStreetcar/PopulationAndHospitality/MapServer/" +
+						evt_value["@attributes"].url);
+					var q  = new Query();
+					
+					q.returnGeometry = true;
+					q.outFields = ["*"];
+					q.where = "1=1";
+					
+					qt.execute(q);
+					qt.on("complete", function(results) {
+						currentLayer(results.featureSet);
+						//currentLayer().graphics = currentLayer().features;
+						
+						streetcarLayer.setVisibleLayers( baseLayers .concat ( evt_value["@attributes"].url ));
+						setupTableHeadings();
+					});
+			});
 		}
+		
+		function doActualZoomToFeature( geom ) {
+			var b = geom.geometries[0];
 
-		function zoomToFeature( feature ){
-			b = feature.geometry;
 			if(b.type == "point") {
 				map.setExtent( new esri.geometry.Extent(b.x-150,b.y-150,b.x+150,b.y+150, map.spatialReference) );
 			}
 			else {
 				map.setExtent( b.getExtent().expand(1.75) );
 			}
+		}
+
+		function zoomToFeature( feature ){
+			require(["esri/tasks/GeometryService", "esri/tasks/ProjectParameters"],
+				function(GeometryService, ProjectParameters) {
+					b = feature.geometry;
+					
+					if( b.spatialReference.wkid != map.spatialReference.wkid ) {
+						
+						var gs = new GeometryService("http://tulip.gis.gatech.edu:6080/arcgis/rest/services/Utilities/Geometry/GeometryServer");
+						var params = new ProjectParameters();
+						params.geometries = [b];
+						params.outSR = map.spatialReference;
+						
+						gs.project(params);
+						gs.on("project-complete", doActualZoomToFeature);
+					}
+					else {
+						doActualZoomToFeature([b]);
+					}
+			});
 		}
 
 		init();
@@ -676,7 +687,7 @@
 									<th style='width: 25em;'><div data-bind='text: $data'> </div> </th>
 								<!-- /ko -->
 							</tr>
-							<!-- ko foreach: { data: currentLayer().graphics, as: 'currFeature'} -->
+							<!-- ko foreach: { data: currentLayer().features, as: 'currFeature'} -->
 							<tr data-bind='click: zoomToFeature'>
 								<!-- ko foreach: { data: headings(), as: 'attrib'} -->
 									<td style='width: 25em;'><div data-bind='text: currFeature.attributes[ attrib ]'> </div> </td>

@@ -2,21 +2,21 @@
 <Layers>
 <Analysis name='Population'>
 	<layer url=''>Residential/Student Population</layer>
-	<layer url='http://tulip.gis.gatech.edu:6080/arcgis/rest/services/AtlStreetcar/PopulationAndHospitality/MapServer/2'>Number of Homeowners/Renters</layer>
+	<layer url='7'>Number of Homeowners/Renters</layer>
 	<layer url=''>Age Groups by Census</layer>
 	<layer url=''>Average Median Income</layer>
 </Analysis>
 
 <Analysis name='Land Use/Development'>
 	<layer url=''>Land-use Type</layer>
-	<layer url='http://tulip.gis.gatech.edu:6080/arcgis/rest/services/AtlStreetcar/PopulationAndHospitality/MapServer/4'>Floor-Area Ratio</layer>
+	<layer url='9'>Floor-Area Ratio</layer>
 </Analysis>
 
 <Analysis name='Residential Development'>
 	<layer url=''>Number of Single Family Homes</layer>
 	<layer url=''>Number of Apartment Condo Units</layer>
 	<layer url=''>Number of Dorm Beds</layer>
-	<layer url='http://carto.gis.gatech.edu/StreetcarData/Vacancy.kmz'>Vacancy Rates</layer>
+	<layer url=''>Vacancy Rates</layer>
 </Analysis>
 
 <Analysis name='Retail Development'>
@@ -31,12 +31,12 @@
 
 <Analysis name='Hospitality'>
 	<Analysis name='Attractions'>
-		<layer url='http://carto.gis.gatech.edu/StreetcarData/Historic.csv' label='TITLE'>Historic Attractions</layer>
-		<layer url='http://carto.gis.gatech.edu/StreetcarData/Landmark.csv' label='Landmark'>Landmark Attractions</layer>
+		<layer url='0' >Historic Attractions</layer>
+		<layer url='1' >Landmark Attractions</layer>
 	</Analysis>
 	<Analysis name='Hotels'>
-		<layer url='http://carto.gis.gatech.edu/StreetcarData/Hotel.csv' label='Company_Na' symbolField='EMP' min='10' max='1200'>Employment</layer>
-		<layer url='http://carto.gis.gatech.edu/StreetcarData/Hotel.csv' label='Company_Na' symbolField='Rooms_2014' min='50' max='1600'>Number of Rooms</layer>
+		<layer url='2'>Employment</layer>
+		<layer url='3'>Number of Rooms</layer>
 	</Analysis>
 </Analysis>
 
