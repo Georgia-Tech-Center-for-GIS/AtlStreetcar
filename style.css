@@ -35,6 +35,7 @@
 .accordion-category:hover{
 	background:url(./images/corner-purple-right-top.png) no-repeat top right #63619a;
 }
+
 #menu-accordion  a{
 	color: #fff;
 	text-decoration: none;
@@ -51,4 +52,8 @@
 	font-size: 14px;
 	font-weight: 200;
 	background: url(./images/corner-purple-right-top.png) no-repeat top right #63619a;
+}
+
+#main-nav ul#menu-primary-navigation>li>a {
+	height: 72px;
 }

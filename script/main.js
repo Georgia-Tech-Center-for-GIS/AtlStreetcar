@@ -166,7 +166,8 @@ function init() {
 			map = BootstrapMap.create("map",{
 				basemap: "streets",
 				center: [-84.38373544973749, 33.757773938307224],
-				zoom: 15
+				zoom: 15,
+				allowScrollbarZoom: true
 			});
 			
 			map.on("load", function () {
@@ -392,9 +393,12 @@ function doLabelLayer(lyr, url, field) {
 		});
 }
 
-var urlsLoaded = ko.observableArray();
+var urlsLoaded = ko.observableArray([]);
 var currentLayer = ko.observable(null);
-var headings = ko.observableArray();
+var headings = ko.observableArray([]);
+
+var currLayerTitle = ko.observable(" ");
+var currLayerLegend = ko.observable(null);
 
 function setupTableHeadings() {
 	require([
@@ -427,20 +431,40 @@ function loadURL_UI(evt_value) {
 			q.outFields = ["*"];
 			q.where = "1=1";
 			
+			console.debug(evt_value);
+			
 			qt.execute(q);
 			qt.on("complete", function(results) {
+				currLayerTitle(evt_value["#text"]);
 				currentLayer(results.featureSet);
 				//currentLayer().graphics = currentLayer().features;
 				
 				streetcarLayer.setVisibleLayers( baseLayers .concat ( evt_value["@attributes"].url ));
 				setupTableHeadings();
+							
+				$("tr:odd").css({"backgroundColor": '#ccc'});
+				
+				esri.request({
+					url: streetcarLayer.url + "/legend",
+					content : {
+						f: "JSON"
+					},
+					load : function(result) {
+						console.debug(result.layers[ parseInt(evt_value["@attributes"].url) ]);
+						currLayerLegend(result.layers[ parseInt(evt_value["@attributes"].url) ]);
+					}
+				});
 			});
 	});
 }
 
+var lastGraphic = null;
+
 function doActualZoomToFeature( geom ) {
 	var b = geom.geometries[0];
-
+	
+	lastGraphic = b;
+	
 	if(b.type == "point") {
 		map.setExtent( new esri.geometry.Extent(b.x-150,b.y-150,b.x+150,b.y+150, map.spatialReference) );
 	}
@@ -453,6 +477,7 @@ function zoomToFeature( feature ){
 	require(["esri/tasks/GeometryService", "esri/tasks/ProjectParameters"],
 		function(GeometryService, ProjectParameters) {
 			b = feature.geometry;
+			
 			
 			if( b.spatialReference.wkid != map.spatialReference.wkid ) {
 				
