@@ -416,12 +416,16 @@ function setupTableHeadings() {
 	});
 }
 
+var legendDlg  = null;
+
 function loadURL_UI(evt_value) {
 	require([
 		"esri/tasks/query", "esri/tasks/QueryTask"],
 		function(Query,QueryTask) {
 			if(evt_value["@attributes"].url.length == 0)
 				return;
+				
+			streetcarLayer.setVisibleLayers( baseLayers .concat ( evt_value["@attributes"].url ));
 			
 			var qt = new QueryTask("http://tulip.gis.gatech.edu:6080/arcgis/rest/services/AtlStreetcar/PopulationAndHospitality/MapServer/" +
 				evt_value["@attributes"].url);
@@ -429,20 +433,24 @@ function loadURL_UI(evt_value) {
 			
 			q.returnGeometry = true;
 			q.outFields = ["*"];
-			q.where = "1=1";
-			
-			console.debug(evt_value);
-			
+			q.where = "1=1";	
+	
 			qt.execute(q);
 			qt.on("complete", function(results) {
 				currLayerTitle(evt_value["#text"]);
-				currentLayer(results.featureSet);
 				//currentLayer().graphics = currentLayer().features;
 				
-				streetcarLayer.setVisibleLayers( baseLayers .concat ( evt_value["@attributes"].url ));
+				currentLayer(null);
+				headings(null);
+				
+				$('#featureTable table').fixedHeaderTable('destroy');
+				
+				//$("tr:odd").css({"backgroundColor": '#ccc'});
+				
+				currentLayer(results.featureSet);
 				setupTableHeadings();
-							
-				$("tr:odd").css({"backgroundColor": '#ccc'});
+				
+				$('#featureTable table').fixedHeaderTable({ footer: false, fixedColumn: false });
 				
 				esri.request({
 					url: streetcarLayer.url + "/legend",
@@ -452,6 +460,8 @@ function loadURL_UI(evt_value) {
 					load : function(result) {
 						console.debug(result.layers[ parseInt(evt_value["@attributes"].url) ]);
 						currLayerLegend(result.layers[ parseInt(evt_value["@attributes"].url) ]);
+						
+						legendDlg = $("#legend").dialog({dialogClass: "no-close", title: currLayerTitle() });
 					}
 				});
 			});

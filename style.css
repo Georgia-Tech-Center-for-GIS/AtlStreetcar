@@ -57,3 +57,32 @@
 #main-nav ul#menu-primary-navigation>li>a {
 	height: 72px;
 }
+
+thead tr {
+	background-color: #EEEEEE;
+}
+
+thead tr th {
+	font-weight: bolder;
+}
+
+#featureTable th, #featureTable td {
+	padding-right: 2.0em;
+}
+
+.ui-dialog {
+	opacity: 1.0;
+	background-color: white;
+}
+
+.no-close .ui-dialog-titlebar-close {
+  display: none;
+}
+
+.ui-dialog .ui-dialog-titlebar {
+	background: url(./images/corner-green-right-top.png) no-repeat top right #7ac142;
+
+	opacity: 0.6;
+	padding: .5em;
+	font-size: 14pt;
+}
