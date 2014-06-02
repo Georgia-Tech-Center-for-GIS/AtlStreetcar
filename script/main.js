@@ -545,11 +545,3 @@ function zoomToFeature( feature ){
 }
 
 init();
-
-//loadKMLLayerAndLabel("http://carto.gis.gatech.edu/StreetcarData/Hospitality_Hotel.kmz", "Hotel");			
-//loadLayerAndLabel("http://carto.gis.gatech.edu/StreetcarData/Historic_Buffer.csv", "TITLE");
-
-//		loadLayerAndLabel("http://carto.gis.gatech.edu/coast/Hospitality_Hotel.kmz", "name");
-//		loadLayerAndLabel("http://carto.gis.gatech.edu/coast/Hospitality_Historic.kmz", "name");
-//		loadLayerAndLabel("http://carto.gis.gatech.edu/StreetcarData/HHOwnRenter.kmz", "");
-//		loadLayerAndLabel("http://carto.gis.gatech.edu/coast/Landmark.kmz", "name");
