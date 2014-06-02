@@ -2,14 +2,14 @@
 <Layers>
 <Analysis name='Population'>
 	<layer url=''>Residential/Student Population</layer>
-	<layer url='7'>Number of Homeowners/Renters</layer>
+	<layer url='9'>Number of Homeowners/Renters</layer>
 	<layer url=''>Age Groups by Census</layer>
 	<layer url=''>Average Median Income</layer>
 </Analysis>
 
 <Analysis name='Land Use/Development'>
 	<layer url=''>Land-use Type</layer>
-	<layer url='9'>Floor-Area Ratio</layer>
+	<layer url='11'>Floor-Area Ratio</layer>
 </Analysis>
 
 <Analysis name='Residential Development'>
@@ -25,8 +25,8 @@
 </Analysis>
 
 <Analysis name='Office Development'>
-	<layer url=''>Square Footage</layer>
-	<layer url=''>Year of Establishment</layer>
+	<layer url='6'>Square Footage</layer>
+	<layer url='5'>Year of Establishment</layer>
 </Analysis>
 
 <Analysis name='Hospitality'>
