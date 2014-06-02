@@ -1,3 +1,18 @@
+// Here's a custom Knockout binding that makes elements shown/hidden via jQuery's fadeIn()/fadeOut() methods
+// Could be stored in a separate utility library
+ko.bindingHandlers.fadeVisible = {
+    init: function(element, valueAccessor) {
+        // Initially set the element to be instantly visible/hidden depending on the value
+        var value = valueAccessor();
+        $(element).toggle(ko.unwrap(value)); // Use "unwrapObservable" so we can handle values that may or may not be observable
+    },
+    update: function(element, valueAccessor) {
+        // Whenever the value subsequently changes, slowly fade the element in or out
+        var value = valueAccessor();
+        ko.unwrap(value) ? $(element).slideDown() : $(element).slideUp();
+    }
+};
+
 function xmlToJson(xml) {
 	var obj = {};
 	try {
@@ -137,7 +152,7 @@ dojo.require("dojox.xml.DomParser");
 var jsDom = null;
 var layerList = ko.observable();
 var streetcarLayer = null;
-var baseLayers = [10,11,12,13];
+var baseLayers = [12,13,14,15];
 
 function init() {
 	require([
@@ -187,7 +202,7 @@ function init() {
 						layerList = ko.observable(xmlToJson(jsDom));
 						ko.applyBindings();
 
-						$.fn.accordion.defaults.container = false; 
+						/*$.fn.accordion.defaults.container = false; 
 						$("#menu-accordion").accordion({
 							heightStyle: "content",
 							obj: "div", 
@@ -196,7 +211,10 @@ function init() {
 							head: "h2, h3", 
 							next: "div",
 							initShow : "div.shown",
-						});
+							activate : function(ev, ui) {
+								console.debug(ui);
+							}
+						});*/
 				}});
 			});
 			parser.parse();
@@ -399,6 +417,28 @@ var headings = ko.observableArray([]);
 
 var currLayerTitle = ko.observable(" ");
 var currLayerLegend = ko.observable(null);
+var currCateg = ko.observable();
+
+var getLegendTitle = ko.computed( function() {
+	return ((currLayerTitle().trim() != "") ? "Legend - "+currLayerTitle() : "Legend - Please select a category and layer from above");
+});
+
+var isAccordionOpen = ko.computed( function(ev) {
+	console.debug(this);
+	
+	return "accordion-category-open";
+});
+
+function changeIt(ev) {
+	var a = ev["@attributes"].name;
+	
+	if(currCateg() == a) {
+		currCateg(null);
+	}
+	else {
+		currCateg(a);
+	}
+}
 
 function setupTableHeadings() {
 	require([
@@ -416,12 +456,16 @@ function setupTableHeadings() {
 	});
 }
 
+var legendDlg  = null;
+
 function loadURL_UI(evt_value) {
 	require([
 		"esri/tasks/query", "esri/tasks/QueryTask"],
 		function(Query,QueryTask) {
 			if(evt_value["@attributes"].url.length == 0)
 				return;
+				
+			streetcarLayer.setVisibleLayers( baseLayers .concat ( evt_value["@attributes"].url ));
 			
 			var qt = new QueryTask("http://tulip.gis.gatech.edu:6080/arcgis/rest/services/AtlStreetcar/PopulationAndHospitality/MapServer/" +
 				evt_value["@attributes"].url);
@@ -429,20 +473,24 @@ function loadURL_UI(evt_value) {
 			
 			q.returnGeometry = true;
 			q.outFields = ["*"];
-			q.where = "1=1";
-			
-			console.debug(evt_value);
-			
+			q.where = "1=1";	
+	
 			qt.execute(q);
 			qt.on("complete", function(results) {
 				currLayerTitle(evt_value["#text"]);
-				currentLayer(results.featureSet);
 				//currentLayer().graphics = currentLayer().features;
 				
-				streetcarLayer.setVisibleLayers( baseLayers .concat ( evt_value["@attributes"].url ));
+				currentLayer(null);
+				headings(null);
+				
+				$('#featureTable table').fixedHeaderTable('destroy');
+				
+				//$("tr:odd").css({"backgroundColor": '#ccc'});
+				
+				currentLayer(results.featureSet);
 				setupTableHeadings();
-							
-				$("tr:odd").css({"backgroundColor": '#ccc'});
+				
+				$('#featureTable table').fixedHeaderTable({ footer: false, fixedColumn: false });
 				
 				esri.request({
 					url: streetcarLayer.url + "/legend",
@@ -450,8 +498,9 @@ function loadURL_UI(evt_value) {
 						f: "JSON"
 					},
 					load : function(result) {
-						console.debug(result.layers[ parseInt(evt_value["@attributes"].url) ]);
 						currLayerLegend(result.layers[ parseInt(evt_value["@attributes"].url) ]);
+						
+						//legendDlg = $("#legend").dialog({dialogClass: "no-close", title: currLayerTitle() });
 					}
 				});
 			});
