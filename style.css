@@ -104,3 +104,23 @@ thead tr th {
 	padding: .5em;
 	font-size: 14pt;
 }
+
+.mapWithAttributes {
+	height: 35em !important;
+	padding-bottom: 10px;
+}
+
+.mapWithoutAttributes {
+	height: 50em !important;
+	padding-bottom: 10px;
+}
+
+.attributesShown {
+	height: 15em;
+	overflow: auto;
+}
+
+.attributesHidden {
+	overflow: none;
+	height: 2em;
+}
