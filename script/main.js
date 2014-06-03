@@ -201,6 +201,7 @@ function init() {
 						jsDom = dojox.xml.DomParser.parse(e);
 						layerList = ko.observable(xmlToJson(jsDom));
 						ko.applyBindings();
+						map.resize();
 
 						/*$.fn.accordion.defaults.container = false; 
 						$("#menu-accordion").accordion({
@@ -415,9 +416,10 @@ var urlsLoaded = ko.observableArray([]);
 var currentLayer = ko.observable(null);
 var headings = ko.observableArray([]);
 
-var currLayerTitle = ko.observable(" ");
+var currLayerIndex = ko.observable(null);
+var currLayerTitle = ko.observable("");
 var currLayerLegend = ko.observable(null);
-var currCateg = ko.observable();
+var currCateg = ko.observable(null);
 
 var getLegendTitle = ko.computed( function() {
 	return ((currLayerTitle().trim() != "") ? "Legend - "+currLayerTitle() : "Legend - Please select a category and layer from above");
@@ -458,28 +460,22 @@ function setupTableHeadings() {
 
 var legendDlg  = null;
 
-function loadURL_UI(evt_value) {
+function loadAttributes() {
 	require([
 		"esri/tasks/query", "esri/tasks/QueryTask"],
 		function(Query,QueryTask) {
-			if(evt_value["@attributes"].url.length == 0)
-				return;
-				
-			streetcarLayer.setVisibleLayers( baseLayers .concat ( evt_value["@attributes"].url ));
+		
+			if(currLayerIndex() <= 0) return;
 			
-			var qt = new QueryTask("http://tulip.gis.gatech.edu:6080/arcgis/rest/services/AtlStreetcar/PopulationAndHospitality/MapServer/" +
-				evt_value["@attributes"].url);
+			var qt = new QueryTask("http://tulip.gis.gatech.edu:6080/arcgis/rest/services/AtlStreetcar/PopulationAndHospitality/MapServer/" + currLayerIndex());
 			var q  = new Query();
 			
 			q.returnGeometry = true;
 			q.outFields = ["*"];
-			q.where = "1=1";	
+			q.where = "1=1";
 	
 			qt.execute(q);
-			qt.on("complete", function(results) {
-				currLayerTitle(evt_value["#text"]);
-				//currentLayer().graphics = currentLayer().features;
-				
+			qt.on("complete", function(results) {			
 				currentLayer(null);
 				headings(null);
 				
@@ -492,17 +488,36 @@ function loadURL_UI(evt_value) {
 				
 				$('#featureTable table').fixedHeaderTable({ footer: false, fixedColumn: false });
 				
-				esri.request({
-					url: streetcarLayer.url + "/legend",
-					content : {
-						f: "JSON"
-					},
-					load : function(result) {
-						currLayerLegend(result.layers[ parseInt(evt_value["@attributes"].url) ]);
-						
-						//legendDlg = $("#legend").dialog({dialogClass: "no-close", title: currLayerTitle() });
-					}
-				});
+				map.resize();
+			});
+	});
+}
+
+function loadURL_UI(evt_value) {
+	require([
+		"esri/tasks/query", "esri/tasks/QueryTask"],
+		function(Query,QueryTask) {
+			if(evt_value["@attributes"].url.length == 0)
+				return;
+				
+			streetcarLayer.setVisibleLayers( baseLayers .concat ( evt_value["@attributes"].url ));
+			currLayerIndex(parseInt( evt_value["@attributes"].url ));
+			
+			esri.request({
+				url: streetcarLayer.url + "/legend",
+				content : {
+					f: "JSON"
+				},
+				load : function(result) {
+					$('#featureTable table').fixedHeaderTable('destroy');
+					currentLayer(null);
+					headings(null);
+
+					currLayerTitle(evt_value["#text"]);
+					currLayerLegend(result.layers[ currLayerIndex() ]);
+					map.resize();
+					//legendDlg = $("#legend").dialog({dialogClass: "no-close", title: currLayerTitle() });
+				}
 			});
 	});
 }
