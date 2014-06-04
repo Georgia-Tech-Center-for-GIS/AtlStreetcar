@@ -154,11 +154,25 @@ var layerList = ko.observable();
 var streetcarLayer = null;
 var baseLayers = [12,13,14,15];
 
+function pointToExtent (map, point, toleranceInPixel, cb) {
+	require(["esri/geometry/Extent"], function(Extent) {
+		var pixelWidth = map.extent.getWidth() / map.width;
+		var toleranceInMapCoords = toleranceInPixel * pixelWidth;
+		cb( new Extent(point.x - toleranceInMapCoords,
+						  point.y - toleranceInMapCoords,
+						  point.x + toleranceInMapCoords,
+						  point.y + toleranceInMapCoords,
+						  map.spatialReference));
+	});
+}
+
 function init() {
 	require([
 		"esri/layers/ArcGISDynamicMapServiceLayer",
+		"esri/layers/FeatureLayer",
+		"esri/tasks/query",
 		"dojo/parser", "dojo/dom-style", 
-		"dojo/domReady!"], function( ArcGISDynamicMapServiceLayer, parser, domStyle ) {
+		"dojo/domReady!"], function( ArcGISDynamicMapServiceLayer, FeatureLayer, Query, parser, domStyle ) {
 
 		esriConfig.defaults.io.proxyUrl = "http://carto.gis.gatech.edu/proxypage_net/proxy.ashx";
 		//esriConfig.defaults.io.alwaysUseProxy = true;
@@ -176,13 +190,14 @@ function init() {
 		});
 */
 		
-		require(["esri/map", "http://esri.github.io/bootstrap-map-js/src/js/bootstrapmap.js" ,"dojo/domReady!"],
+		require(["esri/map", "http://esri.github.io/bootstrap-map-js/src/js/bootstrapmap.js",
+			"dojo/domReady!"],
 		function(Map, BootstrapMap) {
 			map = BootstrapMap.create("map",{
 				basemap: "streets",
 				center: [-84.38373544973749, 33.757773938307224],
 				zoom: 15,
-				allowScrollbarZoom: true
+				allowScrollbarZoom: true,
 			});
 			
 			map.on("load", function () {
@@ -190,6 +205,13 @@ function init() {
 				map.addLayer(streetcarLayer);
 				streetcarLayer.setVisibleLayers(baseLayers);
 				
+				map.on("click", function (ev, ui) {
+					apt = map.toMap({x: ev.x, y: ev.y});
+					
+					var bbb = pointToExtent(map,apt,10);
+					console.debug(bbb);
+				});
+
 				esri.request({
 					url: "layers.xml",
 					handleAs: "text",
@@ -338,13 +360,7 @@ function loadLayerAndLabel(url, label, markerSize, symField, minVal, maxVal) {
 		else {
 			esriConfig.defaults.io.alwaysUseProxy = true;
 			kml = new ArcGISDynamicMapServiceLayer( url, {"id":url});
-			map.addLayer(kml);
-			
-			/*fl = new FeatureLayer("http://tulip.gis.gatech.edu:6080/arcgis/rest/services/AtlStreetcar/PopulationAndHospitality/MapServer/2");
-			map.addLayer(fl);
-			
-			fl.on("load", function(e) {
-			});*/
+			map.addLayer(kml);			
 		}
 
 		if(url.lastIndexOf(".kmz") > -1) {
@@ -462,8 +478,10 @@ var legendDlg  = null;
 
 function loadAttributes() {
 	require([
+		"esri/tasks/GeometryService", "esri/tasks/ProjectParameters",
+		"esri/symbols/SimpleMarkerSymbol", "esri/Color", "esri/graphic",
 		"esri/tasks/query", "esri/tasks/QueryTask"],
-		function(Query,QueryTask) {
+		function(GeometryService, ProjectParameters, SimpleMarkerSymbol, Color, Graphic, Query,QueryTask) {
 		
 			if(currLayerIndex() <= 0) return;
 			
@@ -475,14 +493,60 @@ function loadAttributes() {
 			q.where = "1=1";
 	
 			qt.execute(q);
-			qt.on("complete", function(results) {			
+			qt.on("complete", function(results) {
 				currentLayer(null);
 				headings(null);
-				
+				map.graphics.clear();
+
 				$('#featureTable table').fixedHeaderTable('destroy');
 				
 				//$("tr:odd").css({"backgroundColor": '#ccc'});
+							
+				var contentString = "<table><tr><th colspan='2'>" + "${"+ results.featureSet.displayFieldName +"}" + "</th></tr>";
+				for (var x in results.featureSet.fields) {
+					if (x !== "OBJECTID" && x !== "Shape") {
+						contentString = contentString + "<tr><th>"+ results.featureSet.fields[x].name +"</th><td>${" + results.featureSet.fields[x].name + "}</td></tr>";
+					}
+				}
 				
+				contentString = contentString + "</table>";
+
+				var infoTemplate = new esri.InfoTemplate();
+				infoTemplate.setTitle("Results");
+				infoTemplate.setContent(contentString);
+				
+					if(true) {
+						dojo.forEach(results.featureSet.features, function(feature) {
+							console.debug(feature.geometry);
+							console.debug(feature.attributes);
+							
+							var markerSymbol = new SimpleMarkerSymbol().setStyle(
+								SimpleMarkerSymbol.STYLE_CIRCLE).setColor(
+								new Color([0, 0, 0, 0]));
+							markerSymbol.size = 3;
+							markerSymbol.outline = null;
+								
+							var graphik = null;
+								
+							if( feature.geometry.spatialReference.wkid != map.spatialReference.wkid ) {
+								var gs = new GeometryService("http://tulip.gis.gatech.edu:6080/arcgis/rest/services/Utilities/Geometry/GeometryServer");
+								var params = new ProjectParameters();
+								params.geometries = [feature.geometry];
+								params.outSR = map.spatialReference;
+								
+								gs.project(params);
+								gs.on("project-complete", function(results) {
+									graphik = new Graphic(results.geometries[0], markerSymbol, feature.attributes, infoTemplate);
+									map.graphics.add(graphik);
+								});
+							}
+							else {
+								graphik = new Graphic(feature.geometry, markerSymbol, feature.attributes, infoTemplate);
+								map.graphics.add(graphik);
+							}
+						});
+					}
+								
 				currentLayer(results.featureSet);
 				setupTableHeadings();
 				
@@ -523,28 +587,40 @@ function loadURL_UI(evt_value) {
 }
 
 var lastGraphic = null;
+var previousInfoTemplate = null;
+var previousAttributes = null;
 
-function doActualZoomToFeature( geom ) {
-	var b = geom.geometries[0];
-	
-	lastGraphic = b;
-	
-	if(b.type == "point") {
-		map.setExtent( new esri.geometry.Extent(b.x-150,b.y-150,b.x+150,b.y+150, map.spatialReference) );
-	}
-	else {
-		map.setExtent( b.getExtent().expand(1.75) );
-	}
+function doActualZoomToFeature( geom, attrib ) {
+	require(["esri/geometry/Point", "esri/symbols/SimpleMarkerSymbol",
+		"esri/Color", "esri/InfoTemplate", "esri/graphic"],
+		function(Point, SimpleMarkerSymbol,Color,InfoTemplate,Graphic) {
+			var b = geom.geometries[0];		
+			lastGraphic = b;
+			
+			if(b.type == "point") {
+				map.setExtent( new esri.geometry.Extent(b.x-150,b.y-150,b.x+150,b.y+150, map.spatialReference) );
+			}
+			else {
+				map.setExtent( b.getExtent().expand(1.75) );
+			}
+	});
 }
 
 function zoomToFeature( feature ){
-	require(["esri/tasks/GeometryService", "esri/tasks/ProjectParameters"],
-		function(GeometryService, ProjectParameters) {
+	require(["esri/tasks/GeometryService", "esri/tasks/ProjectParameters",
+			 "esri/InfoTemplate"],
+		function(GeometryService, ProjectParameters, InfoTemplate) {
+			console.debug(feature);
 			b = feature.geometry;
+			previousAttributes = feature.attributes;
+						
+			/*var infoTemplate = new esri.InfoTemplate();
+			infoTemplate.setTitle("Results");
+			infoTemplate.setContent(contentString);
 			
+			previousInfoTemplate = infoTemplate; */
 			
-			if( b.spatialReference.wkid != map.spatialReference.wkid ) {
-				
+			if( b.spatialReference.wkid != map.spatialReference.wkid ) {				
 				var gs = new GeometryService("http://tulip.gis.gatech.edu:6080/arcgis/rest/services/Utilities/Geometry/GeometryServer");
 				var params = new ProjectParameters();
 				params.geometries = [b];
