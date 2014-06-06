@@ -206,12 +206,14 @@
 							</div>
 						</div>				
 						<div style='width: 68%; height: 100%; padding-top: 5px; padding-left: 5px;'>
-							<div id="map" data-bind='css: {mapWithoutAttributes: currentLayer() == null, mapWithAttributes: currentLayer() != null}'></div>
+							<div id="map" data-bind='css: {mapWithoutAttributes: (currentLayer() == null || attribHidden() == true), mapWithAttributes: (currentLayer() != null && attribHidden() == false) }'></div>
 							
-							<div id="featureTable" data-bind='css: {attributesHidden: currentLayer() == null, attributesShown: currentLayer() != null}'>
-								<h2 data-bind='click: loadAttributes, visible: currentLayer() == null, text: "Click here to retrieve feature attributes"'></h2>	
+<div id="featureTable" data-bind='css: {attributesHidden: (currentLayer() == null || attribHidden() == true), attributesShown: (currentLayer() != null && attribHidden()==false)}'>
+	<h2 class='dataBtn' data-bind='click: loadAttributes, visible: currentLayer() == null, text: "Click here to retrieve feature attributes"'></h2>	
+	<h2 class='dataBtn' data-bind='click: (attribHidden(false), map.resize() , $(".fht-table").css("display", "block") ), visible: (currentLayer() != null && attribHidden() == true), text: "Click here to show feature attributes"'></h2>	
+	<h2 class='dataBtn' data-bind='click: (attribHidden(true) , map.resize() , $(".fht-table").css("display", "none")  ), visible:  (currentLayer() != null && attribHidden() == false), text: "Click here to hide feature attributes"'></h2>
 								<!-- ko if: currentLayer() != null -->
-								<table>
+								<table data-bind='visible: !attribHidden()'>
 									<thead>
 										<tr>
 											<!-- ko foreach: headings() -->
