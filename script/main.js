@@ -196,6 +196,7 @@ function init() {
 		require(["esri/map", "http://esri.github.io/bootstrap-map-js/src/js/bootstrapmap.js",
 			"dojo/domReady!"],
 		function(Map, BootstrapMap) {
+			
 			map = BootstrapMap.create("map",{
 				basemap: "streets",
 				center: [-84.38373544973749, 33.757773938307224],
@@ -222,12 +223,23 @@ function init() {
 								
 								var qry = new Query();
 								qry.where = "1=1";
+								qry.outFields = ["*"];
 								qry.geometry = ex;
 								
 								lyrQueryTask.execute(qry);
 								lyrQueryTask.on("complete", function(results) {
 									if(results.featureSet.features.length > 0) {
-										alert("We clicked on a feature!");
+										var contentString = "<table><tr><th colspan='2'><h2>" + results.featureSet.features[0].attributes[results.featureSet.displayFieldName] + "</h2></th></tr>";
+										for (var x in results.featureSet.fields) {
+											if (x !== "OBJECTID" && x !== "Shape") {
+												contentString = contentString + "<tr><th>"+ results.featureSet.fields[x].name +"</th><td>" + results.featureSet.features[0].attributes[results.featureSet.fields[x].name] + "</td></tr>";
+											}
+										}
+										
+										contentString = contentString + "</table>";
+
+										map.infoWindow.setContent(contentString);
+										(ev) ? map.infoWindow.show(ev.screenPoint,map.getInfoWindowAnchor(ev.screenPoint)) : null;
 									}
 								});								
 							});
@@ -478,6 +490,7 @@ function setupTableHeadings() {
 }
 
 var legendDlg  = null;
+var lastInfoTemplate = null;
 
 function loadAttributes() {
 	require([
@@ -517,9 +530,9 @@ function loadAttributes() {
 				
 				contentString = contentString + "</table>";
 
-				var infoTemplate = new esri.InfoTemplate();
-				infoTemplate.setTitle("Results");
-				infoTemplate.setContent(contentString);
+				lastInfoTemplate = new esri.InfoTemplate();
+				lastInfoTemplate.setTitle("Results");
+				lastInfoTemplate.setContent(contentString);
 				
 					if(true) {
 						dojo.forEach(results.featureSet.features, function(feature) {
@@ -542,12 +555,12 @@ function loadAttributes() {
 								
 								gs.project(params);
 								gs.on("project-complete", function(results) {
-									graphik = new Graphic(results.geometries[0], markerSymbol, feature.attributes, infoTemplate);
+									graphik = new Graphic(results.geometries[0], markerSymbol, feature.attributes, lastInfoTemplate);
 									map.graphics.add(graphik);
 								});
 							}
 							else {
-								graphik = new Graphic(feature.geometry, markerSymbol, feature.attributes, infoTemplate);
+								graphik = new Graphic(feature.geometry, markerSymbol, feature.attributes, lastInfoTemplate);
 								map.graphics.add(graphik);
 							}
 						});
