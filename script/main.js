@@ -169,6 +169,49 @@ function pointToExtent (map, point, toleranceInPixel, cb) {
 	});
 }
 
+var lastDisplayField = "";
+
+function showFeatureSet(fset,evt) {
+//remove all graphics on the maps graphics layer
+map.graphics.clear();
+var screenPoint = evt.screenPoint;
+
+featureSet = fset;
+
+var numFeatures = featureSet.features.length;
+
+//QueryTask returns a featureSet.  Loop through features in the featureSet and add them to the infowindow.
+var title = "You have selected " + numFeatures + " features.";
+var content = "Please select desired feature from the list below.<br />";
+
+for (var i=0; i<numFeatures; i++) {
+  var graphic = featureSet.features[i];
+  content = content + graphic.attributes[featureSet.displayFieldName] + " (<a href='#' onclick='showFeature(featureSet.features[" + i + "]);'>show</a>)<br/>";
+}
+
+map.infoWindow.setTitle(title);
+map.infoWindow.setContent(content);
+map.infoWindow.show(screenPoint,map.getInfoWindowAnchor(evt.screenPoint));
+}
+
+function showFeature(feature, ev) {
+	var contentString = "<table><tr><th colspan='2'><h2>" + feature.attributes[lastDisplayField] + "</h2></th></tr>";
+	for (var x in feature.attributes) {
+		if (x !== "OBJECTID" && x !== "Shape") {
+			console.debug(x);
+			contentString = contentString + "<tr><th>"+
+				x +"</th><td>" +
+				feature.attributes[x] + "</td></tr>";
+		}
+	}
+	
+	contentString = contentString + "</table>";
+
+	map.infoWindow.setContent(contentString);
+	map.infoWindow.setTitle("");
+	(ev) ? map.infoWindow.show(ev.screenPoint,map.getInfoWindowAnchor(ev.screenPoint)) : null;
+}
+
 function init() {
 	require([
 		"esri/layers/ArcGISDynamicMapServiceLayer",
@@ -247,19 +290,14 @@ function init() {
 							lyrQueryTask.execute(qry);
 							lyrQueryTask.on("complete", function(results) {
 								if(results.featureSet.features.length > 0) {
-									var contentString = "<table><tr><th colspan='2'><h2>" + results.featureSet.features[0].attributes[results.featureSet.displayFieldName] + "</h2></th></tr>";
-									for (var x in results.featureSet.fields) {
-										if (x !== "OBJECTID" && x !== "Shape") {
-											contentString = contentString + "<tr><th>"+
-												results.featureSet.fields[x].name +"</th><td>" +
-												results.featureSet.features[0].attributes[results.featureSet.fields[x].name] + "</td></tr>";
-										}
-									}
+									lastDisplayField = results.featureSet.displayFieldName;
 									
-									contentString = contentString + "</table>";
-
-									map.infoWindow.setContent(contentString);
-									(ev) ? map.infoWindow.show(ev.screenPoint,map.getInfoWindowAnchor(ev.screenPoint)) : null;
+									if(results.featureSet.features.length > 1) {
+										showFeatureSet(results.featureSet, ev);
+									}
+									else {
+										showFeature(results.featureSet.features[0], ev);
+									}
 								}
 							});				
 					});
