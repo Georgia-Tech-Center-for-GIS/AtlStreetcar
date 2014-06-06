@@ -150,7 +150,10 @@ var tempGraphicsLayer = null;
 dojo.require("dojox.xml.DomParser");
 
 var jsDom = null;
+var lyrQueryTask = null;
 var layerList = ko.observable();
+
+var streetcarLayerURL = "http://tulip.gis.gatech.edu:6080/arcgis/rest/services/AtlStreetcar/PopulationAndHospitality/MapServer/";
 var streetcarLayer = null;
 var baseLayers = [12,13,14,15];
 
@@ -178,7 +181,7 @@ function init() {
 		//esriConfig.defaults.io.alwaysUseProxy = true;
 		
 		esri.config.defaults.io.corsEnabledServers.push("http://carto.gis.gatech.edu");		
-		streetcarLayer = new ArcGISDynamicMapServiceLayer("http://tulip.gis.gatech.edu:6080/arcgis/rest/services/AtlStreetcar/PopulationAndHospitality/MapServer");
+		streetcarLayer = new ArcGISDynamicMapServiceLayer(streetcarLayerURL);
 /*
 		require(["http://esri.github.io/bootstrap-map-js/src/js/bootstrapmap.js"],
 			function (BootstrapMap) {
@@ -206,38 +209,39 @@ function init() {
 				streetcarLayer.setVisibleLayers(baseLayers);
 				
 				map.on("click", function (ev, ui) {
+					if(currLayerTitle() == "" || currLayerTitle() == null) return;
+					
 					apt = map.toMap({x: ev.x, y: ev.y});
 					
-					var bbb = pointToExtent(map,apt,10);
-					console.debug(bbb);
+					pointToExtent(map,apt,100, function(ex) {
+						require(["esri/tasks/query", "esri/tasks/QueryTask"],
+							function(Query,QueryTask) {
+								if(lyrQueryTask == null) {
+									lyrQueryTask = new QueryTask(streetcarLayeURL + currLayerIndex());
+								}
+								
+								var qry = new Query();
+								qry.where = "1=1";
+								qry.geometry = ex;
+								
+								lyrQueryTask.execute(qry);
+								lyrQueryTask.on("complete", function(results) {
+									if(results.featureSet.features.length > 0) {
+										alert("We clicked on a feature!");
+									}
+								});								
+							});
+					});
 				});
 
 				esri.request({
 					url: "layers.xml",
 					handleAs: "text",
 					load: function(e) {
-						/*loadLayerAndLabel("http://tulip.gis.gatech.edu:6080/arcgis/rest/services/AtlStreetcar/PopulationAndHospitality/MapServer/13", "");
-						loadLayerAndLabel("http://tulip.gis.gatech.edu:6080/arcgis/rest/services/AtlStreetcar/PopulationAndHospitality/MapServer/12", "");
-						loadLayerAndLabel("http://tulip.gis.gatech.edu:6080/arcgis/rest/services/AtlStreetcar/PopulationAndHospitality/MapServer/11", "");*/
-
 						jsDom = dojox.xml.DomParser.parse(e);
 						layerList = ko.observable(xmlToJson(jsDom));
 						ko.applyBindings();
 						map.resize();
-
-						/*$.fn.accordion.defaults.container = false; 
-						$("#menu-accordion").accordion({
-							heightStyle: "content",
-							obj: "div", 
-							wrapper: "div", 
-							el: ".h", 
-							head: "h2, h3", 
-							next: "div",
-							initShow : "div.shown",
-							activate : function(ev, ui) {
-								console.debug(ui);
-							}
-						});*/
 				}});
 			});
 			parser.parse();
@@ -442,8 +446,7 @@ var getLegendTitle = ko.computed( function() {
 });
 
 var isAccordionOpen = ko.computed( function(ev) {
-	console.debug(this);
-	
+	console.debug(this);	
 	return "accordion-category-open";
 });
 
@@ -485,15 +488,18 @@ function loadAttributes() {
 		
 			if(currLayerIndex() <= 0) return;
 			
-			var qt = new QueryTask("http://tulip.gis.gatech.edu:6080/arcgis/rest/services/AtlStreetcar/PopulationAndHospitality/MapServer/" + currLayerIndex());
+			if(lyrQueryTask == null) {
+				lyrQueryTask = new QueryTask(streetcarLayerURL + currLayerIndex());
+			}
+			
 			var q  = new Query();
 			
 			q.returnGeometry = true;
 			q.outFields = ["*"];
 			q.where = "1=1";
 	
-			qt.execute(q);
-			qt.on("complete", function(results) {
+			lyrQueryTask.execute(q);
+			lyrQueryTask.on("complete", function(results) {
 				currentLayer(null);
 				headings(null);
 				map.graphics.clear();
@@ -566,6 +572,7 @@ function loadURL_UI(evt_value) {
 				
 			streetcarLayer.setVisibleLayers( baseLayers .concat ( evt_value["@attributes"].url ));
 			currLayerIndex(parseInt( evt_value["@attributes"].url ));
+			lyrQueryTask = new QueryTask(streetcarLayerURL + currLayerIndex());
 			
 			esri.request({
 				url: streetcarLayer.url + "/legend",
