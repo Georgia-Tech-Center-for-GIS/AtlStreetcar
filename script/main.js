@@ -156,20 +156,8 @@ var layerList = ko.observable();
 var streetcarLayerURL = "http://tulip.gis.gatech.edu:6080/arcgis/rest/services/AtlStreetcar/PopulationAndHospitality/MapServer/";
 var streetcarLayer = null;
 var baseLayers = [12,13,14,15];
-
-function pointToExtent (map, point, toleranceInPixel, cb) {
-	require(["esri/geometry/Extent"], function(Extent) {
-		var pixelWidth = map.extent.getWidth() / map.width;
-		var toleranceInMapCoords = toleranceInPixel * pixelWidth;
-		cb( new Extent(point.x - toleranceInMapCoords,
-						  point.y - toleranceInMapCoords,
-						  point.x + toleranceInMapCoords,
-						  point.y + toleranceInMapCoords,
-						  map.spatialReference));
-	});
-}
-
 var lastDisplayField = "";
+var attribHidden = ko.observable(false);
 
 function showFeatureSet(fset,evt) {
 //remove all graphics on the maps graphics layer
@@ -198,7 +186,6 @@ function showFeature(feature, ev) {
 	var contentString = "<table><tr><th colspan='2'><h2>" + feature.attributes[lastDisplayField] + "</h2></th></tr>";
 	for (var x in feature.attributes) {
 		if (x !== "OBJECTID" && x !== "Shape") {
-			console.debug(x);
 			contentString = contentString + "<tr><th>"+
 				x +"</th><td>" +
 				feature.attributes[x] + "</td></tr>";
@@ -621,6 +608,7 @@ function loadAttributes() {
 						});
 					}
 								
+				attribHidden(false);
 				currentLayer(results.featureSet);
 				setupTableHeadings();
 				
