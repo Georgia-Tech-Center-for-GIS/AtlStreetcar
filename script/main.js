@@ -211,38 +211,57 @@ function init() {
 				
 				map.on("click", function (ev, ui) {
 					if(currLayerTitle() == "" || currLayerTitle() == null) return;
-					
-					apt = map.toMap({x: ev.x, y: ev.y});
-					
-					pointToExtent(map,apt,100, function(ex) {
-						require(["esri/tasks/query", "esri/tasks/QueryTask"],
-							function(Query,QueryTask) {
-								if(lyrQueryTask == null) {
-									lyrQueryTask = new QueryTask(streetcarLayeURL + currLayerIndex());
-								}
-								
-								var qry = new Query();
-								qry.where = "1=1";
-								qry.outFields = ["*"];
-								qry.geometry = ex;
-								
-								lyrQueryTask.execute(qry);
-								lyrQueryTask.on("complete", function(results) {
-									if(results.featureSet.features.length > 0) {
-										var contentString = "<table><tr><th colspan='2'><h2>" + results.featureSet.features[0].attributes[results.featureSet.displayFieldName] + "</h2></th></tr>";
-										for (var x in results.featureSet.fields) {
-											if (x !== "OBJECTID" && x !== "Shape") {
-												contentString = contentString + "<tr><th>"+ results.featureSet.fields[x].name +"</th><td>" + results.featureSet.features[0].attributes[results.featureSet.fields[x].name] + "</td></tr>";
-											}
-										}
-										
-										contentString = contentString + "</table>";
-
-										map.infoWindow.setContent(contentString);
-										(ev) ? map.infoWindow.show(ev.screenPoint,map.getInfoWindowAnchor(ev.screenPoint)) : null;
-									}
-								});								
+									
+					require(["esri/tasks/query", "esri/tasks/QueryTask",
+						"esri/symbols/SimpleFillSymbol", "esri/symbols/SimpleLineSymbol",
+						"esri/Color", "esri/geometry/Circle", "esri/graphic"
+					],
+						function(Query,QueryTask,
+							SimpleFillSymbol,SimpleLineSymbol,Color,
+							Circle,Graphic) {
+							
+							var	lyrQueryTask = new QueryTask(streetcarLayerURL + currLayerIndex());							
+							var circleSymb = new SimpleFillSymbol(
+								SimpleFillSymbol.STYLE_NULL,
+								new SimpleLineSymbol(SimpleLineSymbol.STYLE_SHORTDASHDOTDOT,new Color([105, 105, 105]),2),
+								new Color([255, 255, 0, 0.25])
+							);
+							
+							circle = new Circle({
+								center: ev.mapPoint,
+								geodesic: true,
+								radius: 150,
+								radiusUnit: "esriFeet"
 							});
+							
+							map.graphics.clear();
+							map.infoWindow.hide();
+							var graphic = new Graphic(circle, circleSymb);
+							map.graphics.add(graphic);
+							
+							var qry = new Query();
+							qry.where = "1=1";
+							qry.outFields = ["*"];
+							qry.geometry = circle;
+							
+							lyrQueryTask.execute(qry);
+							lyrQueryTask.on("complete", function(results) {
+								if(results.featureSet.features.length > 0) {
+									var contentString = "<table><tr><th colspan='2'><h2>" + results.featureSet.features[0].attributes[results.featureSet.displayFieldName] + "</h2></th></tr>";
+									for (var x in results.featureSet.fields) {
+										if (x !== "OBJECTID" && x !== "Shape") {
+											contentString = contentString + "<tr><th>"+
+												results.featureSet.fields[x].name +"</th><td>" +
+												results.featureSet.features[0].attributes[results.featureSet.fields[x].name] + "</td></tr>";
+										}
+									}
+									
+									contentString = contentString + "</table>";
+
+									map.infoWindow.setContent(contentString);
+									(ev) ? map.infoWindow.show(ev.screenPoint,map.getInfoWindowAnchor(ev.screenPoint)) : null;
+								}
+							});				
 					});
 				});
 
@@ -478,7 +497,7 @@ function setupTableHeadings() {
 		"dojo/_base/array"],
 		function(array) {
 
-		if(currentLayer() != null) {
+		if(currentLayer() != null && currentLayer().features.length > 0) {
 			var DisplayAttribs = array.filter( (Object.keys(currentLayer().features[0].attributes)) , function(item, index, array) {
 				if( item == "description" || item == "balloonStyleText" ||
 					item == "styleUrl" || item == "id" || item == "FID") return false;
@@ -501,9 +520,7 @@ function loadAttributes() {
 		
 			if(currLayerIndex() <= 0) return;
 			
-			if(lyrQueryTask == null) {
-				lyrQueryTask = new QueryTask(streetcarLayerURL + currLayerIndex());
-			}
+			var lyrQueryTask = new QueryTask(streetcarLayerURL + currLayerIndex());
 			
 			var q  = new Query();
 			
@@ -613,16 +630,25 @@ var previousAttributes = null;
 function doActualZoomToFeature( geom, attrib ) {
 	require(["esri/geometry/Point", "esri/symbols/SimpleMarkerSymbol",
 		"esri/Color", "esri/InfoTemplate", "esri/graphic"],
-		function(Point, SimpleMarkerSymbol,Color,InfoTemplate,Graphic) {
-			var b = geom.geometries[0];		
+		function(Point, SimpleMarkerSymbol,Color,InfoTemplate,Graphic) {			
+			var b = geom.geometries[0];
 			lastGraphic = b;
 			
+			map.graphics.clear();
+			
+			var grph = new Graphic(b);
+
 			if(b.type == "point") {
+				var sms = new SimpleMarkerSymbol(SimpleMarkerSymbol.STYLE_CIRCLE, 9, null, new Color("#FFFF00"));
+				grph.symbol = sms;
+				
 				map.setExtent( new esri.geometry.Extent(b.x-150,b.y-150,b.x+150,b.y+150, map.spatialReference) );
 			}
 			else {
 				map.setExtent( b.getExtent().expand(1.75) );
 			}
+			
+			map.graphics.add(grph);
 	});
 }
 
@@ -633,13 +659,7 @@ function zoomToFeature( feature ){
 			console.debug(feature);
 			b = feature.geometry;
 			previousAttributes = feature.attributes;
-						
-			/*var infoTemplate = new esri.InfoTemplate();
-			infoTemplate.setTitle("Results");
-			infoTemplate.setContent(contentString);
-			
-			previousInfoTemplate = infoTemplate; */
-			
+
 			if( b.spatialReference.wkid != map.spatialReference.wkid ) {				
 				var gs = new GeometryService("http://tulip.gis.gatech.edu:6080/arcgis/rest/services/Utilities/Geometry/GeometryServer");
 				var params = new ProjectParameters();
