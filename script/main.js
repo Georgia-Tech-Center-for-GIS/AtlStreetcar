@@ -206,7 +206,7 @@ function init() {
 		"esri/tasks/query",
 		"dojo/parser", "dojo/dom-style", 
 		"dojo/domReady!"], function( ArcGISDynamicMapServiceLayer, FeatureLayer, Query, parser, domStyle ) {
-
+			
 		esriConfig.defaults.io.proxyUrl = "http://carto.gis.gatech.edu/proxypage_net/proxy.ashx";
 		//esriConfig.defaults.io.alwaysUseProxy = true;
 		
@@ -238,6 +238,8 @@ function init() {
 				map.getLayer(map.basemapLayerIds[0]).setOpacity(0.4);
 				map.addLayer(streetcarLayer);
 				streetcarLayer.setVisibleLayers(baseLayers);
+				
+				$("#loadingScreen").css("display", "none");
 				
 				map.on("click", function (ev, ui) {
 					if(currLayerTitle() == "" || currLayerTitle() == null) return;
@@ -542,7 +544,7 @@ function loadAttributes() {
 		"esri/symbols/SimpleMarkerSymbol", "esri/Color", "esri/graphic",
 		"esri/tasks/query", "esri/tasks/QueryTask"],
 		function(GeometryService, ProjectParameters, SimpleMarkerSymbol, Color, Graphic, Query,QueryTask) {
-		
+
 			if(currLayerIndex() <= 0) return;
 			
 			var lyrQueryTask = new QueryTask(streetcarLayerURL + currLayerIndex());
@@ -552,6 +554,8 @@ function loadAttributes() {
 			q.returnGeometry = true;
 			q.outFields = ["*"];
 			q.where = "1=1";
+			
+			$("#loadingScreen").css("display", "block");
 	
 			lyrQueryTask.execute(q);
 			lyrQueryTask.on("complete", function(results) {
@@ -613,6 +617,7 @@ function loadAttributes() {
 				setupTableHeadings();
 				
 				$('#featureTable table').fixedHeaderTable({ footer: false, fixedColumn: false });
+				$("#loadingScreen").css("display", "none");
 				
 				map.resize();
 			});
