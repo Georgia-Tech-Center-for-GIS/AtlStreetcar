@@ -4,29 +4,30 @@
 	<layer url=''>Residential/Student Population</layer>
 	<layer url='9'>Number of Homeowners/Renters</layer>
 	<layer url=''>Age Groups by Census</layer>
-	<layer url=''>Average Median Income</layer>
+	<!-- layer url=''>Average Median Income</layer -->
 </Analysis>
 
 <Analysis name='Land Use/Development'>
-	<layer url=''>Land-use Type</layer>
-	<layer url='11'>Floor-Area Ratio</layer>
+	<layer url='8'>Land-use Type</layer>
+	<layer url='13'>Floor-Area Ratio</layer>
 </Analysis>
 
-<Analysis name='Residential Development'>
+<!-- Analysis name='Residential Development'>
 	<layer url=''>Number of Single Family Homes</layer>
 	<layer url=''>Number of Apartment Condo Units</layer>
 	<layer url=''>Number of Dorm Beds</layer>
 	<layer url=''>Vacancy Rates</layer>
-</Analysis>
+</Analysis-->
 
 <Analysis name='Retail Development'>
-	<layer url=''>Retail Square Footage</layer>
-	<layer url=''>Revenue</layer>
+	<!--layer url=''>Retail Square Footage</layer-->
+	<layer url='14'>Sales</layer>
+	<layer url='15'>Employment</layer>
 </Analysis>
 
-<Analysis name='Office Development'>
-	<layer url='6'>Square Footage</layer>
-	<layer url='5'>Year of Establishment</layer>
+<Analysis name='Employment Development'>
+	<layer url='7'>Square Footage</layer>
+	<layer url='6'>Year of Establishment</layer>
 </Analysis>
 
 <Analysis name='Hospitality'>
@@ -40,19 +41,21 @@
 	</Analysis>
 </Analysis>
 
-<Analysis name='Economic Development'>
+<!--Analysis name='Economic Development'>
 	<layer url=''>Number of Jobs</layer>
 	<layer url=''>Number of Startups (Innovation)</layer>
-</Analysis>
+</Analysis-->
 
 <Analysis name='Traffic'>
 	<layer url=''>Vehicle Ownership Rate</layer>
 	<layer url=''>Vehicle Share Availability/Use</layer>
 	<layer url=''>Travel mode split</layer>
+	<layer url='16'>Number of Parking Spaces</layer>
 </Analysis>
-
+<!-- 
 <Analysis name='Transportation Network'>
 	<layer url=''>Number of Accessible Bike Lanes/Routes</layer>
 </Analysis>
+-->
 
 </Layers>
