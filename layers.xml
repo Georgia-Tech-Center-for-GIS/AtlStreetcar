@@ -36,8 +36,8 @@
 		<layer url='2' >Landmark Attractions</layer>
 	</Analysis>
 	<Analysis name='Hotels'>
-		<layer url='5'>Employment</layer>
-		<layer url='0'>Sales</layer>
+		<!--layer url='5'>Employment</layer-->
+		<layer url='3'>Sales</layer>
 		<layer url='4'>Number of Rooms</layer>
 	</Analysis>
 </Analysis>
