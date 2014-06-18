@@ -155,7 +155,7 @@ var layerList = ko.observable();
 
 var streetcarLayerURL = "http://tulip.gis.gatech.edu:6080/arcgis/rest/services/AtlStreetcar/PopulationAndHospitality/MapServer/";
 var streetcarLayer = null;
-var baseLayers = [12,13,14,15];
+var baseLayers = [17,18,19,20];
 var lastDisplayField = "";
 var attribHidden = ko.observable(false);
 
