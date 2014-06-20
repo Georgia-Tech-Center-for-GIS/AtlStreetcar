@@ -135,3 +135,14 @@ thead tr th {
 	opacity: 0.7;
 	z-index: +15;
 }
+
+#navIcon {
+  position: absolute;
+  bottom: -5px;
+  right: 90px;
+  width: 40%;
+  height: 5%;
+  background-color: null;
+  opacity: 1;
+  z-index: +15;
+}

@@ -159,6 +159,9 @@ var baseLayers = [17,18,19,20];
 var lastDisplayField = "";
 var attribHidden = ko.observable(false);
 
+var navToolbar = null;
+var fullExtent = null;
+
 function showFeatureSet(fset,evt) {
 //remove all graphics on the maps graphics layer
 map.graphics.clear();
@@ -204,8 +207,11 @@ function init() {
 		"esri/layers/ArcGISDynamicMapServiceLayer",
 		"esri/layers/FeatureLayer",
 		"esri/tasks/query",
+		"esri/toolbars/navigation",
+		"dijit/registry",
+		"dojo/on",
 		"dojo/parser", "dojo/dom-style", 
-		"dojo/domReady!"], function( ArcGISDynamicMapServiceLayer, FeatureLayer, Query, parser, domStyle ) {
+		"dojo/domReady!"], function( ArcGISDynamicMapServiceLayer, FeatureLayer, Query, Navigation, parser, domStyle ) {
 			
 		esriConfig.defaults.io.proxyUrl = "http://carto.gis.gatech.edu/proxypage_net/proxy.ashx";
 		//esriConfig.defaults.io.alwaysUseProxy = true;
@@ -234,11 +240,15 @@ function init() {
 				allowScrollbarZoom: true,
 			});
 			
+			
+			
 			map.on("load", function () {
 				map.getLayer(map.basemapLayerIds[0]).setOpacity(0.4);
 				map.addLayer(streetcarLayer);
 				streetcarLayer.setVisibleLayers(baseLayers);
-				
+
+  navToolbar = new esri.toolbars.Navigation(map);
+  fullExtent = map.extent;				
 				$("#loadingScreen").css("display", "none");
 				
 				map.on("click", function (ev, ui) {
@@ -647,6 +657,7 @@ function loadURL_UI(evt_value) {
 
 					currLayerTitle(evt_value["#text"]);
 					currLayerLegend(result.layers[ currLayerIndex() ]);
+					map.setExtent(fullExtent);
 					map.resize();
 					//legendDlg = $("#legend").dialog({dialogClass: "no-close", title: currLayerTitle() });
 				}
@@ -658,30 +669,38 @@ var lastGraphic = null;
 var previousInfoTemplate = null;
 var previousAttributes = null;
 
+  
 function doActualZoomToFeature( geom, attrib ) {
-	require(["esri/geometry/Point", "esri/symbols/SimpleMarkerSymbol",
-		"esri/Color", "esri/InfoTemplate", "esri/graphic"],
-		function(Point, SimpleMarkerSymbol,Color,InfoTemplate,Graphic) {			
-			var b = geom.geometries[0];
-			lastGraphic = b;
-			
-			map.graphics.clear();
-			
-			var grph = new Graphic(b);
+  require(["esri/geometry", "esri/symbols/SimpleMarkerSymbol", "esri/symbols/SimpleFillSymbol", "esri/symbols/SimpleLineSymbol",
+    "esri/Color", "esri/InfoTemplate", "esri/graphic"],
+    function(Point, SimpleMarkerSymbol,SimpleFillSymbol, SimpleLineSymbol, Color,InfoTemplate,Graphic) {      
+      var b = geom.geometries[0];
+      lastGraphic = b;
 
-			if(b.type == "point") {
-				var sms = new SimpleMarkerSymbol(SimpleMarkerSymbol.STYLE_CIRCLE, 9, null, new Color("#FFFF00"));
-				grph.symbol = sms;
-				
-				map.setExtent( new esri.geometry.Extent(b.x-150,b.y-150,b.x+150,b.y+150, map.spatialReference) );
-			}
-			else {
-				map.setExtent( b.getExtent().expand(1.75) );
-			}
-			
-			map.graphics.add(grph);
-	});
+      map.graphics.clear();
+
+      var grph = new Graphic(b);
+
+      if(b.type == "point") {
+        var sms = new SimpleMarkerSymbol(SimpleMarkerSymbol.STYLE_CIRCLE, 9, null, new Color("#FFFF00"));
+        grph.symbol = sms;
+
+        map.setExtent( new esri.geometry.Extent(b.x-150,b.y-150,b.x+150,b.y+150, map.spatialReference) );
+      }
+      else if(b.type == "polygon") {
+        
+        var sfs = new SimpleFillSymbol(SimpleFillSymbol.STYLE_SOLID, new SimpleLineSymbol(SimpleLineSymbol.STYLE_DASHDOT,
+    new Color([255,0,0]), 2), new Color([255,255,0,0.25]));
+
+        grph.symbol = sfs;
+        
+        map.setExtent( b.getExtent().expand(1.75) );
+      }
+
+      map.graphics.add(grph);
+  });
 }
+
 
 function zoomToFeature( feature ){
 	require(["esri/tasks/GeometryService", "esri/tasks/ProjectParameters",
