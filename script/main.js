@@ -247,8 +247,10 @@ function init() {
 				map.addLayer(streetcarLayer);
 				streetcarLayer.setVisibleLayers(baseLayers);
 
-  navToolbar = new esri.toolbars.Navigation(map);
-  fullExtent = map.extent;				
+				map.enableScrollWheelZoom();
+  				navToolbar = new esri.toolbars.Navigation(map);
+  				fullExtent = map.extent;
+
 				$("#loadingScreen").css("display", "none");
 				
 				map.on("click", function (ev, ui) {
@@ -689,8 +691,9 @@ function doActualZoomToFeature( geom, attrib ) {
       }
       else if(b.type == "polygon") {
         
-        var sfs = new SimpleFillSymbol(SimpleFillSymbol.STYLE_SOLID, new SimpleLineSymbol(SimpleLineSymbol.STYLE_DASHDOT,
-    new Color([255,0,0]), 2), new Color([255,255,0,0.25]));
+        var sfs = new SimpleFillSymbol(SimpleFillSymbol.STYLE_SOLID,
+        	new SimpleLineSymbol(SimpleLineSymbol.STYLE_DASHDOT,
+    		new Color([255,0,0]), 2), new Color("#FFFF00"));
 
         grph.symbol = sfs;
         
