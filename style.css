@@ -138,11 +138,20 @@ thead tr th {
 
 #navIcon {
   position: absolute;
-  bottom: -5px;
+  top: 10px;
   right: 90px;
   width: 40%;
   height: 5%;
   background-color: null;
   opacity: 1;
   z-index: +15;
+}
+
+#layerlist li div {
+  display: inline;
+  cursor: pointer;
+}
+
+#layerlist li img {
+  cursor:pointer;
 }
