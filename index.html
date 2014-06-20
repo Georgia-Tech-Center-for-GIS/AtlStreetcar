@@ -181,14 +181,19 @@
 					</div-->
 					<div class='row' style='margin-left: 5px; height:100%;'>
 						<div id="menu-accordion" style='width: 25%; margin-right: 3em; height: 100%;'>
-							<div style='height: 32.15em;'>
+							<div id = "layerlist" style='height: 32.15em;'>
 							<h2>Data Categories</h2>
 							<!-- ko foreach: layerList().Layers.Analysis -->
 								<h3 class='accordion-category'
 								data-bind='fadeVisible: ((currCateg() == null || currCateg() == $data["@attributes"].name )), text: $data["@attributes"].name, click: changeIt, css: { accordionCategoryOpen :(currCateg() == $data["@attributes"].name ) }'> </h3>
 								<div class='inner' data-bind='visible: ((currCateg() == $data["@attributes"].name ))'>
 									<ul data-bind='foreach: $data.layer'>
-										<li data-bind='text: $data["#text"], click: loadURL_UI, style { color: ($data["@attributes"].url == "")? "red" : "black"}'></li>
+										<li>
+										  <img src="/images/glyphicons_152_check.png" data-bind='visible: currLayerIndex()==$data["@attributes"].url' />
+                    <img src="/images/glyphicons_153_unchecked.png" data-bind='visible: currLayerIndex()!=$data["@attributes"].url' />
+                
+										  <div data-bind='text: $data["#text"], click: loadURL_UI, style { color: ($data["@attributes"].url == "")? "red" : "black"}'></div>
+									  </li>
 									</ul>
 
 									<!-- ko foreach: $data.Analysis -->
@@ -305,5 +310,6 @@
             </div>
         </div>
 	</script>
+	
 </body>
 </html>
