@@ -314,7 +314,6 @@ function init() {
 						map.resize();
 				}});
 			});
-			parser.parse();
 		});
 	});
 }

@@ -188,11 +188,11 @@
 								data-bind='fadeVisible: ((currCateg() == null || currCateg() == $data["@attributes"].name )), text: $data["@attributes"].name, click: changeIt, css: { accordionCategoryOpen :(currCateg() == $data["@attributes"].name ) }'> </h3>
 								<div class='inner' data-bind='visible: ((currCateg() == $data["@attributes"].name ))'>
 									<ul data-bind='foreach: $data.layer'>
-										<li>
+										<li data-bind='click: loadURL_UI'>
 										  	<img src="./images/glyphicons_152_check.png" data-bind='visible: currLayerIndex()==$data["@attributes"].url' />
                     						<img src="./images/glyphicons_153_unchecked.png" data-bind='visible: currLayerIndex()!=$data["@attributes"].url' />
                 
-										  <div data-bind='text: $data["#text"], click: loadURL_UI, style { color: ($data["@attributes"].url == "")? "red" : "black"}'></div>
+										  <div data-bind='text: $data["#text"], style { color: ($data["@attributes"].url == "")? "red" : "black"}'></div>
 									  </li>
 									</ul>
 
