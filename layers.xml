@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <?xml version="1.0" encoding="UTF-8"?>
 <Layers>
 <Analysis name='Population'>
@@ -58,4 +59,66 @@
 </Analysis>
 -->
 
+=======
+<?xml version="1.0" encoding="UTF-8"?>
+<Layers>
+<Analysis name='Population'>
+	<layer url=''>Residential/Student Population</layer>
+	<layer url='9'>Number of Homeowners/Renters</layer>
+	<layer url=''>Age Groups by Census</layer>
+	<!-- layer url=''>Average Median Income</layer -->
+</Analysis>
+
+<Analysis name='Land Use/Development'>
+	<layer url='8'>Land-use Type</layer>
+	<layer url='13'>Floor-Area Ratio</layer>
+</Analysis>
+
+<!-- Analysis name='Residential Development'>
+	<layer url=''>Number of Single Family Homes</layer>
+	<layer url=''>Number of Apartment Condo Units</layer>
+	<layer url=''>Number of Dorm Beds</layer>
+	<layer url=''>Vacancy Rates</layer>
+</Analysis-->
+
+<Analysis name='Retail Development'>
+	<!--layer url=''>Retail Square Footage</layer-->
+	<layer url='14'>Sales</layer>
+	<layer url='15'>Employment</layer>
+</Analysis>
+
+<Analysis name='Employment Development'>
+	<layer url='7'>Square Footage</layer>
+	<layer url='6'>Year of Establishment</layer>
+</Analysis>
+
+<Analysis name='Hospitality'>
+	<Analysis name='Attractions'>
+		<layer url='0' >Historic Attractions</layer>
+		<layer url='1' >Landmark Attractions</layer>
+	</Analysis>
+	<Analysis name='Hotels'>
+		<layer url='2'>Employment</layer>
+		<layer url='3'>Number of Rooms</layer>
+	</Analysis>
+</Analysis>
+
+<!--Analysis name='Economic Development'>
+	<layer url=''>Number of Jobs</layer>
+	<layer url=''>Number of Startups (Innovation)</layer>
+</Analysis-->
+
+<Analysis name='Traffic'>
+	<layer url=''>Vehicle Ownership Rate</layer>
+	<layer url=''>Vehicle Share Availability/Use</layer>
+	<layer url=''>Travel mode split</layer>
+	<layer url='16'>Number of Parking Spaces</layer>
+</Analysis>
+<!-- 
+<Analysis name='Transportation Network'>
+	<layer url=''>Number of Accessible Bike Lanes/Routes</layer>
+</Analysis>
+-->
+
+>>>>>>> upstream/master
 </Layers>
