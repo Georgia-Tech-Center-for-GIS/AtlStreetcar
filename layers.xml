@@ -32,12 +32,12 @@
 
 <Analysis name='Hospitality'>
 	<Analysis name='Attractions'>
-		<layer url='0' >Historic Attractions</layer>
-		<layer url='1' >Landmark Attractions</layer>
+		<layer url='1' >Historic Attractions</layer>
+		<layer url='2' >Landmark Attractions</layer>
 	</Analysis>
 	<Analysis name='Hotels'>
-		<layer url='2'>Employment</layer>
-		<layer url='3'>Number of Rooms</layer>
+		<layer url='3'>Employment</layer>
+		<layer url='4'>Number of Rooms</layer>
 	</Analysis>
 </Analysis>
 

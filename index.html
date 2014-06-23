@@ -199,7 +199,12 @@
 									<!-- ko foreach: $data.Analysis -->
 										<div data-bind='text: $data["@attributes"].name'> </div>
 										<ul data-bind='foreach: $data.layer'>
-											<li data-bind='text: $data["#text"], click: loadURL_UI'></li>
+											<li data-bind='click: loadURL_UI'>
+											  	<img src="./images/glyphicons_152_check.png" data-bind='visible: currLayerIndex()==$data["@attributes"].url' />
+	                    						<img src="./images/glyphicons_153_unchecked.png" data-bind='visible: currLayerIndex()!=$data["@attributes"].url' />
+	                
+											  <div data-bind='text: $data["#text"], style { color: ($data["@attributes"].url == "")? "red" : "black"}'>							  </div>
+										  </li>
 										</ul>
 									<!-- /ko -->
 								</div>
