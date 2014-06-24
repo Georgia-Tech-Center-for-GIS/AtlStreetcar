@@ -190,9 +190,11 @@
 									<ul data-bind='foreach: $data.layer'>
 										<li data-bind='click: loadURL_UI'>
 										  	<img src="./images/glyphicons_152_check.png" data-bind='visible: currLayerIndex()==$data["@attributes"].url' />
-                    						<img src="./images/glyphicons_153_unchecked.png" data-bind='visible: currLayerIndex()!=$data["@attributes"].url' />
+                    		<img src="./images/glyphicons_153_unchecked.png" data-bind='visible: currLayerIndex()!=$data["@attributes"].url' />
                 
 										  <div data-bind='text: $data["#text"], style { color: ($data["@attributes"].url == "")? "red" : "black"}'></div>
+                      <img src="./charts/icon.png" data-bind='visible: $data["@attributes"].chart!=undefined' style='width: 25px;'/>
+                      
 									  </li>
 									</ul>
 
@@ -223,7 +225,7 @@
 								<!-- /ko -->
 							</div>
 						</div>				
-						<div style='width: 68%; height: 100%; padding-top: 5px; padding-left: 5px;'>
+						<div id="mapContainer" style='width: 68%; height: 100%; padding-top: 5px; padding-left: 5px;'>
 							<div id="map" data-bind='css: {mapWithoutAttributes: (currentLayer() == null || attribHidden() == true), mapWithAttributes: (currentLayer() != null && attribHidden() == false) }'>
 							  <div id = "navIcon">
 							    <button data-bind = "click: navToolbar.zoomToPrevExtent()"> Zoom Prev </button>
