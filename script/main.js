@@ -271,11 +271,14 @@ function init() {
 								new Color([255, 255, 0, 0.25])
 							);
 							
+							var p1 = map.toMap({x: 50, y: 50});
+							var p2 = map.toMap({x: 50, y: 60});
+
 							circle = new Circle({
 								center: ev.mapPoint,
 								geodesic: true,
-								radius: 150,
-								radiusUnit: "esriFeet"
+								radius: (p1.y - p2.y),
+								radiusUnit: "esriMeters"
 							});
 							
 							map.graphics.clear();
@@ -287,6 +290,7 @@ function init() {
 							qry.where = "1=1";
 							qry.outFields = ["*"];
 							qry.geometry = circle;
+							qry.returnGeometry = true;
 							
 							lyrQueryTask.execute(qry);
 							lyrQueryTask.on("complete", function(results) {
