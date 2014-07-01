@@ -4,6 +4,7 @@
 	<layer url=''>Residential/Student Population</layer>
 	<layer url='9'>Number of Homeowners/Renters</layer>
 	<layer url=''>Age Groups by Census</layer>
+	<layer chart='./charts/age.jpg' url='-1'>Age</layer>
 	<!-- layer url=''>Average Median Income</layer -->
 </Analysis>
 

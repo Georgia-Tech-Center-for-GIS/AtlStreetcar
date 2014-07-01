@@ -505,7 +505,7 @@ var urlsLoaded = ko.observableArray([]);
 var currentLayer = ko.observable(null);
 var headings = ko.observableArray([]);
 
-var currLayerIndex = ko.observable(null);
+var currLayerIndex = ko.observable(-2);
 var currLayerTitle = ko.observable("");
 var currLayerLegend = ko.observable(null);
 var currCateg = ko.observable(null);
@@ -639,9 +639,24 @@ function loadURL_UI(evt_value) {
 	require([
 		"esri/tasks/query", "esri/tasks/QueryTask"],
 		function(Query,QueryTask) {
-			if(evt_value["@attributes"].url.length == 0)
+		  
+		  
+		  if(evt_value["@attributes"].chart!=undefined){
+		    chart_url = evt_value["@attributes"].chart;
+		    $('#map').hide();
+		    currLayerIndex(-1);
+		    img = document.createElement('img');
+        img.src = chart_url;
+        document.getElementById("mapContainer").appendChild(img);
+		    //console.log("chart");
+		    return;
+		  }  
+		  $('#map').show();
+		  
+		  
+			if(evt_value["@attributes"].url.length == 0){
 				return;
-				
+			}
 			streetcarLayer.setVisibleLayers( baseLayers .concat ( evt_value["@attributes"].url ));
 			currLayerIndex(parseInt( evt_value["@attributes"].url ));
 			lyrQueryTask = new QueryTask(streetcarLayerURL + currLayerIndex());
