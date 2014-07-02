@@ -186,6 +186,7 @@ map.infoWindow.show(screenPoint,map.getInfoWindowAnchor(evt.screenPoint));
 }
 
 function showFeature(feature, ev) {
+
 	var contentString = "<table><tr><th colspan='2'><h2>" + feature.attributes[lastDisplayField] + "</h2></th></tr>";
 	for (var x in feature.attributes) {
 		if (x !== "OBJECTID" && x !== "Shape") {
@@ -196,10 +197,16 @@ function showFeature(feature, ev) {
 	}
 	
 	contentString = contentString + "</table>";
-
+	
+	zoomToFeature(feature);
+	 
 	map.infoWindow.setContent(contentString);
-	map.infoWindow.setTitle("");
-	(ev) ? map.infoWindow.show(ev.screenPoint,map.getInfoWindowAnchor(ev.screenPoint)) : null;
+  map.infoWindow.setTitle("");
+	 
+require(["esri/dijit/InfoWindow"], function(InfoWindow){
+  map.infoWindow.show(feature.geometry, InfoWindow.ANCHOR_UPPERRIGHT);
+});
+
 }
 
 function init() {
@@ -273,7 +280,7 @@ function init() {
 							
 							var p1 = map.toMap({x: 50, y: 50});
 							var p2 = map.toMap({x: 50, y: 60});
-
+							
 							circle = new Circle({
 								center: ev.mapPoint,
 								geodesic: true,
@@ -509,7 +516,7 @@ var urlsLoaded = ko.observableArray([]);
 var currentLayer = ko.observable(null);
 var headings = ko.observableArray([]);
 
-var currLayerIndex = ko.observable(-2);
+var currLayerIndex = ko.observable(null);
 var currLayerTitle = ko.observable("");
 var currLayerLegend = ko.observable(null);
 var currCateg = ko.observable(null);
@@ -644,23 +651,21 @@ function loadURL_UI(evt_value) {
 		"esri/tasks/query", "esri/tasks/QueryTask"],
 		function(Query,QueryTask) {
 		  
-		  
-		  if(evt_value["@attributes"].chart!=undefined){
-		    chart_url = evt_value["@attributes"].chart;
-		    $('#map').hide();
-		    currLayerIndex(-1);
-		    img = document.createElement('img');
+      if(evt_value["@attributes"].chart!=undefined){
+        chart_url = evt_value["@attributes"].chart;
+        $('#map').hide();
+        currLayerIndex(-1);
+        img = document.createElement('img');
         img.src = chart_url;
         document.getElementById("mapContainer").appendChild(img);
-		    //console.log("chart");
-		    return;
-		  }  
-		  $('#map').show();
-		  
-		  
-			if(evt_value["@attributes"].url.length == 0){
+        //console.log("chart");
+        return;
+      }  
+      $('#map').show();
+      
+			if(evt_value["@attributes"].url.length == 0)
 				return;
-			}
+				
 			streetcarLayer.setVisibleLayers( baseLayers .concat ( evt_value["@attributes"].url ));
 			currLayerIndex(parseInt( evt_value["@attributes"].url ));
 			lyrQueryTask = new QueryTask(streetcarLayerURL + currLayerIndex());
@@ -679,6 +684,8 @@ function loadURL_UI(evt_value) {
 					currLayerLegend(result.layers[ currLayerIndex() ]);
 					map.setExtent(fullExtent);
 					map.resize();
+					map.graphics.clear();
+					map.infoWindow.hide();
 					//legendDlg = $("#legend").dialog({dialogClass: "no-close", title: currLayerTitle() });
 				}
 			});
@@ -741,7 +748,7 @@ function zoomToFeature( feature ){
 				gs.on("project-complete", doActualZoomToFeature);
 			}
 			else {
-				doActualZoomToFeature([b]);
+				doActualZoomToFeature({geometries:[b]});
 			}
 	});
 }
