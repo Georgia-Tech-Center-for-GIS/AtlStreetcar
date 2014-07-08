@@ -305,7 +305,7 @@ function init() {
 									lastDisplayField = results.featureSet.displayFieldName;
 									
 									if(results.featureSet.features.length > 1) {
-										showFeatureSet(results.featureSet, ev);
+										(results.featureSet, ev);
 									}
 									else {
 										showFeature(results.featureSet.features[0], ev);
