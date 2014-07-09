@@ -23,6 +23,7 @@
 	</script>
                 
 	<link rel="stylesheet" href="http://js.arcgis.com/3.9/js/dojo/dijit/themes/tundra/tundra.css">
+	<link rel="stylesheet" href="http://js.arcgis.com/3.9/js/dojo/dijit/themes/claro/claro.css">
 	<link rel="stylesheet" href="http://js.arcgis.com/3.9/js/esri/css/esri.css">
 
 	<!-- This site is optimized with the Yoast WordPress SEO plugin v1.4.15 - http://yoast.com/wordpress/seo/ -->
@@ -41,7 +42,6 @@
 					_gaq.push(['_trackPageview','/404.html?page=' + document.location.pathname + document.location.search + '&from=' + document.referrer]);
 	(function () {
 		var ga = document.createElement('script');
-		ga.type = 'text/javascript';
 		ga.async = true;
 		ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
 
@@ -59,6 +59,7 @@
 	<link rel='stylesheet' id='main-css'  href='http://streetcar.atlantaga.gov/wp-content/themes/streetcar/css/main.css?ver=1.0' media='all' />
 	<link rel='stylesheet' id='jquery-ui-accordion-css'  href='http://streetcar.atlantaga.gov/wp-content/themes/streetcar/css/jquery-ui-1.10.3.min.css?ver=3.6' media='all' />
 	<link rel='stylesheet' id='tablepress-default-css'  href='http://streetcar.atlantaga.gov/wp-content/plugins/tablepress/css/default.min.css?ver=1.0' media='all' />
+		ga.type = 'text/javascript';
 	<link rel='stylesheet' id='cpsh-shortcodes-css'  href='http://streetcar.atlantaga.gov/wp-content/plugins/column-shortcodes/assets/css/shortcodes.css?ver=0.6' media='all' />
 	<link rel='stylesheet' id='wp-ui-css'  href='http://streetcar.atlantaga.gov/wp-content/plugins/wp-ui/css/wp-ui.css?ver=3.6' media='all' />
 	<link rel='stylesheet' id='wpui-light-css'  href='http://streetcar.atlantaga.gov/wp-content/plugins/wp-ui/css/themes/wpui-light.css?ver=3.6' media='all' />
@@ -102,8 +103,8 @@
 	  <script type="text/javascript" src="http://streetcar.atlantaga.gov/wp-content/themes/streetcar/js/selectivizr-min.js"></script>
 	<![endif]-->
 
-    <link rel="stylesheet" type="text/css" href="http://js.arcgis.com/3.9/js/esri/css/esri.css" />
-    <link rel="stylesheet" type="text/css" href="http://esri.github.io/bootstrap-map-js/src/css/bootstrapmap.css" />
+  <link rel="stylesheet" type="text/css" href="http://js.arcgis.com/3.9/js/esri/css/esri.css" />
+  <link rel="stylesheet" type="text/css" href="http://esri.github.io/bootstrap-map-js/src/css/bootstrapmap.css" />
 
 	<link rel='stylesheet' type='text/css' href='fixedHeaderDefaultTheme.css'/>
 	<link rel='stylesheet' type='text/css' href='style.css' />
@@ -167,8 +168,8 @@
 		<div class="container">
 			<div id="progressBar" style='position: absolute; top: 50%; left: 50%; width: 50em; height: 4em;'><h2 style='font-size: 36px; font-weight: bold;' >Loading</h2></div>
 		</div>
-	</div>
-
+	</div>	
+		
 	<div id="main-container" class="container-fluid clearfix" style='height:100%;'>
 		<div id="main" class="row-fluid" style='height: 100%;'>
 			<!-- section -->
@@ -190,9 +191,11 @@
 									<ul data-bind='foreach: $data.layer'>
 										<li data-bind='click: loadURL_UI'>
 										  	<img src="./images/glyphicons_152_check.png" data-bind='visible: currLayerIndex()==$data["@attributes"].url' />
-                    						<img src="./images/glyphicons_153_unchecked.png" data-bind='visible: currLayerIndex()!=$data["@attributes"].url' />
+                    		<img src="./images/glyphicons_153_unchecked.png" data-bind='visible: currLayerIndex()!=$data["@attributes"].url' />
                 
 										  <div data-bind='text: $data["#text"], style { color: ($data["@attributes"].url == "")? "red" : "black"}'></div>
+                      <img src="./charts/icon.png" data-bind='visible: $data["@attributes"].chart!=undefined' style='width: 25px;'/>
+                      
 									  </li>
 									</ul>
 
@@ -223,13 +226,20 @@
 								<!-- /ko -->
 							</div>
 						</div>				
-						<div style='width: 68%; height: 100%; padding-top: 5px; padding-left: 5px;'>
+						<div id="mapContainer" style='width: 68%; height: 100%; padding-top: 5px; padding-left: 5px;'>
 							<div id="map" data-bind='css: {mapWithoutAttributes: (currentLayer() == null || attribHidden() == true), mapWithAttributes: (currentLayer() != null && attribHidden() == false) }'>
 							  <div id = "navIcon">
 							    <button data-bind = "click: navToolbar.zoomToPrevExtent()"> Zoom Prev </button>
 							    <button data-bind = "click: navToolbar.zoomToNextExtent()"> Zoom Next </button>
-							  </div>			  
-					  </div>
+							  </div>
+                                    <div id="timeBottomPanel">
+										<div id="timeInfo">
+											<div>Atlanta Streetcar Scenario from <span id="daterange">1990 to 2015</span> (Completion date)</div>
+											<div id="timeSliderDiv"></div>
+										</div>
+									</div>
+							</div>
+					    </div>
 							
 <div id="featureTable" data-bind='css: {attributesHidden: (currentLayer() == null || attribHidden() == true), attributesShown: (currentLayer() != null && attribHidden()==false)}'>
 	<h2 class='dataBtn' data-bind='click: loadAttributes, visible: currentLayer() == null, text: "Click here to retrieve feature attributes"'></h2>	
@@ -271,13 +281,13 @@
 					<div class="span7">
 						<p class="copyright">
 							&copy; 2014 Copyright Atlanta Streetcar All Rights Reserved. \\ <a href="http://streetcar.atlantaga.gov/site-map/">Site Map</a> \\ <a href="http://streetcar.atlantaga.gov/legalprivacy/">Legal/Privacy</a>
+			</footer>
 						</p>
 					</div>
 					<div class="span5">
 						<img src="http://streetcar.atlantaga.gov/wp-content/themes/streetcar/img/footer-logos.png" alt="footer-logos" width="540" height="116" />
 					</div>
 				</div>
-			</footer>
 			<!-- /footer -->
 		</div>
 	</div>

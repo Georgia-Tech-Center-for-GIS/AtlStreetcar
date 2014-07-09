@@ -186,6 +186,7 @@ map.infoWindow.show(screenPoint,map.getInfoWindowAnchor(evt.screenPoint));
 }
 
 function showFeature(feature, ev) {
+
 	var contentString = "<table><tr><th colspan='2'><h2>" + feature.attributes[lastDisplayField] + "</h2></th></tr>";
 	for (var x in feature.attributes) {
 		if (x !== "OBJECTID" && x !== "Shape") {
@@ -196,10 +197,16 @@ function showFeature(feature, ev) {
 	}
 	
 	contentString = contentString + "</table>";
-
+	
+	zoomToFeature(feature);
+	 
 	map.infoWindow.setContent(contentString);
-	map.infoWindow.setTitle("");
-	(ev) ? map.infoWindow.show(ev.screenPoint,map.getInfoWindowAnchor(ev.screenPoint)) : null;
+  map.infoWindow.setTitle("");
+	 
+require(["esri/dijit/InfoWindow"], function(InfoWindow){
+  map.infoWindow.show(feature.geometry, InfoWindow.ANCHOR_UPPERRIGHT);
+});
+
 }
 
 function init() {
@@ -211,7 +218,16 @@ function init() {
 		"dijit/registry",
 		"dojo/on",
 		"dojo/parser", "dojo/dom-style", 
-		"dojo/domReady!"], function( ArcGISDynamicMapServiceLayer, FeatureLayer, Query, Navigation, parser, domStyle ) {
+		"esri/tasks/query", 
+		"esri/toolbars/draw",
+		"esri/TimeExtent", 
+		"esri/dijit/TimeSlider",
+        "dojo/_base/array", 
+		"dojo/dom",
+		"dojo/domReady!"],
+			function(
+		ArcGISDynamicMapServiceLayer, FeatureLayer, Query, Navigation, registry, on, parser, domStyle, Query, Draw, TimeExtent, TimeSlider,
+        arrayUtils, dom ) {
 			
 		esriConfig.defaults.io.proxyUrl = "http://carto.gis.gatech.edu/proxypage_net/proxy.ashx";
 		//esriConfig.defaults.io.alwaysUseProxy = true;
@@ -240,69 +256,22 @@ function init() {
 				allowScrollbarZoom: true,
 			});
 			
-			
-			
 			map.on("load", function () {
 				map.getLayer(map.basemapLayerIds[0]).setOpacity(0.4);
 				map.addLayer(streetcarLayer);
 				streetcarLayer.setVisibleLayers(baseLayers);
+				
+				map.on("layers-add-result", initSlider);
+				console.log();
 
 				map.enableScrollWheelZoom();
+				drawToolbar = new esri.toolbars.Draw(map);
   				navToolbar = new esri.toolbars.Navigation(map);
   				fullExtent = map.extent;
-
-				$("#loadingScreen").css("display", "none");
 				
-				map.on("click", function (ev, ui) {
-					if(currLayerTitle() == "" || currLayerTitle() == null) return;
-									
-					require(["esri/tasks/query", "esri/tasks/QueryTask",
-						"esri/symbols/SimpleFillSymbol", "esri/symbols/SimpleLineSymbol",
-						"esri/Color", "esri/geometry/Circle", "esri/graphic"
-					],
-						function(Query,QueryTask,
-							SimpleFillSymbol,SimpleLineSymbol,Color,
-							Circle,Graphic) {
-							
-							var	lyrQueryTask = new QueryTask(streetcarLayerURL + currLayerIndex());							
-							var circleSymb = new SimpleFillSymbol(
-								SimpleFillSymbol.STYLE_NULL,
-								new SimpleLineSymbol(SimpleLineSymbol.STYLE_SHORTDASHDOTDOT,new Color([105, 105, 105]),2),
-								new Color([255, 255, 0, 0.25])
-							);
-							
-							circle = new Circle({
-								center: ev.mapPoint,
-								geodesic: true,
-								radius: 150,
-								radiusUnit: "esriFeet"
-							});
-							
-							map.graphics.clear();
-							map.infoWindow.hide();
-							var graphic = new Graphic(circle, circleSymb);
-							map.graphics.add(graphic);
-							
-							var qry = new Query();
-							qry.where = "1=1";
-							qry.outFields = ["*"];
-							qry.geometry = circle;
-							
-							lyrQueryTask.execute(qry);
-							lyrQueryTask.on("complete", function(results) {
-								if(results.featureSet.features.length > 0) {
-									lastDisplayField = results.featureSet.displayFieldName;
-									
-									if(results.featureSet.features.length > 1) {
-										showFeatureSet(results.featureSet, ev);
-									}
-									else {
-										showFeature(results.featureSet.features[0], ev);
-									}
-								}
-							});				
-					});
-				});
+				initToolbar(map);
+				
+				$("#loadingScreen").css("display", "none");
 
 				esri.request({
 					url: "layers.xml",
@@ -314,6 +283,94 @@ function init() {
 						map.resize();
 				}});
 			});
+		});
+	});
+}
+
+function initSlider() {
+	requrie(["esri/layers/ArcGISDynamicMapServiceLayer", 
+        "esri/TimeExtent", "esri/dijit/TimeSlider",
+        "dojo/_base/array", "dojo/dom", "dojo/domReady!"],function(TimeExtent, TimeSlider, arrayUtils, dom
+		) {
+          var timeSlider = new TimeSlider({
+            style: "width: 100%;"
+          }, dom.byId("timeSliderDiv"));
+          map.setTimeSlider(timeSlider);
+          
+          var timeExtent = new TimeExtent();
+          timeExtent.startTime = new Date("1/1/1990 UTC");
+          timeExtent.endTime = new Date("12/31/2015 UTC");
+          timeSlider.setThumbCount(2);
+          timeSlider.createTimeStopsByTimeInterval(timeExtent, 2, "esriTimeUnitsYears");
+          timeSlider.setThumbIndexes([0,1]);
+          timeSlider.setThumbMovingRate(2000);
+          timeSlider.startup();
+          
+          //add labels for every other time stop
+          var labels = arrayUtils.map(timeSlider.timeStops, function(timeStop, i) { 
+            if ( i % 2 === 0 ) {
+              return timeStop.getUTCFullYear(); 
+            } else {
+              return "";
+            }
+          }); 
+          
+          timeSlider.setLabels(labels);
+          
+          timeSlider.on("time-extent-change", function(evt) {
+            var startValString = evt.startTime.getUTCFullYear();
+            var endValString = evt.endTime.getUTCFullYear();
+            dom.byId("daterange").innerHTML = "<i>" + startValString + " and " + endValString  + "<\/i>";
+			console.log();
+          });
+		  });
+        }
+		
+//initialize drawing toolbar
+function initToolbar(map) {
+	var tb = new esri.toolbars.Draw(map);
+	//find points in Extent when user completes drawing extent
+	//dojo.connect(tb, "onDrawEnd", findPointsInExtent);
+	//set drawing mode to extent
+	tb.activate(esri.toolbars.Draw.CIRCLE);
+	
+	tb.on("draw-complete", function(evt) {
+		if(currLayerTitle() == "" || currLayerTitle() == null) return;			
+		
+		require(["esri/tasks/query", "esri/tasks/QueryTask",
+			"esri/symbols/SimpleFillSymbol", "esri/symbols/SimpleLineSymbol",
+			"esri/Color", "esri/geometry/Circle", "esri/graphic"
+		],
+		function(Query,QueryTask,
+			SimpleFillSymbol,SimpleLineSymbol,Color,
+			Circle,Graphic) {
+//				var defaultSymbol, highlightSymbol, resultTemplate;
+//				defaultSymbol = new esri.symbol.SimpleMarkerSymbol().setColor(new dojo.Color([0,0,255]));
+//				highlightSymbol = new esri.symbol.SimpleMarkerSymbol().setColor(new dojo.Color([255,0,0]));
+
+				var qry = new Query();
+				var lyrQueryTask = new QueryTask(streetcarLayerURL + currLayerIndex());
+				
+				qry.where = "1=1";
+				qry.outFields = ["*"];
+				qry.returnGeometry = true;
+				qry.geometry = evt.geometry;
+				
+				console.debug(lyrQueryTask);
+				
+				lyrQueryTask.execute(qry);
+				lyrQueryTask.on("complete", function(results) {
+					if(results.featureSet.features.length > 0) {
+						lastDisplayField = results.featureSet.displayFieldName;
+						
+						if(results.featureSet.features.length > 1) {
+							showFeatureSet(results.featureSet, evt);
+						}
+						else {
+							showFeature(results.featureSet.features[0], evt);
+						}
+					}
+				});
 		});
 	});
 }
@@ -515,7 +572,6 @@ var getLegendTitle = ko.computed( function() {
 });
 
 var isAccordionOpen = ko.computed( function(ev) {
-	console.debug(this);	
 	return "accordion-category-open";
 });
 
@@ -639,6 +695,19 @@ function loadURL_UI(evt_value) {
 	require([
 		"esri/tasks/query", "esri/tasks/QueryTask"],
 		function(Query,QueryTask) {
+		  
+      if(evt_value["@attributes"].chart!=undefined){
+        chart_url = evt_value["@attributes"].chart;
+        $('#map').hide();
+        currLayerIndex(-1);
+        img = document.createElement('img');
+        img.src = chart_url;
+        document.getElementById("mapContainer").appendChild(img);
+        //console.log("chart");
+        return;
+      }  
+      $('#map').show();
+      
 			if(evt_value["@attributes"].url.length == 0)
 				return;
 				
@@ -660,6 +729,8 @@ function loadURL_UI(evt_value) {
 					currLayerLegend(result.layers[ currLayerIndex() ]);
 					map.setExtent(fullExtent);
 					map.resize();
+					map.graphics.clear();
+					map.infoWindow.hide();
 					//legendDlg = $("#legend").dialog({dialogClass: "no-close", title: currLayerTitle() });
 				}
 			});
@@ -722,7 +793,7 @@ function zoomToFeature( feature ){
 				gs.on("project-complete", doActualZoomToFeature);
 			}
 			else {
-				doActualZoomToFeature([b]);
+				doActualZoomToFeature({geometries:[b]});
 			}
 	});
 }
