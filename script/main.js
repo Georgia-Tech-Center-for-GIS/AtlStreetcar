@@ -256,14 +256,18 @@ function init() {
 				allowScrollbarZoom: true,
 			});
 			
+			map.addLayer(streetcarLayer);
+			
+			//map.on("layers-add-result", );
+			
 			map.on("load", function () {
 				map.getLayer(map.basemapLayerIds[0]).setOpacity(0.4);
-				map.addLayer(streetcarLayer);
+				
 				streetcarLayer.setVisibleLayers(baseLayers);
 				
-				map.on("layers-add-result", initSlider);
-				console.log();
-
+				console.log("hello");
+				initSlider();
+				
 				map.enableScrollWheelZoom();
 				drawToolbar = new esri.toolbars.Draw(map);
   				navToolbar = new esri.toolbars.Navigation(map);
@@ -288,10 +292,10 @@ function init() {
 }
 
 function initSlider() {
-	requrie(["esri/layers/ArcGISDynamicMapServiceLayer", 
+	require([ 
         "esri/TimeExtent", "esri/dijit/TimeSlider",
-        "dojo/_base/array", "dojo/dom", "dojo/domReady!"],function(TimeExtent, TimeSlider, arrayUtils, dom
-		) {
+        "dojo/_base/array", "dojo/dom", "dojo/domReady!"],
+		function(TimeExtent, TimeSlider, arrayUtils, dom) {
           var timeSlider = new TimeSlider({
             style: "width: 100%;"
           }, dom.byId("timeSliderDiv"));
@@ -299,6 +303,7 @@ function initSlider() {
           
           var timeExtent = new TimeExtent();
           timeExtent.startTime = new Date("1/1/1990 UTC");
+		  map.setTimeExtent(timeExtent);
           timeExtent.endTime = new Date("12/31/2015 UTC");
           timeSlider.setThumbCount(2);
           timeSlider.createTimeStopsByTimeInterval(timeExtent, 2, "esriTimeUnitsYears");
