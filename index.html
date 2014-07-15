@@ -23,6 +23,7 @@
 	</script>
                 
 	<link rel="stylesheet" href="http://js.arcgis.com/3.9/js/dojo/dijit/themes/tundra/tundra.css">
+	<link rel="stylesheet" href="http://js.arcgis.com/3.9/js/dojo/dijit/themes/claro/claro.css">
 	<link rel="stylesheet" href="http://js.arcgis.com/3.9/js/esri/css/esri.css">
 
 	<!-- This site is optimized with the Yoast WordPress SEO plugin v1.4.15 - http://yoast.com/wordpress/seo/ -->
@@ -167,8 +168,8 @@
 		<div class="container">
 			<div id="progressBar" style='position: absolute; top: 50%; left: 50%; width: 50em; height: 4em;'><h2 style='font-size: 36px; font-weight: bold;' >Loading</h2></div>
 		</div>
-	</div>
-
+	</div>	
+		
 	<div id="main-container" class="container-fluid clearfix" style='height:100%;'>
 		<div id="main" class="row-fluid" style='height: 100%;'>
 			<!-- section -->
@@ -231,8 +232,14 @@
 							    <button data-bind = "click: navToolbar.zoomToPrevExtent()"> Zoom Prev </button>
 							    <button data-bind = "click: navToolbar.zoomToNextExtent()"> Zoom Next </button>
 							  </div>
-					  </div>
-
+                                    <div id="timeBottomPanel">
+										<div id="timeInfo">
+											<div>Atlanta Streetcar Scenario from <span id="daterange">1990 to 2015</span> (Completion date)</div>
+											<div id="timeSliderDiv"></div>
+										</div>
+									</div>
+							</div>
+					    </div>
 							
 <div id="featureTable" data-bind='css: {attributesHidden: (currentLayer() == null || attribHidden() == true), attributesShown: (currentLayer() != null && attribHidden()==false)}'>
 	<h2 class='dataBtn' data-bind='click: loadAttributes, visible: currentLayer() == null, text: "Click here to retrieve feature attributes"'></h2>	
