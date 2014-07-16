@@ -157,12 +157,12 @@ thead tr th {
   cursor:pointer;
 }
 
-#timeBottomPanel {
+/*#timeBottomPanel {
         left: 50%;
         margin: 0 auto;
         margin-left: -500px;
         position: absolute; 
-        bottom: 10em;
+        bottom: 5em;
       }
 
 #timeInfo{
@@ -175,4 +175,92 @@ thead tr th {
         text-align: center;
         width: 1000px;
         z-index: 99;
-      }
+      }*/
+
+#esriPrint a, .esriPrintout {
+	font-size: 14pt;
+	font-weight: bold;
+}
+
+#timeSliderContainer {
+	border: 1px solid gray;
+	background-color: #EEEEEE;
+}
+
+#timeSliderDiv {
+	width: 600px !important;
+}
+
+/*#timeSliderChoices {
+	margin-top: 1em;
+	position: relative;
+	width: 575px;
+}
+
+#timeSliderChoicesSelect {
+	margin-top: 1em;
+	margin-left:1.5em;
+	position: relative;
+	width: 565px;
+}*/
+
+.enlargedMapTool {
+	/*position: absolute;
+	margin-top: -15px;
+	
+	z-index: 500;
+	*/
+	padding-left: 3%;
+	display: none;
+}
+
+.zoomInIcon {
+	background-image: url("images/glyphicons_236_zoom_in.png");
+}
+
+.zoomOutIcon {
+	background-image: url("images/glyphicons_237_zoom_out.png");
+}
+
+.zoomnextIcon {
+	background-image: url("images/glyphicons_217_circle_arrow_right.png");
+}
+
+.zoomprevIcon {
+	background-image: url("images/glyphicons_216_circle_arrow_left.png");
+}
+
+.zoompan {
+	background-image: url("images/glyphicons_186_move.png");
+}
+
+.showTimeSliderIcon {
+	background-image: url("images/glyphicons_054_clock.png");	
+}
+
+.esriPrint {
+	padding-top: 0px;
+}
+
+.printIcon {
+	background-image: url("images/glyphicons_015_print.png");
+}
+
+.nav-tabs {
+	border: 0;
+	background-color: #fffff;
+}
+
+.nav-tabs > li > a {
+	margin: 0px 4px 0px 4px;
+	padding: 0px;
+}
+
+.nav-tabs>.active>a, .nav-tabs>.active>a:hover, .nav-tabs>.active>a:focus {
+	background-color: #fffff;
+}
+
+.icon {
+	width:  24px;
+	height: 24px;
+}
