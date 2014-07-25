@@ -273,7 +273,7 @@ function init() {
 				
 				streetcarLayer.setVisibleLayers(baseLayers);
 				
-				initSlider();
+				//initSlider();
 				
 				map.enableScrollWheelZoom();
 				drawToolbar = new esri.toolbars.Draw(map);
@@ -314,17 +314,17 @@ function init() {
 				navToolbar.activate(esri.toolbars.Navigation.ZOOM_OUT);
 			    });
 				
-				/*$('#allLayersLink').on('click', function(e) {
+				$('#allLayersLink').on('click', function(e) {
 				loaded(false);
 				$('#timeSliderChoicesSelect').off('change');
 				console.log("hello");
-				});*/
+				});
 			});
 		});
 	});
 }
 
-function initSlider() {
+/*function initSlider() {
 	require([ 
         "esri/TimeExtent", "esri/dijit/TimeSlider",
         "dojo/_base/array", "dojo/dom", "dojo/domReady!"],
@@ -373,13 +373,13 @@ function initSlider() {
 		  
 		}
 		  });
-        }
+        }*/
 
 
 	/**
 If there are time-enabled layers enumerated, turn on the time slider, etc.
 */
-/*function checkTimeLayers() {
+function checkTimeLayers() {
 console.log("hello");
 	//timeSliderVisible(timeLayerIds().length > 0);
 	timeSliderVisible(false);
@@ -403,7 +403,7 @@ console.log("hello");
 			map.setTimeSlider(timeSlider);
 			timeSlider.setThumbCount(2);
 			
-			var layerTimeExtent = map.getLayer( map.layerIds[3] ).timeInfo.timeExtent;
+			var layerTimeExtent = map.getLayer( map.layerIds[5] ).timeInfo.timeExtent;
 			layerTimeExtent.startTime = timeExtent.startTime;
 			timeSlider.createTimeStopsByTimeInterval(layerTimeExtent, 1, 'esriTimeUnitsMonths');
 			timeSlider.setThumbMovingRate(1500);			
@@ -415,7 +415,7 @@ console.log("hello");
 			
 			$('#timeSliderChoicesSelect').change( function(ev) {
 				if(loaded()) {
-					var l = map.getLayer( map.layerIds[3] );
+					var l = map.getLayer( map.layerIds[5] );
 
 					if( l != null ) {
 						var valToShow = timeSelValue();
@@ -423,13 +423,13 @@ console.log("hello");
 						
 						console.debug(valToShow);
 						
-						for(var lll = 0; lll < tLayerIds.length; lll++) {
-							if( viewModel.isVisibleLayer( map.layerIds[3], parseInt(tLayerIds[lll].id) ) ) {
-									viewModel.toggleVisibleLayer( { "mapLayerId" : map.layerIds[3], "esriLayer" : { id: parseInt(tLayerIds[lll].id) } } )
+						for(var lllll = 0; lllll < tLayerIds.length; lllll++) {
+							if( viewModel.isVisibleLayer( map.layerIds[5], parseInt(tLayerIds[lllll].id) ) ) {
+									viewModel.toggleVisibleLayer( { "mapLayerId" : map.layerIds[5], "esriLayer" : { id: parseInt(tLayerIds[lllll].id) } } )
 								}
 						}
 						
-						viewModel.toggleVisibleLayer( { "mapLayerId" : map.layerIds[3], "esriLayer" : { id: parseInt(valToShow) } } )
+						viewModel.toggleVisibleLayer( { "mapLayerId" : map.layerIds[5], "esriLayer" : { id: parseInt(valToShow) } } )
 						l.refresh();
 					}
 				}
@@ -437,7 +437,7 @@ console.log("hello");
 		}
 	}
 }
-*/
+
 		
 //initialize drawing toolbar
 function initToolbar(map) {

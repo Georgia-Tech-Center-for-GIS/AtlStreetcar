@@ -191,6 +191,19 @@ thead tr th {
 	width: 600px !important;
 }
 
+#timeSliderChoices {
+	margin-top: 1em;
+	position: relative;
+	width: 575px;
+}
+
+#timeSliderChoicesSelect {
+	margin-top: 1em;
+	margin-left:1.5em;
+	position: relative;
+	width: 565px;
+}
+
 /*#timeSliderChoices {
 	margin-top: 1em;
 	position: relative;
@@ -254,6 +267,20 @@ thead tr th {
 .nav-tabs > li > a {
 	margin: 0px 4px 0px 4px;
 	padding: 0px;
+}
+
+.logosTimeVisible {
+	position: absolute;
+	left: 0em;
+	top: 50px;
+}
+
+.logosTimeInvisible {
+	position: absolute;
+	left: 0em;
+	top: 0em;
+	
+	margin-left: 600px;
 }
 
 .nav-tabs>.active>a, .nav-tabs>.active>a:hover, .nav-tabs>.active>a:focus {
