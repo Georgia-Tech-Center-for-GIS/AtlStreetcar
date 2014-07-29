@@ -42,6 +42,7 @@
 					_gaq.push(['_trackPageview','/404.html?page=' + document.location.pathname + document.location.search + '&from=' + document.referrer]);
 	(function () {
 		var ga = document.createElement('script');
+		ga.type = 'text/javascript';
 		ga.async = true;
 		ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
 
@@ -59,7 +60,7 @@
 	<link rel='stylesheet' id='main-css'  href='http://streetcar.atlantaga.gov/wp-content/themes/streetcar/css/main.css?ver=1.0' media='all' />
 	<link rel='stylesheet' id='jquery-ui-accordion-css'  href='http://streetcar.atlantaga.gov/wp-content/themes/streetcar/css/jquery-ui-1.10.3.min.css?ver=3.6' media='all' />
 	<link rel='stylesheet' id='tablepress-default-css'  href='http://streetcar.atlantaga.gov/wp-content/plugins/tablepress/css/default.min.css?ver=1.0' media='all' />
-		ga.type = 'text/javascript';
+
 	<link rel='stylesheet' id='cpsh-shortcodes-css'  href='http://streetcar.atlantaga.gov/wp-content/plugins/column-shortcodes/assets/css/shortcodes.css?ver=0.6' media='all' />
 	<link rel='stylesheet' id='wp-ui-css'  href='http://streetcar.atlantaga.gov/wp-content/plugins/wp-ui/css/wp-ui.css?ver=3.6' media='all' />
 	<link rel='stylesheet' id='wpui-light-css'  href='http://streetcar.atlantaga.gov/wp-content/plugins/wp-ui/css/themes/wpui-light.css?ver=3.6' media='all' />
@@ -124,6 +125,8 @@
 	<!--script src='http://cdnjs.cloudflare.com/ajax/libs/knockout/3.1.0/knockout-bindings.js'></script -->
 
 	<script src="http://js.arcgis.com/3.9/"></script>
+	
+	<script src='print.js'> </script>
 	<script src='script/main.js' type='text/javascript'> </script>
 	</head>
 
@@ -141,6 +144,16 @@
 							</a>
 						</div>
 					</div>
+					
+				<div class='col-lg-6' style='position: absolute; height: 8em; left: 50%; top: .5em;' data-bind='visible: timeSliderVisible()'>
+				
+				<div id='timeSliderContainer' style='width: 100%; padding: 1em;'>
+				  <div id='timeInfo'></div>
+					<div id='timeSliderDiv'></div>
+				</div>
+				
+				<div class='col-lg-5' style='height: 4em;' data-bind='style: { width: ( !timeSliderVisible() ? "auto" : "100%" )  } '></div>
+				</div>
 
 					<div class="span6">
 						<div class="clearfix">
@@ -161,6 +174,32 @@
 					</div>
 				</div>
 			</header>
+			
+			<div id='mainToolbar'>
+				<ul class='nav nav-tabs' id='myTab' 
+					style='float: left; margin-bottom: 10px;'>
+					<li><a title='Pan Map' id='panBtn' href='#' data-bind='' >
+						<div class='icon zoompan'></div></a>
+					</li>
+
+					<li><a title='Zoom In' id='zoomInBtn' href='#' class='btn'>
+						<div class='icon zoomInIcon'></div></a></li>
+					<li><a title='Zoom Out' id='zoomOutBtn' href='#' class='btn'>
+						<div class='icon zoomOutIcon'></div></a></li>
+					<li><a title='Zoom to Previous Extent' id='zoomPrevBtn' href='#'class='btn'>
+						<div class='icon zoomprevIcon'></div></a></li>
+					<li><a title='Zoom to Next Extent' id='zoomNextBtn' href='#'class='btn'>
+						<div class='icon zoomnextIcon'></div></a></li>
+					<!-- li>
+						<a style='cursor: pointer;'><div class='icon printIcon' id='printDlgBtn' data-bind='click: doShowPrintDlg'></div></a>
+					</li -->
+					<li>
+						<a title='Show Time Slider' style='cursor: pointer;'><div class='icon showTimeSliderIcon' data-bind='click: (timeSliderVisible(!timeSliderVisible())), visible: true'></div></a>
+					</li>
+					<li><a title='Select points within a circle' id='circleSelect' href='#'class='btn'>
+            <div class='icon circleselectIcon'></div></a></li>
+				</ul>
+			</div>
 		</div>
 	</div>
 
@@ -232,12 +271,12 @@
 							    <button data-bind = "click: navToolbar.zoomToPrevExtent()"> Zoom Prev </button>
 							    <button data-bind = "click: navToolbar.zoomToNextExtent()"> Zoom Next </button>
 							  </div>
-                                    <div id="timeBottomPanel">
+                                    <!--div id="timeBottomPanel">
 										<div id="timeInfo">
 											<div>Atlanta Streetcar Scenario from <span id="daterange">1990 to 2015</span> (Completion date)</div>
 											<div id="timeSliderDiv"></div>
 										</div>
-									</div>
+									</div-->
 							</div>
 					    </div>
 							
@@ -292,6 +331,94 @@
 		</div>
 	</div>
 
+	<div style="display: none; top: 200px; left: 644px;" id="printing-popover" class="popover fade left in ui-draggable">
+		<div class="arrow">
+		</div>
+		<div class="popover-inner" data-bind="">
+			<h3 class="popover-title">
+				Print/Export
+			</h3>
+			<div class="popover-content">
+				<div data-bind="">
+					<div class="row-fluid">
+						<div class="col-lg-6">
+							<strong>Format</strong>
+							<div class="control-group">
+								<label class="radio control-label">
+									<input type="radio" value="PDF" name="format" data-bind="checked: format">PDF
+								</label>
+								<label class="radio control-label">
+									<input type="radio" name="format" value="PNG32" checked="" data-bind="checked: format">PNG (32-bit)
+								</label>
+								<label class="radio control-label">
+									<input type="radio" name="format" value="JPG" data-bind="checked: format">JPG
+								</label>
+							   <!-- <label class="radio control-label">
+									<input type="radio" value=".tiff" name="format" data-bind="checked: format">Georeferenced TIFF
+								</label> -->
+
+							</div>
+							<strong>Options</strong>
+							<label class="checkbox">
+								<input type="checkbox" data-bind="checked: borderLess">Borderless Map
+							</label>
+							<!--label class="checkbox">
+								<input type="checkbox" data-bind="checked: isSidebarVisible, disable: borderLess">Show Legend
+							</label-->
+							<label class="checkbox">
+								<input type="checkbox" data-bind="checked: landscape">Landscape
+							</label>
+						</div>
+						<div class="col-lg-6">
+							<div class="well">
+								<fieldset data-bind="visible: format() !== 'PDF'" style="display: none;">
+									<strong>Image Size</strong>
+									<label>Width (<span data-bind="text: units">inches</span>)</label>
+									<span class="ui-spinner ui-widget ui-widget-content ui-corner-all">
+										<input type="text" class="spinner ui-spinner-input" data-bind="spinner: shotWidthDisplay, spinnerOptions: { step: 10 }" autocomplete="off" role="spinbutton" aria-valuenow="8.3"><a class="ui-spinner-button ui-spinner-up ui-corner-tr ui-button ui-widget ui-state-default ui-button-text-only" tabindex="-1" role="button" aria-disabled="false"><span class="ui-button-text"><span class="ui-icon ui-icon-triangle-1-n">▲</span></span></a><a class="ui-spinner-button ui-spinner-down ui-corner-br ui-button ui-widget ui-state-default ui-button-text-only" tabindex="-1" role="button" aria-disabled="false"><span class="ui-button-text">
+										<span class="ui-icon ui-icon-triangle-1-s">▼</span></span></a></span>
+									<label>Height (<span data-bind="text: units">inches</span>)</label>
+									<span class="ui-spinner ui-widget ui-widget-content ui-corner-all">
+										<input type="text" class="spinner ui-spinner-input" data-bind="spinner: shotHeightDisplay, spinnerOptions: { step: 10 }" autocomplete="off" role="spinbutton" aria-valuenow="8.5"><a class="ui-spinner-button ui-spinner-up ui-corner-tr ui-button ui-widget ui-state-default ui-button-text-only" tabindex="-1" role="button" aria-disabled="false"><span class="ui-button-text"><span class="ui-icon ui-icon-triangle-1-n">▲</span></span></a><a class="ui-spinner-button ui-spinner-down ui-corner-br ui-button ui-widget ui-state-default ui-button-text-only" tabindex="-1" role="button" aria-disabled="false"><span class="ui-button-text"><span class="ui-icon ui-icon-triangle-1-s">▼</span></span></a></span>
+									<label>Units</label>
+									<select class="col-lg-7" data-bind="value: units">
+										<option value="inches">inches</option>
+										<option value="pixels">pixels</option>
+									</select>
+								</fieldset>
+								<fieldset data-bind="visible: format() === 'PDF'">
+									<strong>Paper Size</strong>
+										<label class="radio control-label">
+											<input type="radio" name="paperSize" value="letter" data-bind="checked: paperSize">Letter (8.5" x 11")
+										</label>
+										<label class="radio control-label">
+											<input type="radio" name="paperSize" value="tabloid" data-bind="checked: paperSize">Tabloid (11" x 17")
+										</label>
+										<label class="radio control-label">
+											<input type="radio" name="paperSize" value="A4" data-bind="checked: paperSize">A4 (297mm x 210mm)
+										</label>
+										<label class="radio control-label">
+											<input type="radio" name="paperSize" value="A3" data-bind="checked: paperSize">A3 (420mm x 297mm)
+										</label>
+								</fieldset>
+							</div>
+						</div>
+					</div>
+					<fieldset>
+						<label><strong data-bind="css: { disabled: borderLess }" class="">Title</strong></label>
+						<input class="print-title" type="text" data-bind="value: mapPrintTitle, valueUpdate: 'afterkeydown', disable: borderLess" placeholder="Optional title for map...">
+					</fieldset>
+				</div>
+
+				<p class="pull-right">
+					<a class="btn" data-bind="click: printDlgCancel">cancel</a>
+					<button class="btn" data-bind="click: sendPrintJob">export</button>
+					</p><div class="clearfix"></div>
+				<p></p>
+			</div>
+		</div>
+	</div>
+	
 	<script type="text/template" id="accordion-item-template">
         <h2 class="accordion-title clearfix" data-group="group">
 			<input class="group-control" type="checkbox" value="group" {{#visible}}checked{{/visible}}>

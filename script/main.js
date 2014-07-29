@@ -148,6 +148,8 @@ var labelLayerNoScale = null;
 var tempGraphicsLayer = null;
 
 dojo.require("dojox.xml.DomParser");
+dojo.require("esri.dijit.TimeSlider");
+dojo.require("esri.dijit.Print");
 
 var jsDom = null;
 var lyrQueryTask = null;
@@ -155,12 +157,20 @@ var layerList = ko.observable();
 
 var streetcarLayerURL = "http://tulip.gis.gatech.edu:6080/arcgis/rest/services/AtlStreetcar/PopulationAndHospitality/MapServer/";
 var streetcarLayer = null;
-var baseLayers = [17,18,19,20];
+var baseLayers = [0,1,2,3];
 var lastDisplayField = "";
 var attribHidden = ko.observable(false);
 
 var navToolbar = null;
 var fullExtent = null;
+
+var timeSelValue = ko.observable();
+var timeSliderVisible = ko.observable(false);
+var timeLayerIds = ko.observableArray([]);
+var timeSlider = null;
+var timeSliderEnabled = ko.observable(false);
+
+var printer = null;
 
 function showFeatureSet(fset,evt) {
 //remove all graphics on the maps graphics layer
@@ -256,19 +266,21 @@ function init() {
 				allowScrollbarZoom: true,
 			});
 			
+			map.addLayer(streetcarLayer);
+			
 			map.on("load", function () {
 				map.getLayer(map.basemapLayerIds[0]).setOpacity(0.4);
-				map.addLayer(streetcarLayer);
+				
 				streetcarLayer.setVisibleLayers(baseLayers);
 				
-				map.on("layers-add-result", initSlider);
-
+				//initSlider();
+				
 				map.enableScrollWheelZoom();
 				drawToolbar = new esri.toolbars.Draw(map);
   				navToolbar = new esri.toolbars.Navigation(map);
   				fullExtent = map.extent;
 				
-				initToolbar(map);
+				//initToolbar(map);
 				
 				$("#loadingScreen").css("display", "none");
 
@@ -280,28 +292,66 @@ function init() {
 						layerList = ko.observable(xmlToJson(jsDom));
 						ko.applyBindings();
 						map.resize();
-				}});
+						}});
+				
+				//ko.applyBindings();
+				
+				$('#zoomPrevBtn').on('click', function(e) {
+				navToolbar.zoomToPrevExtent();
+				});
+			
+				$('#zoomNextBtn').on('click', function(e) {
+				navToolbar.zoomToNextExtent();
+				});
+				
+				$('#zoomInBtn').on('click', function(e) {
+				//map.setMapCursor("url(images/images/glyphicons_236_zoom_in.png),auto");
+				navToolbar.activate(esri.toolbars.Navigation.ZOOM_IN);
+			    });
+				
+				$('#zoomOutBtn').on('click', function(e) {
+				//map.setMapCursor("url(images/zoom_in.cur),auto");
+				navToolbar.activate(esri.toolbars.Navigation.ZOOM_OUT);
+			    });
+			  
+			  $('#circleSelect').on('click', function(e) {
+        initToolbar(map);
+          });
+				
+				$('#showTimeSlider').on('click', function(e) {
+				//loaded(false);
+				//$('#timeSliderChoicesSelect').off('change');
+				initSlider();
+				console.log("hello");
+				});
 			});
 		});
 	});
 }
 
 function initSlider() {
-  console.log("hello");
-
-
-	requrie(["esri/layers/ArcGISDynamicMapServiceLayer", 
+	require([ 
         "esri/TimeExtent", "esri/dijit/TimeSlider",
-        "dojo/_base/array", "dojo/dom", "dojo/domReady!"],function(TimeExtent, TimeSlider, arrayUtils, dom
-		) {
-		     console.log("hello");
+        "dojo/_base/array", "dojo/dom", "dojo/domReady!"],
+		function(TimeExtent, TimeSlider, arrayUtils, dom) {
           var timeSlider = new TimeSlider({
             style: "width: 100%;"
           }, dom.byId("timeSliderDiv"));
           map.setTimeSlider(timeSlider);
+		  
+		timeSliderVisible(false);
+		timeSliderEnabled(timeLayerIds().length > 0);
+	
+		if(timeLayerIds().length == 0) {
+		timeSliderEnabled(false);
+		return;
+		}
+		else
+		{
+          
           var timeExtent = new TimeExtent();
-          map.setTimeExtent(timeExtent);
           timeExtent.startTime = new Date("1/1/1990 UTC");
+		  map.setTimeExtent(timeExtent);
           timeExtent.endTime = new Date("12/31/2015 UTC");
           timeSlider.setThumbCount(2);
           timeSlider.createTimeStopsByTimeInterval(timeExtent, 2, "esriTimeUnitsYears");
@@ -325,8 +375,74 @@ function initSlider() {
             var endValString = evt.endTime.getUTCFullYear();
             dom.byId("daterange").innerHTML = "<i>" + startValString + " and " + endValString  + "<\/i>";
           });
+		  
+		}
 		  });
         }
+
+
+	/**
+If there are time-enabled layers enumerated, turn on the time slider, etc.
+*/
+/*function checkTimeLayers() {
+console.log("hello");
+	//timeSliderVisible(timeLayerIds().length > 0);
+	timeSliderVisible(false);
+	timeSliderEnabled(timeLayerIds().length > 0);
+	
+	if(timeLayerIds().length == 0) {
+		timeSliderEnabled(false);
+		return;
+	}
+	else
+	{
+		var timeExtent = new esri.TimeExtent();
+		timeExtent.startTime = new Date("1/1/2011 EST");
+		map.setTimeExtent(timeExtent);
+
+		if(timeSlider == null) {
+			timeSlider = new esri.dijit.TimeSlider({
+			  style: "width: 800px;"
+			}, dojo.byId("timeSliderDiv"));
+
+			map.setTimeSlider(timeSlider);
+			timeSlider.setThumbCount(2);
+			
+			var layerTimeExtent = map.getLayer( map.layerIds[3] ).timeInfo.timeExtent;
+			layerTimeExtent.startTime = timeExtent.startTime;
+			timeSlider.createTimeStopsByTimeInterval(layerTimeExtent, 1, 'esriTimeUnitsMonths');
+			timeSlider.setThumbMovingRate(1500);			
+			timeSlider.setLoop(true);
+			timeSlider.setLabels(["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]);
+			timeSlider.startup();
+			
+			//timeSlider.setThumbIndexes([0,1]);
+			
+			$('#timeSliderChoicesSelect').change( function(ev) {
+				if(loaded()) {
+					var l = map.getLayer( map.layerIds[3] );
+
+					if( l != null ) {
+						var valToShow = timeSelValue();
+						var tLayerIds = timeLayerIds();
+						
+						console.debug(valToShow);
+						
+						for(var lll = 0; lll < tLayerIds.length; lll++) {
+							if( viewModel.isVisibleLayer( map.layerIds[3], parseInt(tLayerIds[lll].id) ) ) {
+									viewModel.toggleVisibleLayer( { "mapLayerId" : map.layerIds[3], "esriLayer" : { id: parseInt(tLayerIds[lll].id) } } )
+								}
+						}
+						
+						viewModel.toggleVisibleLayer( { "mapLayerId" : map.layerIds[3], "esriLayer" : { id: parseInt(valToShow) } } )
+						l.refresh();
+					}
+				}
+			});
+		}
+	}
+}
+*/
 		
 //initialize drawing toolbar
 function initToolbar(map) {
@@ -800,4 +916,8 @@ function zoomToFeature( feature ){
 	});
 }
 
+function doShowPrintDlg() {
+	$("#printing-popover").show();
+}
+			
 init();
