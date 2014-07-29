@@ -313,34 +313,26 @@ function init() {
 				//map.setMapCursor("url(images/zoom_in.cur),auto");
 				navToolbar.activate(esri.toolbars.Navigation.ZOOM_OUT);
 			    });
-<<<<<<< HEAD
 			  
-			  $('#circleSelect').on('click', function(e) {
-        initToolbar(map);
-          });
+				$('#circleSelect').on('click', function(e) {
+					initToolbar(map);
+				});
 				
 				$('#showTimeSlider').on('click', function(e) {
-				//loaded(false);
-				//$('#timeSliderChoicesSelect').off('change');
+
 				initSlider();
-=======
 				
-				$('#allLayersLink').on('click', function(e) {
-				loaded(false);
-				$('#timeSliderChoicesSelect').off('change');
->>>>>>> FETCH_HEAD
-				console.log("hello");
-				});
+				/*$('#allLayersLink').on('click', function(e) {
+					loaded(false);
+					$('#timeSliderChoicesSelect').off('change');
+
+				});*/
 			});
 		});
 	});
 }
 
-<<<<<<< HEAD
-function initSlider() {
-=======
 /*function initSlider() {
->>>>>>> FETCH_HEAD
 	require([ 
         "esri/TimeExtent", "esri/dijit/TimeSlider",
         "dojo/_base/array", "dojo/dom", "dojo/domReady!"],
@@ -389,22 +381,14 @@ function initSlider() {
 		  
 		}
 		  });
-<<<<<<< HEAD
-        }
-=======
-        }*/
->>>>>>> FETCH_HEAD
+}*/
 
 
 	/**
 If there are time-enabled layers enumerated, turn on the time slider, etc.
 */
-<<<<<<< HEAD
 /*function checkTimeLayers() {
-=======
-function checkTimeLayers() {
->>>>>>> FETCH_HEAD
-console.log("hello");
+	console.log("hello");
 	//timeSliderVisible(timeLayerIds().length > 0);
 	timeSliderVisible(false);
 	timeSliderEnabled(timeLayerIds().length > 0);
@@ -427,11 +411,8 @@ console.log("hello");
 			map.setTimeSlider(timeSlider);
 			timeSlider.setThumbCount(2);
 			
-<<<<<<< HEAD
-			var layerTimeExtent = map.getLayer( map.layerIds[3] ).timeInfo.timeExtent;
-=======
 			var layerTimeExtent = map.getLayer( map.layerIds[5] ).timeInfo.timeExtent;
->>>>>>> FETCH_HEAD
+
 			layerTimeExtent.startTime = timeExtent.startTime;
 			timeSlider.createTimeStopsByTimeInterval(layerTimeExtent, 1, 'esriTimeUnitsMonths');
 			timeSlider.setThumbMovingRate(1500);			
@@ -443,11 +424,7 @@ console.log("hello");
 			
 			$('#timeSliderChoicesSelect').change( function(ev) {
 				if(loaded()) {
-<<<<<<< HEAD
-					var l = map.getLayer( map.layerIds[3] );
-=======
 					var l = map.getLayer( map.layerIds[5] );
->>>>>>> FETCH_HEAD
 
 					if( l != null ) {
 						var valToShow = timeSelValue();
@@ -455,15 +432,6 @@ console.log("hello");
 						
 						console.debug(valToShow);
 						
-<<<<<<< HEAD
-						for(var lll = 0; lll < tLayerIds.length; lll++) {
-							if( viewModel.isVisibleLayer( map.layerIds[3], parseInt(tLayerIds[lll].id) ) ) {
-									viewModel.toggleVisibleLayer( { "mapLayerId" : map.layerIds[3], "esriLayer" : { id: parseInt(tLayerIds[lll].id) } } )
-								}
-						}
-						
-						viewModel.toggleVisibleLayer( { "mapLayerId" : map.layerIds[3], "esriLayer" : { id: parseInt(valToShow) } } )
-=======
 						for(var lllll = 0; lllll < tLayerIds.length; lllll++) {
 							if( viewModel.isVisibleLayer( map.layerIds[5], parseInt(tLayerIds[lllll].id) ) ) {
 									viewModel.toggleVisibleLayer( { "mapLayerId" : map.layerIds[5], "esriLayer" : { id: parseInt(tLayerIds[lllll].id) } } )
@@ -471,7 +439,6 @@ console.log("hello");
 						}
 						
 						viewModel.toggleVisibleLayer( { "mapLayerId" : map.layerIds[5], "esriLayer" : { id: parseInt(valToShow) } } )
->>>>>>> FETCH_HEAD
 						l.refresh();
 					}
 				}
@@ -479,11 +446,7 @@ console.log("hello");
 		}
 	}
 }
-<<<<<<< HEAD
 */
-=======
-
->>>>>>> FETCH_HEAD
 		
 //initialize drawing toolbar
 function initToolbar(map) {
