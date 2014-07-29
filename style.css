@@ -273,6 +273,10 @@ thead tr th {
 	padding: 0px;
 }
 
+.activeIconStyle {
+	border-bottom: 5px solid gold;
+}
+
 .logosTimeVisible {
 	position: absolute;
 	left: 0em;
