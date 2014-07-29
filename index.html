@@ -145,13 +145,11 @@
 						</div>
 					</div>
 					
-				<div class='col-lg-6' style='position: absolute; height: 8em; left: 50%; top: .5em;' data-bind='visible: timeSliderVisible()'>
-				
-				<div id='timeSliderContainer' style='width: 100%; padding: 1em;'>
-					<div id='timeSliderDiv'></div>
-				</div>
-				
-				<div class='col-lg-5' style='height: 4em;' data-bind='style: { width: ( !timeSliderVisible() ? "auto" : "100%" )  } '></div>
+				<div class='col-lg-6' style='position: absolute; height: 8em; left: 50%; top: .5em;' data-bind='visible: timeSliderVisible()'>		
+					<div id='timeSliderContainer' style='width: 100%; padding: 1em;'>
+						<div id='timeSliderDiv'></div>
+					</div>				
+					<div class='col-lg-5' style='height: 4em;' data-bind='style: { width: ( !timeSliderVisible() ? "auto" : "100%" )  } '></div>
 				</div>
 
 					<div class="span6">
@@ -173,14 +171,13 @@
 					</div>
 				</div>
 			</header>
-			
+
 			<div id='mainToolbar'>
 				<ul class='nav nav-tabs' id='myTab' 
 					style='float: left; margin-bottom: 10px;'>
 					<li><a title='Pan Map' id='panBtn' href='#' data-bind='' >
 						<div class='icon zoompan'></div></a>
 					</li>
-
 					<li><a title='Zoom In' id='zoomInBtn' href='#' class='btn'>
 						<div class='icon zoomInIcon'></div></a></li>
 					<li><a title='Zoom Out' id='zoomOutBtn' href='#' class='btn'>
