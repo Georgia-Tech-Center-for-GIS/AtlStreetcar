@@ -163,7 +163,11 @@ thead tr th {
         margin-left: -500px;
         position: absolute; 
         bottom: 5em;
+<<<<<<< HEAD
   }*/
+=======
+      }
+>>>>>>> FETCH_HEAD
 
 #timeInfo{
         border-radius: 4px;
@@ -175,7 +179,11 @@ thead tr th {
         text-align: center;
         width: 1000px;
         z-index: 99;
+<<<<<<< HEAD
       }
+=======
+      }*/
+>>>>>>> FETCH_HEAD
 
 #esriPrint a, .esriPrintout {
 	font-size: 14pt;
@@ -187,9 +195,28 @@ thead tr th {
 	background-color: #EEEEEE;
 }
 
+<<<<<<< HEAD
 /*#timeSliderDiv {
 	width: 600px !important;
 }*/
+=======
+#timeSliderDiv {
+	width: 600px !important;
+}
+
+#timeSliderChoices {
+	margin-top: 1em;
+	position: relative;
+	width: 575px;
+}
+
+#timeSliderChoicesSelect {
+	margin-top: 1em;
+	margin-left:1.5em;
+	position: relative;
+	width: 565px;
+}
+>>>>>>> FETCH_HEAD
 
 /*#timeSliderChoices {
 	margin-top: 1em;
@@ -226,10 +253,13 @@ thead tr th {
 	background-image: url("images/glyphicons_217_circle_arrow_right.png");
 }
 
+<<<<<<< HEAD
 .circleselectIcon {
   background-image: url("images/glyphicons_347_hand_up.png");
 }
 
+=======
+>>>>>>> FETCH_HEAD
 .zoomprevIcon {
 	background-image: url("images/glyphicons_216_circle_arrow_left.png");
 }
@@ -260,6 +290,23 @@ thead tr th {
 	padding: 0px;
 }
 
+<<<<<<< HEAD
+=======
+.logosTimeVisible {
+	position: absolute;
+	left: 0em;
+	top: 50px;
+}
+
+.logosTimeInvisible {
+	position: absolute;
+	left: 0em;
+	top: 0em;
+	
+	margin-left: 600px;
+}
+
+>>>>>>> FETCH_HEAD
 .nav-tabs>.active>a, .nav-tabs>.active>a:hover, .nav-tabs>.active>a:focus {
 	background-color: #fffff;
 }

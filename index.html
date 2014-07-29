@@ -71,6 +71,7 @@
 	<script src="http://code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
 
 	<script src="http://code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
+	<script src='print.js'> </script>
 
 	<script type='text/javascript' src='http://streetcar.atlantaga.gov/wp-content/themes/streetcar/js/scripts.js?ver=1.0.0'></script>
 	<script type='text/javascript' src='http://streetcar.atlantaga.gov/wp-content/themes/streetcar/js/plugins.js?ver=3.6'></script>
@@ -146,12 +147,22 @@
 					</div>
 					
 				<div class='col-lg-6' style='position: absolute; height: 8em; left: 50%; top: .5em;' data-bind='visible: timeSliderVisible()'>
+<<<<<<< HEAD
 				
 				<div id='timeSliderContainer' style='width: 100%; padding: 1em;'>
 				  <div id='timeInfo'></div>
 					<div id='timeSliderDiv'></div>
 				</div>
 				
+=======
+				<div id='timeSliderContainer' style='width: 100%; padding: 1em;'>
+					<div id='timeSliderDiv'></div>
+					<div id='timeSliderChoices' >
+						<select id='timeSliderChoicesSelect' data-bind="options: timeLayerIds, optionsText: 'label', optionsValue: 'id', value: timeSelValue"> </select>
+					</div>
+				</div>
+				</div>
+>>>>>>> FETCH_HEAD
 				<div class='col-lg-5' style='height: 4em;' data-bind='style: { width: ( !timeSliderVisible() ? "auto" : "100%" )  } '></div>
 				</div>
 
@@ -175,6 +186,7 @@
 				</div>
 			</header>
 			
+<<<<<<< HEAD
 			<div id='mainToolbar'>
 				<ul class='nav nav-tabs' id='myTab' 
 					style='float: left; margin-bottom: 10px;'>
@@ -200,6 +212,33 @@
             <div class='icon circleselectIcon'></div></a></li>
 				</ul>
 			</div>
+=======
+			<ul class='nav nav-tabs' id='myTab' 
+				style='float: left; margin-bottom: 10px;'>
+				<li><a title='Pan Map' id='panBtn' href='#' data-bind='css: { currTool: true }' >
+					<div class='icon zoompan'></div></a>
+				</li>
+
+				<li><a title='Zoom In' id='zoomInBtn' href='#' class='btn'>
+					<div class='icon zoomInIcon'></div></a></li>
+				<li><a title='Zoom Out' id='zoomOutBtn' href='#' class='btn'>
+					<div class='icon zoomOutIcon'></div></a></li>
+				<li><a title='Zoom to Previous Extent' id='zoomPrevBtn' href='#'class='btn'>
+					<div class='icon zoomprevIcon'></div></a></li>
+				<li><a title='Zoom to Next Extent' id='zoomNextBtn' href='#'class='btn'>
+					<div class='icon zoomnextIcon'></div></a></li>
+				<li>
+					<a style='cursor: pointer;'><div class='icon printIcon' id='printDlgBtn' data-bind='click: doShowPrintDlg'></div></a>
+				</li>
+				<li>
+					<a title='Show Time Slider' style='cursor: pointer;'><div class='icon showTimeSliderIcon' data-bind='click: (timeSliderVisible(!timeSliderVisible())), visible: timeSliderEnabled'></div></a>
+				</li>
+			</ul>
+
+
+ 
+			</ul-->
+>>>>>>> FETCH_HEAD
 		</div>
 	</div>
 
