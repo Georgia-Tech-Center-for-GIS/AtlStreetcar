@@ -165,6 +165,9 @@ var navToolbar = null;
 var fullExtent = null;
 
 var isChartShowing = ko.observable(false);
+
+var isCSVShowing = ko.observable(false);
+
 var chartImageData = ko.observable("");
 
 var timeSelValue = ko.observable();
@@ -177,10 +180,21 @@ var printer = null;
 
 var currIcon = ko.observable("Pan Map");
 
+
+var specialChart = ko.observable();
+
 function showFeatureSet(fset,evt) {
 //remove all graphics on the maps graphics layer
 map.graphics.clear();
-var screenPoint = evt.screenPoint;
+
+	var screenPoint = null;
+	if(evt.screenPoint != "undefined") {
+		screenPoint = evt.screenPoint;
+	}
+	else if(evt.geometry != "undefined"){
+		screenPoint = map.toScreen( evt.geometry.getCentroid() );
+	}
+	
 
 featureSet = fset;
 
@@ -197,7 +211,7 @@ for (var i=0; i<numFeatures; i++) {
 
 map.infoWindow.setTitle(title);
 map.infoWindow.setContent(content);
-map.infoWindow.show(screenPoint,map.getInfoWindowAnchor(evt.screenPoint));
+map.infoWindow.show(screenPoint,map.getInfoWindowAnchor(screenPoint));
 }
 
 function showFeature(feature, ev) {
@@ -838,7 +852,7 @@ function loadURL_UI(evt_value) {
 		"esri/tasks/query", "esri/tasks/QueryTask"],
 		function(Query,QueryTask) {
 		  
-      if(evt_value["@attributes"].chart!=undefined){
+      if(evt_value["@attributes"].chart != undefined){
 		isChartShowing( true );
 		chartImageData( evt_value["@attributes"].chart );
 		currLayerIndex(-1);
@@ -852,11 +866,17 @@ function loadURL_UI(evt_value) {
 			//console.log("chart");
 		*/
         return;
-      }  
-	  
+      }
+	else if(evt_value["@attributes"].report == 1){
+		currLayerIndex(-2);
+		isChartShowing(true);
+		chartImageData( "" );
+		showCSVChart();
+	}
+	else {	  
 	  isChartShowing( false );
 	  chartImageData( "" );
-		
+		  
       	if(evt_value["@attributes"].url.length == 0)
 				return;
 				
@@ -875,7 +895,7 @@ function loadURL_UI(evt_value) {
 					headings(null);
 
 					currLayerTitle(evt_value["#text"]);
-					currLayerLegend(result.layers[ currLayerIndex() ]);
+					currLayerLegend(result.layers[ currLayerIndex() - 1 ]);
 					map.setExtent(fullExtent);
 					map.resize();
 					map.graphics.clear();
@@ -883,6 +903,7 @@ function loadURL_UI(evt_value) {
 					//legendDlg = $("#legend").dialog({dialogClass: "no-close", title: currLayerTitle() });
 				}
 			});
+	}
 	});
 }
 
@@ -949,6 +970,18 @@ function zoomToFeature( feature ){
 
 function doShowPrintDlg() {
 	$("#printing-popover").show();
+}
+
+function showCSVChart() {
+	require(["esri/request"],
+		function(request){
+			esri.request( {
+				url: "./charts/StudentPopulation.csv",
+				handleAs: "text",
+			}).then(function(response){
+				specialChart( CSVToArray(response) );
+			});
+		});
 }
 			
 init();
