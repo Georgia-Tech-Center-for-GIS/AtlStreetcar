@@ -165,7 +165,10 @@ var navToolbar = null;
 var fullExtent = null;
 
 var isChartShowing = ko.observable(false);
+<<<<<<< HEAD
 var isCSVShowing = ko.observable(false);
+=======
+>>>>>>> FETCH_HEAD
 var chartImageData = ko.observable("");
 
 var timeSelValue = ko.observable();
@@ -178,8 +181,11 @@ var printer = null;
 
 var currIcon = ko.observable("Pan Map");
 
+<<<<<<< HEAD
 var specialChart = ko.observable();
 
+=======
+>>>>>>> FETCH_HEAD
 function showFeatureSet(fset,evt) {
 //remove all graphics on the maps graphics layer
 map.graphics.clear();
@@ -859,6 +865,7 @@ function loadURL_UI(evt_value) {
 	  
 	  isChartShowing( false );
 	  chartImageData( "" );
+<<<<<<< HEAD
 	  
 	      if(evt_value["@attributes"].report=1){
 	      isCSVShowing(true);
@@ -867,6 +874,8 @@ function loadURL_UI(evt_value) {
 	      }
 	      
 	      isCSVShowing(false);
+=======
+>>>>>>> FETCH_HEAD
 		
       	if(evt_value["@attributes"].url.length == 0)
 				return;
