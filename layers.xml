@@ -2,11 +2,10 @@
 <Layers>
 <Analysis name='Population'>
 <layer url='4'>Residential Population</layer>
-<layer url=''>Student Population</layer>
-<layer report='' url ='-1'>GSU Student Population by Dorms</layer>
+<layer report='1' url ='-2'>GSU Student Population by Dorms</layer>
 <layer url='5'>Number of Home Owners</layer>
 <layer url='6'>Number of Home Renters</layer>
-<layer chart='./charts/age.jpg' url='-1'>Age Groups by Census</layer>
+<layer chart='./charts/AgeGroupChart.png' url='-1'>Age Groups by Census</layer>
 <layer url='7'>Average Median Income</layer>
 </Analysis>
 
