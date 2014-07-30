@@ -820,7 +820,7 @@ function loadURL_UI(evt_value) {
         return;
       }  
       $('#map').show();
-      
+     
 			if(evt_value["@attributes"].url.length == 0)
 				return;
 				
@@ -839,7 +839,7 @@ function loadURL_UI(evt_value) {
 					headings(null);
 
 					currLayerTitle(evt_value["#text"]);
-					currLayerLegend(result.layers[ currLayerIndex() ]);
+					currLayerLegend(result.layers[ currLayerIndex()-1]);
 					map.setExtent(fullExtent);
 					map.resize();
 					map.graphics.clear();
@@ -853,8 +853,7 @@ function loadURL_UI(evt_value) {
 var lastGraphic = null;
 var previousInfoTemplate = null;
 var previousAttributes = null;
-
-  
+ 
 function doActualZoomToFeature( geom, attrib ) {
   require(["esri/geometry", "esri/symbols/SimpleMarkerSymbol", "esri/symbols/SimpleFillSymbol", "esri/symbols/SimpleLineSymbol",
     "esri/Color", "esri/InfoTemplate", "esri/graphic"],
