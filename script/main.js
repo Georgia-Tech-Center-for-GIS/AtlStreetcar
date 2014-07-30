@@ -165,9 +165,16 @@ var navToolbar = null;
 var fullExtent = null;
 
 var isChartShowing = ko.observable(false);
+<<<<<<< HEAD
 
 var isCSVShowing = ko.observable(false);
 
+=======
+<<<<<<< HEAD
+var isCSVShowing = ko.observable(false);
+=======
+>>>>>>> FETCH_HEAD
+>>>>>>> origin/master
 var chartImageData = ko.observable("");
 
 var timeSelValue = ko.observable();
@@ -180,9 +187,17 @@ var printer = null;
 
 var currIcon = ko.observable("Pan Map");
 
+<<<<<<< HEAD
 
 var specialChart = ko.observable();
 
+=======
+<<<<<<< HEAD
+var specialChart = ko.observable();
+
+=======
+>>>>>>> FETCH_HEAD
+>>>>>>> origin/master
 function showFeatureSet(fset,evt) {
 //remove all graphics on the maps graphics layer
 map.graphics.clear();
@@ -876,7 +891,22 @@ function loadURL_UI(evt_value) {
 	else {	  
 	  isChartShowing( false );
 	  chartImageData( "" );
+<<<<<<< HEAD
 		  
+=======
+<<<<<<< HEAD
+	  
+	      if(evt_value["@attributes"].report=1){
+	      isCSVShowing(true);
+	      showCSVChart();
+	      console.log("hehe");
+	      }
+	      
+	      isCSVShowing(false);
+=======
+>>>>>>> FETCH_HEAD
+		
+>>>>>>> origin/master
       	if(evt_value["@attributes"].url.length == 0)
 				return;
 				
@@ -973,6 +1003,7 @@ function doShowPrintDlg() {
 }
 
 function showCSVChart() {
+<<<<<<< HEAD
 	require(["esri/request"],
 		function(request){
 			esri.request( {
@@ -983,5 +1014,18 @@ function showCSVChart() {
 			});
 		});
 }
+=======
+require(["esri/request"],
+function(request){
+esri.request( {
+url: "./charts/StudentPopulation.csv",
+handleAs: "text",
+}).then(function(response){
+specialChart( CSV2JSON(response) );
+});
+});
+}
+
+>>>>>>> origin/master
 			
 init();
