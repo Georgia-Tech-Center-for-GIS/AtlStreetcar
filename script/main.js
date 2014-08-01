@@ -856,6 +856,7 @@ function loadURL_UI(evt_value) {
 		isChartShowing( true );
 		chartImageData( evt_value["@attributes"].chart );
 		currLayerIndex(-1);
+		specialChart({});
 		/*
 			chart_url = evt_value["@attributes"].chart;
 			$('#map').hide();
@@ -876,8 +877,9 @@ function loadURL_UI(evt_value) {
 	else {	  
 	  isChartShowing( false );
 	  chartImageData( "" );
+	  specialChart({});
 
-      isCSVShowing(false);
+      	isCSVShowing(false);
 
       	if(evt_value["@attributes"].url.length == 0)
 				return;
