@@ -165,10 +165,12 @@ var navToolbar = null;
 var fullExtent = null;
 
 var isChartShowing = ko.observable(false);
-<<<<<<< HEAD
+
 var isCSVShowing = ko.observable(false);
-=======
->>>>>>> FETCH_HEAD
+
+
+var isCSVShowing = ko.observable(false);
+
 var chartImageData = ko.observable("");
 
 var timeSelValue = ko.observable();
@@ -181,32 +183,36 @@ var printer = null;
 
 var currIcon = ko.observable("Pan Map");
 
-<<<<<<< HEAD
+
+
 var specialChart = ko.observable();
 
-=======
->>>>>>> FETCH_HEAD
+
+
 function showFeatureSet(fset,evt) {
-//remove all graphics on the maps graphics layer
-map.graphics.clear();
-var screenPoint = evt.screenPoint;
+  console.debug(evt);
+  //remove all graphics on the maps graphics layer
+  map.graphics.clear();
 
-featureSet = fset;
+  var screenPoint = evt.geometry.getCentroid();
+  console.debug(screenPoint);
 
-var numFeatures = featureSet.features.length;
+  featureSet = fset;
 
-//QueryTask returns a featureSet.  Loop through features in the featureSet and add them to the infowindow.
-var title = "You have selected " + numFeatures + " features.";
-var content = "Please select desired feature from the list below.<br />";
+  var numFeatures = featureSet.features.length;
 
-for (var i=0; i<numFeatures; i++) {
-  var graphic = featureSet.features[i];
-  content = content + graphic.attributes[featureSet.displayFieldName] + " (<a href='#' onclick='showFeature(featureSet.features[" + i + "]);'>show</a>)<br/>";
-}
+  //QueryTask returns a featureSet.  Loop through features in the featureSet and add them to the infowindow.
+  var title = "You have selected " + numFeatures + " features.";
+  var content = "Please select desired feature from the list below.<br />";
 
-map.infoWindow.setTitle(title);
-map.infoWindow.setContent(content);
-map.infoWindow.show(screenPoint,map.getInfoWindowAnchor(evt.screenPoint));
+  for (var i=0; i<numFeatures; i++) {
+      var graphic = featureSet.features[i];
+      content = content + graphic.attributes[featureSet.displayFieldName] + " (<a href='#' onclick='showFeature(featureSet.features[" + i + "]);'>show</a>)<br/>";
+  }
+
+  map.infoWindow.setTitle(title);
+  map.infoWindow.setContent(content);
+  map.infoWindow.show(screenPoint,map.getInfoWindowAnchor(screenPoint));
 }
 
 function showFeature(feature, ev) {
@@ -847,7 +853,7 @@ function loadURL_UI(evt_value) {
 		"esri/tasks/query", "esri/tasks/QueryTask"],
 		function(Query,QueryTask) {
 		  
-      if(evt_value["@attributes"].chart!=undefined){
+      if(evt_value["@attributes"].chart != undefined){
 		isChartShowing( true );
 		chartImageData( evt_value["@attributes"].chart );
 		currLayerIndex(-1);
@@ -861,22 +867,18 @@ function loadURL_UI(evt_value) {
 			//console.log("chart");
 		*/
         return;
-      }  
-	  
+      }
+	else if(evt_value["@attributes"].report == 1){
+		currLayerIndex(-2);
+		isChartShowing(true);
+		chartImageData( "" );
+		showCSVChart();
+	}
+	else {	  
 	  isChartShowing( false );
 	  chartImageData( "" );
-<<<<<<< HEAD
-	  
-	      if(evt_value["@attributes"].report=1){
-	      isCSVShowing(true);
-	      showCSVChart();
-	      console.log("hehe");
-	      }
-	      
-	      isCSVShowing(false);
-=======
->>>>>>> FETCH_HEAD
-		
+    isCSVShowing(false);
+
       	if(evt_value["@attributes"].url.length == 0)
 				return;
 				
@@ -895,7 +897,7 @@ function loadURL_UI(evt_value) {
 					headings(null);
 
 					currLayerTitle(evt_value["#text"]);
-					currLayerLegend(result.layers[ currLayerIndex() ]);
+					currLayerLegend(result.layers[ currLayerIndex() - 1 ]);
 					map.setExtent(fullExtent);
 					map.resize();
 					map.graphics.clear();
@@ -903,6 +905,7 @@ function loadURL_UI(evt_value) {
 					//legendDlg = $("#legend").dialog({dialogClass: "no-close", title: currLayerTitle() });
 				}
 			});
+	}
 	});
 }
 
@@ -972,16 +975,18 @@ function doShowPrintDlg() {
 }
 
 function showCSVChart() {
-require(["esri/request"],
-function(request){
-esri.request( {
-url: "./charts/StudentPopulation.csv",
-handleAs: "text",
-}).then(function(response){
-specialChart( CSV2JSON(response) );
-});
-});
+
+	require(["esri/request"],
+		function(request){
+			esri.request( {
+				url: "./charts/StudentPopulation.csv",
+				handleAs: "text",
+			}).then(function(response){
+				specialChart( CSVToArray(response) );
+			});
+		});
 }
 
-			
+
+
 init();

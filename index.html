@@ -173,7 +173,7 @@
 				</div>
 			</header>
 
-			<div id='mainToolbar'>
+			<div id='mainToolbar'style="position: absolute; right: 34%; background-color: rgba(255,255,255,.30)">
 				<ul class='nav nav-tabs' id='myTab' 
 					style='float: left; margin-bottom: 10px;'>
 					
@@ -279,13 +279,32 @@
 					    </div>
 						<div id='chartContainer' style='width: 68%; height: 100%; padding-top: 5px; padding-left: 5px;' data-bind='visible: isChartShowing()'>
 							<img data-bind='attr: { src: chartImageData() }, visible: chartImageData() != "" ' />
+							
+							<div>
+								<table>
+									<tbody>
+										<!-- ko foreach: specialChart -->
+											<tr>
+													<!-- ko if: $index() == 0 -->
+														<!-- ko foreach: $data -->
+															<th><div data-bind='text: $data'> </div></th>
+														<!-- /ko -->
+													<!-- /ko -->
+													<!-- ko if: $index() > 0 -->
+														<!-- ko foreach: $data -->
+															<td><div data-bind='text: $data'> </div></td>
+														<!-- /ko -->
+													<!-- /ko -->
+											</tr>
+										<!-- /ko -->
+									</tbody>
+								</table>
+							</div>
 						</div>
-<<<<<<< HEAD
+
 						<div id='CSVContainer' style='width: 68%; height: 100%; padding-top: 5px; padding-left: 5px;' data-bind='visible: isCSVShowing()'>
 						
 						</div>
-=======
->>>>>>> FETCH_HEAD
 							
 <div id="featureTable" data-bind='css: {attributesHidden: (currentLayer() == null || attribHidden() == true), attributesShown: (currentLayer() != null && attribHidden()==false)}'>
 	<h2 class='dataBtn' data-bind='click: loadAttributes, visible: currentLayer() == null, text: "Click here to retrieve feature attributes"'></h2>	
