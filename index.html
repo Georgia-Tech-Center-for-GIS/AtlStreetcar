@@ -123,6 +123,7 @@
   
 	<script src='http://cdnjs.cloudflare.com/ajax/libs/knockout/3.1.0/knockout-min.js'></script>
 	<!--script src='http://cdnjs.cloudflare.com/ajax/libs/knockout/3.1.0/knockout-bindings.js'></script -->
+	<script type="text/javascript" src="script/CSV2JSON.js"></script>
 
 	<script src="http://js.arcgis.com/3.9/"></script>
 	
@@ -172,25 +173,28 @@
 				</div>
 			</header>
 
-			<div id='mainToolbar'>
+			<div id='mainToolbar'style="position: absolute; right: 34%; background-color: rgba(255,255,255,.30)">
 				<ul class='nav nav-tabs' id='myTab' 
 					style='float: left; margin-bottom: 10px;'>
-					<li><a title='Pan Map' id='panBtn' href='#' data-bind='' >
+					
+					<li data-bind='css: { activeIconStyle: (currIcon()=="Pan Map")}'><a title='Pan Map' id='panBtn' href='#'>
 						<div class='icon zoompan'></div></a>
 					</li>
-					<li><a title='Zoom In' id='zoomInBtn' href='#' class='btn'>
+					<li data-bind='css: { activeIconStyle: (currIcon()=="Select points within a circle")}'><a title='Select points within a circle' id='circleSelect' href='#'class='btn'>
+						<div class='icon circleselectIcon'></div></a></li>
+					<li data-bind='css: { activeIconStyle: (currIcon()=="Zoom In")}'><a title='Zoom In' id='zoomInBtn' href='#' class='btn'>
 						<div class='icon zoomInIcon'></div></a></li>
-					<li><a title='Zoom Out' id='zoomOutBtn' href='#' class='btn'>
+					<li data-bind='css: { activeIconStyle: (currIcon()=="Zoom Out")}'><a title='Zoom Out' id='zoomOutBtn' href='#' class='btn'>
 						<div class='icon zoomOutIcon'></div></a></li>
-					<li><a title='Zoom to Previous Extent' id='zoomPrevBtn' href='#'class='btn'>
+					<li data-bind='css: { activeIconStyle: (currIcon()=="Zoom to Previous Extent")}'><a title='Zoom to Previous Extent' id='zoomPrevBtn' href='#'class='btn'>
 						<div class='icon zoomprevIcon'></div></a></li>
-					<li><a title='Zoom to Next Extent' id='zoomNextBtn' href='#'class='btn'>
+					<li data-bind='css: { activeIconStyle: (currIcon()=="Zoom to Next Extent")}'><a title='Zoom to Next Extent' id='zoomNextBtn' href='#'class='btn'>
 						<div class='icon zoomnextIcon'></div></a></li>
 					<!-- li>
 						<a style='cursor: pointer;'><div class='icon printIcon' id='printDlgBtn' data-bind='click: doShowPrintDlg'></div></a>
 					</li -->
-					<li>
-						<a title='Show Time Slider' style='cursor: pointer;'><div class='icon showTimeSliderIcon' data-bind='click: (timeSliderVisible(!timeSliderVisible())), visible: true'></div></a>
+					<li data-bind='css: { activeIconStyle: (currIcon()=="Show Time Slider")}'>
+						<a title='Show Time Slider' style='cursor: pointer;'><div class='icon showTimeSliderIcon'></div></a>
 					</li>
 				</ul>
 			</div>
@@ -224,7 +228,7 @@
 									<ul data-bind='foreach: $data.layer'>
 										<li data-bind='click: loadURL_UI'>
 										  	<img src="./images/glyphicons_152_check.png" data-bind='visible: currLayerIndex()==$data["@attributes"].url' />
-                    		<img src="./images/glyphicons_153_unchecked.png" data-bind='visible: currLayerIndex()!=$data["@attributes"].url' />
+											<img src="./images/glyphicons_153_unchecked.png" data-bind='visible: currLayerIndex()!=$data["@attributes"].url' />
                 
 										  <div data-bind='text: $data["#text"], style { color: ($data["@attributes"].url == "")? "red" : "black"}'></div>
                       <img src="./charts/icon.png" data-bind='visible: $data["@attributes"].chart!=undefined' style='width: 25px;'/>
@@ -259,11 +263,11 @@
 								<!-- /ko -->
 							</div>
 						</div>				
-						<div id="mapContainer" style='width: 68%; height: 100%; padding-top: 5px; padding-left: 5px;'>
+						<div id="mapContainer" style='width: 68%; height: 100%; padding-top: 5px; padding-left: 5px;' data-bind='visible: !isChartShowing()'>
 							<div id="map" data-bind='css: {mapWithoutAttributes: (currentLayer() == null || attribHidden() == true), mapWithAttributes: (currentLayer() != null && attribHidden() == false) }'>
 							  <div id = "navIcon">
-							    <button data-bind = "click: navToolbar.zoomToPrevExtent()"> Zoom Prev </button>
-							    <button data-bind = "click: navToolbar.zoomToNextExtent()"> Zoom Next </button>
+							    <!-- button data-bind = "click: navToolbar.zoomToPrevExtent()"> Zoom Prev </button>
+							    <button data-bind = "click: navToolbar.zoomToNextExtent()"> Zoom Next </button -->
 							  </div>
                                     <!--div id="timeBottomPanel">
 										<div id="timeInfo">
@@ -273,6 +277,41 @@
 									</div-->
 							</div>
 					    </div>
+						<div id='chartContainer' style='width: 68%; height: 100%; padding-top: 5px; padding-left: 5px;' data-bind='visible: isChartShowing()'>
+							<img data-bind='attr: { src: chartImageData() }, visible: chartImageData() != "" ' />
+							
+							<div>
+								<table>
+									<tbody>
+										<!-- ko foreach: specialChart -->
+											<tr>
+													<!-- ko if: $index() == 0 -->
+														<!-- ko foreach: $data -->
+															<th><div data-bind='text: $data'> </div></th>
+														<!-- /ko -->
+													<!-- /ko -->
+													<!-- ko if: $index() > 0 -->
+														<!-- ko foreach: $data -->
+															<td><div data-bind='text: $data'> </div></td>
+														<!-- /ko -->
+													<!-- /ko -->
+											</tr>
+										<!-- /ko -->
+									</tbody>
+								</table>
+							</div>
+<<<<<<< HEAD
+=======
+						</div>
+
+						<div id='CSVContainer' style='width: 68%; height: 100%; padding-top: 5px; padding-left: 5px;' data-bind='visible: isCSVShowing()'>
+						
+>>>>>>> FETCH_HEAD
+						</div>
+
+						<div id='CSVContainer' style='width: 68%; height: 100%; padding-top: 5px; padding-left: 5px;' data-bind='visible: isCSVShowing()'>
+						
+						</div>
 							
 <div id="featureTable" data-bind='css: {attributesHidden: (currentLayer() == null || attribHidden() == true), attributesShown: (currentLayer() != null && attribHidden()==false)}'>
 	<h2 class='dataBtn' data-bind='click: loadAttributes, visible: currentLayer() == null, text: "Click here to retrieve feature attributes"'></h2>	
