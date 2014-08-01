@@ -164,27 +164,8 @@ var attribHidden = ko.observable(false);
 var navToolbar = null;
 var fullExtent = null;
 
-<<<<<<< HEAD
 var isChartShowing = ko.observable(false);
-
 var isCSVShowing = ko.observable(false);
-
-
-var isCSVShowing = ko.observable(false);
-
-=======
-var isChartShowing = ko.observable(false);
-<<<<<<< HEAD
-
-var isCSVShowing = ko.observable(false);
-
-=======
-<<<<<<< HEAD
-var isCSVShowing = ko.observable(false);
-=======
->>>>>>> FETCH_HEAD
->>>>>>> origin/master
->>>>>>> FETCH_HEAD
 var chartImageData = ko.observable("");
 
 var timeSelValue = ko.observable();
@@ -197,45 +178,23 @@ var printer = null;
 
 var currIcon = ko.observable("Pan Map");
 
-<<<<<<< HEAD
-
-
 var specialChart = ko.observable();
 
-
-
-function showFeatureSet(fset,evt) {
-  console.debug(evt);
-  //remove all graphics on the maps graphics layer
-  map.graphics.clear();
-=======
-<<<<<<< HEAD
-
-var specialChart = ko.observable();
-
-=======
-<<<<<<< HEAD
-var specialChart = ko.observable();
-
-=======
->>>>>>> FETCH_HEAD
->>>>>>> origin/master
 function showFeatureSet(fset,evt) {
 //remove all graphics on the maps graphics layer
 map.graphics.clear();
 
-	var screenPoint = null;
-	if(evt.screenPoint != "undefined") {
-		screenPoint = evt.screenPoint;
-	}
-	else if(evt.geometry != "undefined"){
-		screenPoint = map.toScreen( evt.geometry.getCentroid() );
+	if(false) {
+		var screenPoint = null;
+		if(evt.screenPoint != "undefined") {
+			screenPoint = evt.screenPoint;
+		}
+		else if(evt.geometry != "undefined"){
+			screenPoint = map.toScreen( evt.geometry.getCentroid() );
+		}
 	}
 	
->>>>>>> FETCH_HEAD
-
   var screenPoint = evt.geometry.getCentroid();
-  console.debug(screenPoint);
 
   featureSet = fset;
 
@@ -250,15 +209,9 @@ map.graphics.clear();
       content = content + graphic.attributes[featureSet.displayFieldName] + " (<a href='#' onclick='showFeature(featureSet.features[" + i + "]);'>show</a>)<br/>";
   }
 
-<<<<<<< HEAD
-  map.infoWindow.setTitle(title);
-  map.infoWindow.setContent(content);
-  map.infoWindow.show(screenPoint,map.getInfoWindowAnchor(screenPoint));
-=======
-map.infoWindow.setTitle(title);
-map.infoWindow.setContent(content);
-map.infoWindow.show(screenPoint,map.getInfoWindowAnchor(screenPoint));
->>>>>>> FETCH_HEAD
+	map.infoWindow.setTitle(title);
+	map.infoWindow.setContent(content);
+	map.infoWindow.show(screenPoint,map.getInfoWindowAnchor(screenPoint));
 }
 
 function showFeature(feature, ev) {
@@ -923,27 +876,9 @@ function loadURL_UI(evt_value) {
 	else {	  
 	  isChartShowing( false );
 	  chartImageData( "" );
-<<<<<<< HEAD
-    isCSVShowing(false);
 
-=======
-<<<<<<< HEAD
-		  
-=======
-<<<<<<< HEAD
-	  
-	      if(evt_value["@attributes"].report=1){
-	      isCSVShowing(true);
-	      showCSVChart();
-	      console.log("hehe");
-	      }
-	      
-	      isCSVShowing(false);
-=======
->>>>>>> FETCH_HEAD
-		
->>>>>>> origin/master
->>>>>>> FETCH_HEAD
+      isCSVShowing(false);
+
       	if(evt_value["@attributes"].url.length == 0)
 				return;
 				
@@ -1040,11 +975,6 @@ function doShowPrintDlg() {
 }
 
 function showCSVChart() {
-<<<<<<< HEAD
-
-=======
-<<<<<<< HEAD
->>>>>>> FETCH_HEAD
 	require(["esri/request"],
 		function(request){
 			esri.request( {
@@ -1054,26 +984,5 @@ function showCSVChart() {
 				specialChart( CSVToArray(response) );
 			});
 		});
-<<<<<<< HEAD
 }
-
-
-
-=======
-}
-=======
-require(["esri/request"],
-function(request){
-esri.request( {
-url: "./charts/StudentPopulation.csv",
-handleAs: "text",
-}).then(function(response){
-specialChart( CSV2JSON(response) );
-});
-});
-}
-
->>>>>>> origin/master
-			
->>>>>>> FETCH_HEAD
 init();
