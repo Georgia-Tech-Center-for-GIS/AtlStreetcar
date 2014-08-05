@@ -150,6 +150,10 @@ var tempGraphicsLayer = null;
 dojo.require("dojox.xml.DomParser");
 dojo.require("esri.dijit.TimeSlider");
 dojo.require("esri.dijit.Print");
+dojo.require("dijit.TitlePane");
+dojo.require("dijit.layout.ContentPane");
+dojo.require("dijit.layout.BorderContainer");
+dojo.require("esri.arcgis.utils");
 
 var jsDom = null;
 var lyrQueryTask = null;
@@ -165,16 +169,7 @@ var navToolbar = null;
 var fullExtent = null;
 
 var isChartShowing = ko.observable(false);
-<<<<<<< HEAD
-
 var isCSVShowing = ko.observable(false);
-
-=======
-<<<<<<< HEAD
-var isCSVShowing = ko.observable(false);
-=======
->>>>>>> FETCH_HEAD
->>>>>>> origin/master
 var chartImageData = ko.observable("");
 
 var timeSelValue = ko.observable();
@@ -187,46 +182,40 @@ var printer = null;
 
 var currIcon = ko.observable("Pan Map");
 
-<<<<<<< HEAD
-
 var specialChart = ko.observable();
 
-=======
-<<<<<<< HEAD
-var specialChart = ko.observable();
-
-=======
->>>>>>> FETCH_HEAD
->>>>>>> origin/master
 function showFeatureSet(fset,evt) {
 //remove all graphics on the maps graphics layer
 map.graphics.clear();
 
-	var screenPoint = null;
-	if(evt.screenPoint != "undefined") {
-		screenPoint = evt.screenPoint;
-	}
-	else if(evt.geometry != "undefined"){
-		screenPoint = map.toScreen( evt.geometry.getCentroid() );
+	if(false) {
+		var screenPoint = null;
+		if(evt.screenPoint != "undefined") {
+			screenPoint = evt.screenPoint;
+		}
+		else if(evt.geometry != "undefined"){
+			screenPoint = map.toScreen( evt.geometry.getCentroid() );
+		}
 	}
 	
+  var screenPoint = evt.geometry.getCentroid();
 
-featureSet = fset;
+  featureSet = fset;
 
-var numFeatures = featureSet.features.length;
+  var numFeatures = featureSet.features.length;
 
-//QueryTask returns a featureSet.  Loop through features in the featureSet and add them to the infowindow.
-var title = "You have selected " + numFeatures + " features.";
-var content = "Please select desired feature from the list below.<br />";
+  //QueryTask returns a featureSet.  Loop through features in the featureSet and add them to the infowindow.
+  var title = "You have selected " + numFeatures + " features.";
+  var content = "Please select desired feature from the list below.<br />";
 
-for (var i=0; i<numFeatures; i++) {
-  var graphic = featureSet.features[i];
-  content = content + graphic.attributes[featureSet.displayFieldName] + " (<a href='#' onclick='showFeature(featureSet.features[" + i + "]);'>show</a>)<br/>";
-}
+  for (var i=0; i<numFeatures; i++) {
+      var graphic = featureSet.features[i];
+      content = content + graphic.attributes[featureSet.displayFieldName] + " (<a href='#' onclick='showFeature(featureSet.features[" + i + "]);'>show</a>)<br/>";
+  }
 
-map.infoWindow.setTitle(title);
-map.infoWindow.setContent(content);
-map.infoWindow.show(screenPoint,map.getInfoWindowAnchor(screenPoint));
+	map.infoWindow.setTitle(title);
+	map.infoWindow.setContent(content);
+	map.infoWindow.show(screenPoint,map.getInfoWindowAnchor(screenPoint));
 }
 
 function showFeature(feature, ev) {
@@ -272,7 +261,9 @@ function init() {
 			function(
 		ArcGISDynamicMapServiceLayer, FeatureLayer, Query, Navigation, registry, on, parser, domStyle, Query, Draw, TimeExtent, TimeSlider,
         arrayUtils, dom ) {
-			
+		
+		parser.parse();
+		
 		esriConfig.defaults.io.proxyUrl = "http://carto.gis.gatech.edu/proxypage_net/proxy.ashx";
 		//esriConfig.defaults.io.alwaysUseProxy = true;
 		
@@ -289,9 +280,9 @@ function init() {
 		});
 */
 		
-		require(["esri/map", "http://esri.github.io/bootstrap-map-js/src/js/bootstrapmap.js",
+		require(["esri/map", "http://esri.github.io/bootstrap-map-js/src/js/bootstrapmap.js", "esri/dijit/BasemapGallery", 
 			"dojo/domReady!"],
-		function(Map, BootstrapMap) {
+		function(Map, BootstrapMap, BasemapGallery) {
 			
 			map = BootstrapMap.create("map",{
 				basemap: "streets",
@@ -299,6 +290,22 @@ function init() {
 				zoom: 15,
 				allowScrollbarZoom: true,
 			});
+			
+		var basemapGallery = new BasemapGallery({
+			showArcGISBasemaps: true,
+			map: map
+        }, "basemapGallery");
+
+        var selectionHandler = dojo.connect(basemapGallery,"onSelectionChange",function(){
+			dojo.disconnect(selectionHandler);
+			//add the esri population layer to the map
+			//var operationalLayer = new esri.layers.ArcGISDynamicMapServiceLayer("http://sampleserver1.arcgisonline.com/ArcGIS/rest/services/Demographics/ESRI_Population_World/MapServer", {"opacity":0.5});
+			//map.addLayer(operationalLayer);
+		});
+		
+        basemapGallery.startup();
+        
+        dojo.connect(basemapGallery, "onError", function(msg) {console.log(msg)});
 			
 			map.addLayer(streetcarLayer);
 			
@@ -332,9 +339,14 @@ function init() {
 							qry.where = "1=1";
 							qry.outFields = ["*"];
 							qry.returnGeometry = true;
+													
 							qry.geometry = evt.geometry;
 							
-							console.debug(lyrQueryTask);
+							console.debug( evt.geometry.getExtent().getHeight() );
+							
+							if(evt.geometry.getExtent().getHeight() < 200) {
+								qry.geometry = evt.geometry.getCentroid();
+							}
 							
 							lyrQueryTask.execute(qry);
 							lyrQueryTask.on("complete", function(results) {
@@ -382,7 +394,6 @@ function init() {
 				$('#zoomInBtn').on('click', function(e) {
 					currIcon("Zoom In");
 				
-				//map.setMapCursor("url(images/images/glyphicons_236_zoom_in.png),auto");
 					drawToolbar.deactivate();
 					navToolbar.activate(esri.toolbars.Navigation.ZOOM_IN);
 			    });
@@ -390,10 +401,15 @@ function init() {
 				$('#zoomOutBtn').on('click', function(e) {
 					currIcon("Zoom Out");
 				
-				//map.setMapCursor("url(images/zoom_in.cur),auto");
 					drawToolbar.deactivate();
 					navToolbar.activate(esri.toolbars.Navigation.ZOOM_OUT);	
 			    });
+				
+				$('#zoomFullExtBtn').on('click', function(e) {
+					currIcon("Zoom to Full Extent");
+
+					map.setExtent(fullExtent);
+				});
 			  
 				$('#circleSelect').on('click', function(e) {
 					currIcon("Select points within a circle");
@@ -871,6 +887,7 @@ function loadURL_UI(evt_value) {
 		isChartShowing( true );
 		chartImageData( evt_value["@attributes"].chart );
 		currLayerIndex(-1);
+		specialChart({});
 		/*
 			chart_url = evt_value["@attributes"].chart;
 			$('#map').hide();
@@ -891,22 +908,10 @@ function loadURL_UI(evt_value) {
 	else {	  
 	  isChartShowing( false );
 	  chartImageData( "" );
-<<<<<<< HEAD
-		  
-=======
-<<<<<<< HEAD
-	  
-	      if(evt_value["@attributes"].report=1){
-	      isCSVShowing(true);
-	      showCSVChart();
-	      console.log("hehe");
-	      }
-	      
-	      isCSVShowing(false);
-=======
->>>>>>> FETCH_HEAD
-		
->>>>>>> origin/master
+	  specialChart({});
+
+      	isCSVShowing(false);
+
       	if(evt_value["@attributes"].url.length == 0)
 				return;
 				
@@ -1003,7 +1008,6 @@ function doShowPrintDlg() {
 }
 
 function showCSVChart() {
-<<<<<<< HEAD
 	require(["esri/request"],
 		function(request){
 			esri.request( {
@@ -1014,18 +1018,5 @@ function showCSVChart() {
 			});
 		});
 }
-=======
-require(["esri/request"],
-function(request){
-esri.request( {
-url: "./charts/StudentPopulation.csv",
-handleAs: "text",
-}).then(function(response){
-specialChart( CSV2JSON(response) );
-});
-});
-}
 
->>>>>>> origin/master
-			
 init();

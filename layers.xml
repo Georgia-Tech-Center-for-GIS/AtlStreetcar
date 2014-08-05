@@ -2,15 +2,7 @@
 <Layers>
 <Analysis name='Population'>
 <layer url='4'>Residential Population</layer>
-<<<<<<< HEAD
 <layer report='1' url ='-2'>GSU Student Population by Dorms</layer>
-=======
-<<<<<<< HEAD
-<layer report='1' url ='-2'>GSU Student Population by Dorms</layer>
-=======
-<layer report='' url =''>GSU Student Population by Dorms</layer>
->>>>>>> FETCH_HEAD
->>>>>>> origin/master
 <layer url='5'>Number of Home Owners</layer>
 <layer url='6'>Number of Home Renters</layer>
 <layer chart='./charts/AgeGroupChart.png' url='-1'>Age Groups by Census</layer>

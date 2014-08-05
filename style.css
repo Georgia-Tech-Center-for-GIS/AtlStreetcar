@@ -29,6 +29,10 @@ h2 {
 	width: 350px;
 }
 
+.esriBasemapGallerySelectedNode .esriBasemapGalleryThumbnail{
+        border-color: #66FFFF !important;
+}
+
 .accordion-category{
 	font-size: 15px;
 	font-weight: 400;
@@ -249,6 +253,10 @@ thead tr th {
 
 .zoompan {
 	background-image: url("images/glyphicons_186_move.png");
+}
+
+.zoomfullextIcon {
+	background-image: url("images/glyphicons_370_globe_af.png");
 }
 
 .showTimeSliderIcon {
