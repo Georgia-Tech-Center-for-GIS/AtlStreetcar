@@ -168,8 +168,28 @@ var attribHidden = ko.observable(false);
 var navToolbar = null;
 var fullExtent = null;
 
+<<<<<<< HEAD
+var isChartShowing = ko.observable(false);
+
+var isCSVShowing = ko.observable(false);
+
+
+var isCSVShowing = ko.observable(false);
+
+=======
 var isChartShowing = ko.observable(false);
 var isCSVShowing = ko.observable(false);
+<<<<<<< HEAD
+=======
+
+=======
+<<<<<<< HEAD
+var isCSVShowing = ko.observable(false);
+=======
+>>>>>>> FETCH_HEAD
+>>>>>>> origin/master
+>>>>>>> FETCH_HEAD
+>>>>>>> origin/master
 var chartImageData = ko.observable("");
 
 var timeSelValue = ko.observable();
@@ -182,6 +202,27 @@ var printer = null;
 
 var currIcon = ko.observable("Pan Map");
 
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+
+
+var specialChart = ko.observable();
+
+
+
+function showFeatureSet(fset,evt) {
+  console.debug(evt);
+  //remove all graphics on the maps graphics layer
+  map.graphics.clear();
+=======
+<<<<<<< HEAD
+
+var specialChart = ko.observable();
+
+=======
+<<<<<<< HEAD
+>>>>>>> origin/master
 var specialChart = ko.observable();
 
 function showFeatureSet(fset,evt) {
@@ -198,6 +239,7 @@ map.graphics.clear();
 		}
 	}
 	
+<<<<<<< HEAD
   var screenPoint = evt.geometry.getCentroid();
 
   featureSet = fset;
@@ -216,6 +258,35 @@ map.graphics.clear();
 	map.infoWindow.setTitle(title);
 	map.infoWindow.setContent(content);
 	map.infoWindow.show(screenPoint,map.getInfoWindowAnchor(screenPoint));
+=======
+>>>>>>> FETCH_HEAD
+
+  var screenPoint = evt.geometry.getCentroid();
+  console.debug(screenPoint);
+
+  featureSet = fset;
+
+  var numFeatures = featureSet.features.length;
+
+  //QueryTask returns a featureSet.  Loop through features in the featureSet and add them to the infowindow.
+  var title = "You have selected " + numFeatures + " features.";
+  var content = "Please select desired feature from the list below.<br />";
+
+  for (var i=0; i<numFeatures; i++) {
+      var graphic = featureSet.features[i];
+      content = content + graphic.attributes[featureSet.displayFieldName] + " (<a href='#' onclick='showFeature(featureSet.features[" + i + "]);'>show</a>)<br/>";
+  }
+
+<<<<<<< HEAD
+  map.infoWindow.setTitle(title);
+  map.infoWindow.setContent(content);
+  map.infoWindow.show(screenPoint,map.getInfoWindowAnchor(screenPoint));
+=======
+map.infoWindow.setTitle(title);
+map.infoWindow.setContent(content);
+map.infoWindow.show(screenPoint,map.getInfoWindowAnchor(screenPoint));
+>>>>>>> FETCH_HEAD
+>>>>>>> origin/master
 }
 
 function showFeature(feature, ev) {
@@ -908,10 +979,34 @@ function loadURL_UI(evt_value) {
 	else {	  
 	  isChartShowing( false );
 	  chartImageData( "" );
+<<<<<<< HEAD
 	  specialChart({});
 
       	isCSVShowing(false);
 
+=======
+<<<<<<< HEAD
+    isCSVShowing(false);
+
+=======
+<<<<<<< HEAD
+		  
+=======
+<<<<<<< HEAD
+	  
+	      if(evt_value["@attributes"].report=1){
+	      isCSVShowing(true);
+	      showCSVChart();
+	      console.log("hehe");
+	      }
+	      
+	      isCSVShowing(false);
+=======
+>>>>>>> FETCH_HEAD
+		
+>>>>>>> origin/master
+>>>>>>> FETCH_HEAD
+>>>>>>> origin/master
       	if(evt_value["@attributes"].url.length == 0)
 				return;
 				
@@ -1008,6 +1103,14 @@ function doShowPrintDlg() {
 }
 
 function showCSVChart() {
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+
+=======
+<<<<<<< HEAD
+>>>>>>> FETCH_HEAD
+>>>>>>> origin/master
 	require(["esri/request"],
 		function(request){
 			esri.request( {
@@ -1017,6 +1120,18 @@ function showCSVChart() {
 				specialChart( CSVToArray(response) );
 			});
 		});
+<<<<<<< HEAD
 }
 
+
+
+=======
+}
+
+<<<<<<< HEAD
+=======
+>>>>>>> origin/master
+			
+>>>>>>> FETCH_HEAD
+>>>>>>> origin/master
 init();
