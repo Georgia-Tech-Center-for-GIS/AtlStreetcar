@@ -152,9 +152,14 @@
 					</div>
 					
 				<div class='col-lg-6' style='position: absolute; height: 8em; left: 50%; top: .5em;' data-bind='visible: timeSliderVisible()'>		
-					<div id='timeSliderContainer' style='width: 100%; padding: 1em;'>
-						<div id='timeSliderDiv'></div>
-					</div>				
+					<!--div id='timeSliderContainer' style='width: 100%; padding: 1em;'-->
+						<div id="timeBottomPanel">
+							<div id="timeInfo">
+								<div>Atlanta Streetcar Scenario from <span id="daterange">1984 to 2012</span></div>
+									<div id="timeSliderDiv"></div>
+							</div>
+						</div>
+					<!--/div-->				
 					<div class='col-lg-5' style='height: 4em;' data-bind='style: { width: ( !timeSliderVisible() ? "auto" : "100%" )  } '></div>
 				</div>
 
@@ -178,7 +183,7 @@
 				</div>
 			</header>
 			
-			<div style="position:relative; left:320px; top:50px; z-Index:999;">
+			<div style="position:relative; left:320px; top:50px; z-Index:0;">
 				<div data-dojo-type="dijit.TitlePane" data-dojo-props="title:'Switch Basemap', closable:false, open:false">
 					<div data-dojo-type="dijit.layout.ContentPane" style="width:380px; height:280px; overflow:auto;">
 						<div id="basemapGallery"></div>
@@ -246,7 +251,6 @@
 											<img src="./images/glyphicons_153_unchecked.png" data-bind='visible: currLayerIndex()!=$data["@attributes"].url' />
                 
 										  <div data-bind='text: $data["#text"], style { color: ($data["@attributes"].url == "")? "red" : "black"}'></div>
-                      <img src="./charts/icon.png" data-bind='visible: $data["@attributes"].chart!=undefined' style='width: 25px;'/>
                       
 									  </li>
 									</ul>
@@ -258,7 +262,8 @@
 											  	<img src="./images/glyphicons_152_check.png" data-bind='visible: currLayerIndex()==$data["@attributes"].url' />
 	                    						<img src="./images/glyphicons_153_unchecked.png" data-bind='visible: currLayerIndex()!=$data["@attributes"].url' />
 	                
-											  <div data-bind='text: $data["#text"], style { color: ($data["@attributes"].url == "")? "red" : "black"}'>							  </div>
+											  <div data-bind='text: $data["#text"], style { color: ($data["@attributes"].url == "")? "red" : "black"}'></div>
+											  <img src="./charts/icon.png" data-bind='visible: $data["@attributes"].chart!=undefined || $data["@attributes"].report!=undefined' style='width: 25px;'/>
 										  </li>
 										</ul>
 									<!-- /ko -->
@@ -282,16 +287,10 @@
 							<div id="map" data-bind='css: {mapWithoutAttributes: (currentLayer() == null || attribHidden() == true), mapWithAttributes: (currentLayer() != null && attribHidden() == false) }'> </div>
 							
 							<div id = "navIcon"></div>
-                                    <!--div id="timeBottomPanel">
-										<div id="timeInfo">
-											<div>Atlanta Streetcar Scenario from <span id="daterange">1990 to 2015</span> (Completion date)</div>
-											<div id="timeSliderDiv"></div>
-										</div>
-									</div-->
 					    </div>
 
 						
-						<div id='chartContainer' style='width: 68%; height: 100%; padding-top: 5px; padding-left: 5px;' data-bind='visible: isChartShowing()'>
+						<div id='chartContainer' style='width: 68%; height: 100%; padding-top: 130px; padding-left: 5px;' data-bind='visible: isChartShowing()'>
 							<img data-bind='attr: { src: chartImageData() }, visible: chartImageData() != "" ' />
 							
 							<div>
@@ -314,24 +313,14 @@
 									</tbody>
 								</table>
 							</div>
-<<<<<<< HEAD
-=======
 						</div>
 
 						<div id='CSVContainer' style='width: 68%; height: 100%; padding-top: 5px; padding-left: 5px;' data-bind='visible: isCSVShowing()'>
 						
->>>>>>> FETCH_HEAD
 						</div>
-<<<<<<< HEAD
-=======
-
-						<div id='CSVContainer' style='width: 68%; height: 100%; padding-top: 5px; padding-left: 5px;' data-bind='visible: isCSVShowing()'>
-						
-						</div>
->>>>>>> origin/master
 							
 <div id="featureTable" data-bind='css: {attributesHidden: (currentLayer() == null || attribHidden() == true), attributesShown: (currentLayer() != null && attribHidden()==false)}'>
-	<h2 class='dataBtn' data-bind='click: loadAttributes, visible: currentLayer() == null, text: "Click here to retrieve feature attributes"'></h2>	
+	<h2 class='dataBtn' data-bind='click: loadAttributes, visible: currentLayer() == null && !isChartShowing(), text: "Click here to retrieve feature attributes"'></h2>	
 	<h2 class='dataBtn' data-bind='click: (attribHidden(false), map.resize() , $(".fht-table").css("display", "block") ), visible: (currentLayer() != null && attribHidden() == true), text: "Click here to show feature attributes"'></h2>	
 	<h2 class='dataBtn' data-bind='click: (attribHidden(true) , map.resize() , $(".fht-table").css("display", "none")  ), visible:  (currentLayer() != null && attribHidden() == false), text: "Click here to hide feature attributes"'></h2>
 								<!-- ko if: currentLayer() != null -->

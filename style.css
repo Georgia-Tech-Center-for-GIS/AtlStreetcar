@@ -161,12 +161,12 @@ thead tr th {
   cursor:pointer;
 }
 
-/*#timeBottomPanel {
-        left: 50%;
+#timeBottomPanel {
+        right: 25%;
         margin: 0 auto;
-        margin-left: -500px;
-        position: absolute; 
-        bottom: 5em;
+        margin-left: 0px;
+        position: relative; 
+        bottom: -4.5em;
 }
 
 #timeInfo{
@@ -174,26 +174,26 @@ thead tr th {
         border: solid 2px #ccc;
         background-color: #fff;
         display: block;
-        padding: 5px;
+        padding: 10px;
         position: relative;
         text-align: center;
-        width: 1000px;
+        width: 650px;
         z-index: 99;
-      }*/
+      }
 
 #esriPrint a, .esriPrintout {
 	font-size: 14pt;
 	font-weight: bold;
 }
 
-#timeSliderContainer {
+/*#timeSliderContainer {
 	border: 1px solid gray;
 	background-color: #EEEEEE;
 }
 
 #timeSliderDiv {
 	width: 600px !important;
-}
+}*/
 
 #timeSliderChoices {
 	margin-top: 1em;
