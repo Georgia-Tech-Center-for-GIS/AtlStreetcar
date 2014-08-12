@@ -1,57 +1,73 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Layers>
 <Analysis name='Population'>
+<Analysis name='Map'>
 <layer url='4'>Residential Population</layer>
+<layer url='5'>Percentage of Home Owners</layer>
+<layer url='7'>Average Household Median Income</layer>
+</Analysis>
+<Analysis name='Graph'>
 <layer report='1' url ='-2'>GSU Student Population by Dorms</layer>
-<<<<<<< HEAD
-=======
-=======
-<<<<<<< HEAD
-<layer report='1' url ='-2'>GSU Student Population by Dorms</layer>
-=======
-<layer report='' url =''>GSU Student Population by Dorms</layer>
->>>>>>> FETCH_HEAD
->>>>>>> origin/master
->>>>>>> FETCH_HEAD
-<layer url='5'>Number of Home Owners</layer>
-<layer url='6'>Number of Home Renters</layer>
 <layer chart='./charts/AgeGroupChart.png' url='-1'>Age Groups by Census</layer>
-<layer url='7'>Average Median Income</layer>
+</Analysis>
 </Analysis>
 
 <Analysis name='Land Use/Development'>
 <layer url='8'>Land-use Type</layer>
 <layer url='9'>Floor-Area Ratio</layer>
+<layer url='23'>Years of Establishment</layer>
+</Analysis>
+
+<Analysis name='Residential Development'>
 <layer url='10'>Single Family Homes</layer>
 <layer url='11'>Apartment / Condo</layer>
 <layer url='12'>Residential Value</layer>
-<Layer url='13'>Vacancy Rate</Layer>
+<layer url='13'>Residential Vacancy Rate</layer>
+<layer chart='./charts/GSU Dorm.jpg' url='-1'>Number of Dorm Beds</layer>
 </Analysis>
 
 <Analysis name='Retail Development'>
 <!--layer url=''>Retail Square Footage</layer-->
-<layer url='14'>Sales</layer>
-<layer url='15'>Employment</layer>
+<layer url='14'>Retail Employment</layer>
+<layer url='15'>Retail Square Footage</layer>
+<layer url='16'>Retail Sales</layer>
 </Analysis>
 
-<Analysis name='Employment Development'>
-<layer url='24'>Square Footage</layer>
-<layer url='25'>Year of Establishment</layer>
+<Analysis name='Office Development'>
+<layer url=''>Office Employment</layer>
+<layer url=''>Office Square Footage</layer>
 </Analysis>
 
-<Analysis name='Hospitality'>
-<Analysis name='Attractions'>
-<layer url='18' >Historic Sites</layer>
-<layer url='19' >Landmark Sites</layer>
-</Analysis>
-<Analysis name='Hotels'>
-<layer url='20'>Employment</layer>
-<layer url='21'>Number of Rooms</layer>
-</Analysis>
+<Analysis name='Hospitality Development'>
+<layer url='17' >Hotel Employment</layer>
+<layer url='18' >Hotel Rooms</layer>
+<layer url='19' >Hotel Square Footage</layer>
+<layer url='20' >Hotel Sales</layer>
+<layer url='21' >Attractions</layer>
 </Analysis>
 
-<Analysis name='Traffic'>
-<layer url='26'>Number of Parking Spaces</layer>
+<Analysis name='Financial Analysis'>
+
+</Analysis>
+
+<Analysis name='Economic Development'>
+<layer url='22'>Employment</layer>
+</Analysis>
+
+<Analysis name='Traffic Analysis'>
+<layer url='' >Vehicle Ownership Rates</layer>
+<layer url='' >Vehicle Share Availability</layer>
+<layer url='' >Carpool/Vanpool Utilization</layer>
+</Analysis>
+
+<Analysis name='Parking Analysis'>
+<layer url='25'>Public Accessible Parking Spaces</layer>
+<layer url='26'>Number of Accessible Bike Lanes/Routes</layer>
+</Analysis>
+
+<Analysis name='Transportation Network Analysis'>
+<layer url='26'>Number of Accessible Bike Lanes/Routes</layer>
+<layer url='25'>Public Accessible Parking Spaces</layer>
 </Analysis>
 
 </Layers>
