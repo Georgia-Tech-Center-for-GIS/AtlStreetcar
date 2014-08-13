@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" height="100%;">
+<html height="100%;">
 
 	<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en-US" prefix="og: http://ogp.me/ns#"> <![endif]-->
 	<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8" lang="en-US" prefix="og: http://ogp.me/ns#"> <![endif]-->
@@ -22,9 +22,9 @@
 	window.template_directory = "http://streetcar.atlantaga.gov/wp-content/themes/streetcar";
 	</script>
                 
-	<link rel="stylesheet" href="http://js.arcgis.com/3.9/js/dojo/dijit/themes/tundra/tundra.css">
-	<link rel="stylesheet" href="http://js.arcgis.com/3.9/js/dojo/dijit/themes/claro/claro.css">
-	<link rel="stylesheet" href="http://js.arcgis.com/3.9/js/esri/css/esri.css">
+	<link rel="stylesheet" href="http://js.arcgis.com/3.10/js/dojo/dijit/themes/tundra/tundra.css">
+	<link rel="stylesheet" href="http://js.arcgis.com/3.10/js/dojo/dijit/themes/claro/claro.css"> 
+	<link rel="stylesheet" href="http://js.arcgis.com/3.10/js/esri/css/esri.css">
 
 	<!-- This site is optimized with the Yoast WordPress SEO plugin v1.4.15 - http://yoast.com/wordpress/seo/ -->
 	<title>Atlanta Streetcar</title>
@@ -109,6 +109,7 @@
 
 	<link rel='stylesheet' type='text/css' href='fixedHeaderDefaultTheme.css'/>
 	<link rel='stylesheet' type='text/css' href='style.css' />
+	
 		
 	<script type="text/javascript">var switchTo5x=true;</script>
 	<script type="text/javascript" src="http://w.sharethis.com/button/buttons.js"></script>
@@ -125,7 +126,11 @@
 	<!--script src='http://cdnjs.cloudflare.com/ajax/libs/knockout/3.1.0/knockout-bindings.js'></script -->
 	<script type="text/javascript" src="script/CSV2JSON.js"></script>
 
-	<script src="http://js.arcgis.com/3.9/"></script>
+	<script>
+		//var dojoConfig = { parseOnLoad: true };
+	</script>
+
+	<script src="http://js.arcgis.com/3.10/"></script>
 	
 	<script src='print.js'> </script>
 	<script src='script/main.js' type='text/javascript'> </script>
@@ -147,9 +152,14 @@
 					</div>
 					
 				<div class='col-lg-6' style='position: absolute; height: 8em; left: 50%; top: .5em;' data-bind='visible: timeSliderVisible()'>		
-					<div id='timeSliderContainer' style='width: 100%; padding: 1em;'>
-						<div id='timeSliderDiv'></div>
-					</div>				
+					<!--div id='timeSliderContainer' style='width: 100%; padding: 1em;'-->
+						<div id="timeBottomPanel">
+							<div id="timeInfo">
+								<div>Atlanta Streetcar Scenario from <span id="daterange">1984 to 2012</span></div>
+									<div id="timeSliderDiv"></div>
+							</div>
+						</div>
+					<!--/div-->				
 					<div class='col-lg-5' style='height: 4em;' data-bind='style: { width: ( !timeSliderVisible() ? "auto" : "100%" )  } '></div>
 				</div>
 
@@ -172,8 +182,16 @@
 					</div>
 				</div>
 			</header>
-
-			<div id='mainToolbar'style="position: absolute; right: 34%; background-color: rgba(255,255,255,.30)">
+			
+			<div style="position:relative; left:320px; top:50px; z-Index:0;">
+				<div data-dojo-type="dijit.TitlePane" data-dojo-props="title:'Switch Basemap', closable:false, open:false">
+					<div data-dojo-type="dijit.layout.ContentPane" style="width:380px; height:280px; overflow:auto;">
+						<div id="basemapGallery"></div>
+					</div> 
+				</div>
+			</div>
+			
+			<div id='mainToolbar'style="position: relative; left: 38%; background-color: rgba(255,255,255,.30)">
 				<ul class='nav nav-tabs' id='myTab' 
 					style='float: left; margin-bottom: 10px;'>
 					
@@ -190,6 +208,8 @@
 						<div class='icon zoomprevIcon'></div></a></li>
 					<li data-bind='css: { activeIconStyle: (currIcon()=="Zoom to Next Extent")}'><a title='Zoom to Next Extent' id='zoomNextBtn' href='#'class='btn'>
 						<div class='icon zoomnextIcon'></div></a></li>
+					<li data-bind='css: { activeIconStyle: (currIcon()=="Zoom to Full Extent")}'><a title='Zoom to Full Extent' id='zoomFullExtBtn' href='#'class='btn'>
+						<div class='icon zoomfullextIcon'></div></a></li>
 					<!-- li>
 						<a style='cursor: pointer;'><div class='icon printIcon' id='printDlgBtn' data-bind='click: doShowPrintDlg'></div></a>
 					</li -->
@@ -219,31 +239,34 @@
 					</div-->
 					<div class='row' style='margin-left: 5px; height:100%;'>
 						<div id="menu-accordion" style='width: 25%; margin-right: 3em; height: 100%;'>
-							<div id = "layerlist" style='height: 32.15em;'>
+							<div id = "layerlist" >
 							<h2>Data Categories</h2>
-							<!-- ko foreach: layerList().Layers.Analysis -->
+							<!-- ko foreach: layerList().Layers[0].Analysis -->
 								<h3 class='accordion-category'
 								data-bind='fadeVisible: ((currCateg() == null || currCateg() == $data["@attributes"].name )), text: $data["@attributes"].name, click: changeIt, css: { accordionCategoryOpen :(currCateg() == $data["@attributes"].name ) }'> </h3>
 								<div class='inner' data-bind='visible: ((currCateg() == $data["@attributes"].name ))'>
+                                                                    
 									<ul data-bind='foreach: $data.layer'>
+                                                                            
 										<li data-bind='click: loadURL_UI'>
 										  	<img src="./images/glyphicons_152_check.png" data-bind='visible: currLayerIndex()==$data["@attributes"].url' />
 											<img src="./images/glyphicons_153_unchecked.png" data-bind='visible: currLayerIndex()!=$data["@attributes"].url' />
                 
 										  <div data-bind='text: $data["#text"], style { color: ($data["@attributes"].url == "")? "red" : "black"}'></div>
-                      <img src="./charts/icon.png" data-bind='visible: $data["@attributes"].chart!=undefined' style='width: 25px;'/>
-                      
 									  </li>
 									</ul>
 
 									<!-- ko foreach: $data.Analysis -->
 										<div data-bind='text: $data["@attributes"].name'> </div>
+                                                                                
 										<ul data-bind='foreach: $data.layer'>
+                                                                                    
 											<li data-bind='click: loadURL_UI'>
 											  	<img src="./images/glyphicons_152_check.png" data-bind='visible: currLayerIndex()==$data["@attributes"].url' />
 	                    						<img src="./images/glyphicons_153_unchecked.png" data-bind='visible: currLayerIndex()!=$data["@attributes"].url' />
 	                
-											  <div data-bind='text: $data["#text"], style { color: ($data["@attributes"].url == "")? "red" : "black"}'>							  </div>
+											  <div data-bind='text: $data["#text"], style { color: ($data["@attributes"].url == "")? "red" : "black"}'></div>
+											  <img src="./charts/icon.png" data-bind='visible: $data["@attributes"].chart!=undefined || $data["@attributes"].report!=undefined' style='width: 25px;'/>
 										  </li>
 										</ul>
 									<!-- /ko -->
@@ -251,7 +274,7 @@
 							<!-- /ko -->
 							</div>
 							<div style='height: 15em; overflow: auto; width: 80%;' id='legend'
-								data-bind='attr: {title : currLayerTitle() }'>
+								data-bind='attr: {title : currLayerTitle() }, visible: !isChartShowing()'>
 								<h2 data-bind='html: getLegendTitle' style='margin-top: 1em;'></h2>
 								<!-- ko if: currLayerLegend() != null -->
 									<div data-bind="foreach: currLayerLegend().legend" style='font-size: 10pt; padding: .5em;'>
@@ -264,20 +287,13 @@
 							</div>
 						</div>				
 						<div id="mapContainer" style='width: 68%; height: 100%; padding-top: 5px; padding-left: 5px;' data-bind='visible: !isChartShowing()'>
-							<div id="map" data-bind='css: {mapWithoutAttributes: (currentLayer() == null || attribHidden() == true), mapWithAttributes: (currentLayer() != null && attribHidden() == false) }'>
-							  <div id = "navIcon">
-							    <!-- button data-bind = "click: navToolbar.zoomToPrevExtent()"> Zoom Prev </button>
-							    <button data-bind = "click: navToolbar.zoomToNextExtent()"> Zoom Next </button -->
-							  </div>
-                                    <!--div id="timeBottomPanel">
-										<div id="timeInfo">
-											<div>Atlanta Streetcar Scenario from <span id="daterange">1990 to 2015</span> (Completion date)</div>
-											<div id="timeSliderDiv"></div>
-										</div>
-									</div-->
-							</div>
+							<div id="map" data-bind='css: {mapWithoutAttributes: (currentLayer() == null || attribHidden() == true), mapWithAttributes: (currentLayer() != null && attribHidden() == false) }'> </div>
+							
+							<div id = "navIcon"></div>
 					    </div>
-						<div id='chartContainer' style='width: 68%; height: 100%; padding-top: 5px; padding-left: 5px;' data-bind='visible: isChartShowing()'>
+
+						
+						<div id='chartContainer' style='width: 68%; height: 100%; padding-top: 130px; padding-left: 5px;' data-bind='visible: isChartShowing()'>
 							<img data-bind='attr: { src: chartImageData() }, visible: chartImageData() != "" ' />
 							
 							<div>
@@ -307,7 +323,7 @@
 						</div>
 							
 <div id="featureTable" data-bind='css: {attributesHidden: (currentLayer() == null || attribHidden() == true), attributesShown: (currentLayer() != null && attribHidden()==false)}'>
-	<h2 class='dataBtn' data-bind='click: loadAttributes, visible: currentLayer() == null, text: "Click here to retrieve feature attributes"'></h2>	
+	<h2 class='dataBtn' data-bind='click: loadAttributes, visible: currentLayer() == null && !isChartShowing(), text: "Click here to retrieve feature attributes"'></h2>	
 	<h2 class='dataBtn' data-bind='click: (attribHidden(false), map.resize() , $(".fht-table").css("display", "block") ), visible: (currentLayer() != null && attribHidden() == true), text: "Click here to show feature attributes"'></h2>	
 	<h2 class='dataBtn' data-bind='click: (attribHidden(true) , map.resize() , $(".fht-table").css("display", "none")  ), visible:  (currentLayer() != null && attribHidden() == false), text: "Click here to hide feature attributes"'></h2>
 								<!-- ko if: currentLayer() != null -->
