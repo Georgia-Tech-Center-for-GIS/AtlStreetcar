@@ -51,6 +51,13 @@
 </Analysis>
 
 <Analysis name='Economic Development'>
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+<layer url='' >Attractions</layer>
+>>>>>>> FETCH_HEAD
+>>>>>>> origin/master
 <layer url='22'>Employment</layer>
 </Analysis>
 
