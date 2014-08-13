@@ -29,6 +29,10 @@ h2 {
 	width: 350px;
 }
 
+.esriBasemapGallerySelectedNode .esriBasemapGalleryThumbnail{
+        border-color: #66FFFF !important;
+}
+
 .accordion-category{
 	font-size: 15px;
 	font-weight: 400;
@@ -157,38 +161,51 @@ thead tr th {
   cursor:pointer;
 }
 
-/*#timeBottomPanel {
-        left: 50%;
+#timeBottomPanel {
+        right: 25%;
         margin: 0 auto;
-        margin-left: -500px;
-        position: absolute; 
-        bottom: 5em;
-      }
+        margin-left: 0px;
+        position: relative; 
+        bottom: -4.5em;
+}
 
 #timeInfo{
         border-radius: 4px;
         border: solid 2px #ccc;
         background-color: #fff;
         display: block;
-        padding: 5px;
+        padding: 10px;
         position: relative;
         text-align: center;
-        width: 1000px;
+        width: 650px;
         z-index: 99;
-      }*/
+      }
 
 #esriPrint a, .esriPrintout {
 	font-size: 14pt;
 	font-weight: bold;
 }
 
-#timeSliderContainer {
+/*#timeSliderContainer {
 	border: 1px solid gray;
 	background-color: #EEEEEE;
 }
 
 #timeSliderDiv {
 	width: 600px !important;
+}*/
+
+#timeSliderChoices {
+	margin-top: 1em;
+	position: relative;
+	width: 575px;
+}
+
+#timeSliderChoicesSelect {
+	margin-top: 1em;
+	margin-left:1.5em;
+	position: relative;
+	width: 565px;
 }
 
 /*#timeSliderChoices {
@@ -226,12 +243,20 @@ thead tr th {
 	background-image: url("images/glyphicons_217_circle_arrow_right.png");
 }
 
+.circleselectIcon {
+  background-image: url("images/glyphicons_347_hand_up.png");
+}
+
 .zoomprevIcon {
 	background-image: url("images/glyphicons_216_circle_arrow_left.png");
 }
 
 .zoompan {
 	background-image: url("images/glyphicons_186_move.png");
+}
+
+.zoomfullextIcon {
+	background-image: url("images/glyphicons_370_globe_af.png");
 }
 
 .showTimeSliderIcon {
@@ -254,6 +279,24 @@ thead tr th {
 .nav-tabs > li > a {
 	margin: 0px 4px 0px 4px;
 	padding: 0px;
+}
+
+.activeIconStyle {
+	border-bottom: 5px solid gold;
+}
+
+.logosTimeVisible {
+	position: absolute;
+	left: 0em;
+	top: 50px;
+}
+
+.logosTimeInvisible {
+	position: absolute;
+	left: 0em;
+	top: 0em;
+	
+	margin-left: 600px;
 }
 
 .nav-tabs>.active>a, .nav-tabs>.active>a:hover, .nav-tabs>.active>a:focus {

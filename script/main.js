@@ -17,7 +17,6 @@ function xmlToJson(xml) {
 	var obj = {};
 	try {
 		// Create the return object
-
 		if (xml.nodeType == 1) { // element
 		// do attributes
 		if (xml.attributes != null && xml.attributes.length > 0) {
@@ -29,6 +28,7 @@ function xmlToJson(xml) {
 		}
 		} else if (xml.nodeType == 3) { // text
 		obj = xml.nodeValue;
+                
 		}
 
 		// do children
@@ -37,14 +37,18 @@ function xmlToJson(xml) {
 		  var item = xml.childNodes[i];
 
 		  var nodeName = item.nodeName;
-		  if (typeof(obj[nodeName]) == "undefined") {
-			obj[nodeName] = xmlToJson(item);
-		  } else {
-			if (typeof(obj[nodeName].length) == "undefined") {
+		  //if (typeof(obj[nodeName]) == "undefined") {
+                  if (typeof(obj[nodeName]) == "undefined") {
+			  obj[nodeName] = xmlToJson(item);
+                          if (typeof(obj[nodeName].length) == "undefined") {
 			  var old = obj[nodeName];
 			  obj[nodeName] = [];
 			  obj[nodeName].push(old);
 			}
+                         
+		  } else 
+                  {
+			
 			obj[nodeName].push(xmlToJson(item));
 		  }
 		}
@@ -150,6 +154,10 @@ var tempGraphicsLayer = null;
 dojo.require("dojox.xml.DomParser");
 dojo.require("esri.dijit.TimeSlider");
 dojo.require("esri.dijit.Print");
+dojo.require("dijit.TitlePane");
+dojo.require("dijit.layout.ContentPane");
+dojo.require("dijit.layout.BorderContainer");
+dojo.require("esri.arcgis.utils");
 
 var jsDom = null;
 var lyrQueryTask = null;
@@ -164,6 +172,10 @@ var attribHidden = ko.observable(false);
 var navToolbar = null;
 var fullExtent = null;
 
+var isChartShowing = ko.observable(false);
+var isCSVShowing = ko.observable(false);
+var chartImageData = ko.observable("");
+
 var timeSelValue = ko.observable();
 var timeSliderVisible = ko.observable(false);
 var timeLayerIds = ko.observableArray([]);
@@ -172,27 +184,42 @@ var timeSliderEnabled = ko.observable(false);
 
 var printer = null;
 
+var currIcon = ko.observable("Pan Map");
+
+var specialChart = ko.observable();
+
 function showFeatureSet(fset,evt) {
 //remove all graphics on the maps graphics layer
 map.graphics.clear();
-var screenPoint = evt.screenPoint;
 
-featureSet = fset;
+	if(false) {
+		var screenPoint = null;
+		if(evt.screenPoint != "undefined") {
+			screenPoint = evt.screenPoint;
+		}
+		else if(evt.geometry != "undefined"){
+			screenPoint = map.toScreen( evt.geometry.getCentroid() );
+		}
+	}
+	
+  var screenPoint = evt.geometry.getCentroid();
 
-var numFeatures = featureSet.features.length;
+  featureSet = fset;
 
-//QueryTask returns a featureSet.  Loop through features in the featureSet and add them to the infowindow.
-var title = "You have selected " + numFeatures + " features.";
-var content = "Please select desired feature from the list below.<br />";
+  var numFeatures = featureSet.features.length;
 
-for (var i=0; i<numFeatures; i++) {
-  var graphic = featureSet.features[i];
-  content = content + graphic.attributes[featureSet.displayFieldName] + " (<a href='#' onclick='showFeature(featureSet.features[" + i + "]);'>show</a>)<br/>";
-}
+  //QueryTask returns a featureSet.  Loop through features in the featureSet and add them to the infowindow.
+  var title = "You have selected " + numFeatures + " features.";
+  var content = "Please select desired feature from the list below.<br />";
 
-map.infoWindow.setTitle(title);
-map.infoWindow.setContent(content);
-map.infoWindow.show(screenPoint,map.getInfoWindowAnchor(evt.screenPoint));
+  for (var i=0; i<numFeatures; i++) {
+      var graphic = featureSet.features[i];
+      content = content + graphic.attributes[featureSet.displayFieldName] + " (<a href='#' onclick='showFeature(featureSet.features[" + i + "]);'>show</a>)<br/>";
+  }
+
+	map.infoWindow.setTitle(title);
+	map.infoWindow.setContent(content);
+	map.infoWindow.show(screenPoint,map.getInfoWindowAnchor(screenPoint));
 }
 
 function showFeature(feature, ev) {
@@ -238,7 +265,9 @@ function init() {
 			function(
 		ArcGISDynamicMapServiceLayer, FeatureLayer, Query, Navigation, registry, on, parser, domStyle, Query, Draw, TimeExtent, TimeSlider,
         arrayUtils, dom ) {
-			
+		
+		parser.parse();
+		
 		esriConfig.defaults.io.proxyUrl = "http://carto.gis.gatech.edu/proxypage_net/proxy.ashx";
 		//esriConfig.defaults.io.alwaysUseProxy = true;
 		
@@ -255,9 +284,9 @@ function init() {
 		});
 */
 		
-		require(["esri/map", "http://esri.github.io/bootstrap-map-js/src/js/bootstrapmap.js",
+		require(["esri/map", "http://esri.github.io/bootstrap-map-js/src/js/bootstrapmap.js", "esri/dijit/BasemapGallery", 
 			"dojo/domReady!"],
-		function(Map, BootstrapMap) {
+		function(Map, BootstrapMap, BasemapGallery) {
 			
 			map = BootstrapMap.create("map",{
 				basemap: "streets",
@@ -266,6 +295,22 @@ function init() {
 				allowScrollbarZoom: true,
 			});
 			
+		var basemapGallery = new BasemapGallery({
+			showArcGISBasemaps: true,
+			map: map
+        }, "basemapGallery");
+
+        var selectionHandler = dojo.connect(basemapGallery,"onSelectionChange",function(){
+			dojo.disconnect(selectionHandler);
+			//add the esri population layer to the map
+			//var operationalLayer = new esri.layers.ArcGISDynamicMapServiceLayer("http://sampleserver1.arcgisonline.com/ArcGIS/rest/services/Demographics/ESRI_Population_World/MapServer", {"opacity":0.5});
+			//map.addLayer(operationalLayer);
+		});
+		
+        basemapGallery.startup();
+        
+        dojo.connect(basemapGallery, "onError", function(msg) {console.log(msg)});
+			
 			map.addLayer(streetcarLayer);
 			
 			map.on("load", function () {
@@ -273,13 +318,55 @@ function init() {
 				
 				streetcarLayer.setVisibleLayers(baseLayers);
 				
-				initSlider();
-				
 				map.enableScrollWheelZoom();
 				drawToolbar = new esri.toolbars.Draw(map);
   				navToolbar = new esri.toolbars.Navigation(map);
   				fullExtent = map.extent;
-				
+
+				drawToolbar.on("draw-complete", function(evt) {
+					if(currLayerTitle() == "" || currLayerTitle() == null) return;			
+					
+					require(["esri/tasks/query", "esri/tasks/QueryTask",
+						"esri/symbols/SimpleFillSymbol", "esri/symbols/SimpleLineSymbol",
+						"esri/Color", "esri/geometry/Circle", "esri/graphic"
+					],
+					function(Query,QueryTask,
+						SimpleFillSymbol,SimpleLineSymbol,Color,
+						Circle,Graphic) {
+			//				var defaultSymbol, highlightSymbol, resultTemplate;
+			//				defaultSymbol = new esri.symbol.SimpleMarkerSymbol().setColor(new dojo.Color([0,0,255]));
+			//				highlightSymbol = new esri.symbol.SimpleMarkerSymbol().setColor(new dojo.Color([255,0,0]));
+
+							var qry = new Query();
+							var lyrQueryTask = new QueryTask(streetcarLayerURL + currLayerIndex());
+							
+							qry.where = "1=1";
+							qry.outFields = ["*"];
+							qry.returnGeometry = true;
+													
+							qry.geometry = evt.geometry;
+							
+							console.debug( evt.geometry.getExtent().getHeight() );
+							
+							if(evt.geometry.getExtent().getHeight() < 200) {
+								qry.geometry = evt.geometry.getCentroid();
+							}
+							
+							lyrQueryTask.execute(qry);
+							lyrQueryTask.on("complete", function(results) {
+								if(results.featureSet.features.length > 0) {
+									lastDisplayField = results.featureSet.displayFieldName;
+									
+									if(results.featureSet.features.length > 1) {
+										showFeatureSet(results.featureSet, evt);
+									}
+									else {
+										showFeature(results.featureSet.features[0], evt);
+									}
+								}
+							});
+					});
+				});				
 				//initToolbar(map);
 				
 				$("#loadingScreen").css("display", "none");
@@ -289,65 +376,100 @@ function init() {
 					handleAs: "text",
 					load: function(e) {
 						jsDom = dojox.xml.DomParser.parse(e);
+                                                
+                                                //hack to enforce 
+                                               // jsDom= parseXml(e,true);
+                                               miao=xmlToJson(jsDom);
 						layerList = ko.observable(xmlToJson(jsDom));
+                                                
 						ko.applyBindings();
 						map.resize();
 						}});
 				
 				//ko.applyBindings();
+		  
 				
 				$('#zoomPrevBtn').on('click', function(e) {
-				navToolbar.zoomToPrevExtent();
+					currIcon("Zoom to Previous Extent");
+				
+					navToolbar.zoomToPrevExtent();
 				});
 			
 				$('#zoomNextBtn').on('click', function(e) {
-				navToolbar.zoomToNextExtent();
+					currIcon("Zoom to Next Extent");
+					
+					navToolbar.zoomToNextExtent();
 				});
 				
 				$('#zoomInBtn').on('click', function(e) {
-				//map.setMapCursor("url(images/images/glyphicons_236_zoom_in.png),auto");
-				navToolbar.activate(esri.toolbars.Navigation.ZOOM_IN);
+					currIcon("Zoom In");
+				
+					drawToolbar.deactivate();
+					navToolbar.activate(esri.toolbars.Navigation.ZOOM_IN);
 			    });
 				
 				$('#zoomOutBtn').on('click', function(e) {
-				//map.setMapCursor("url(images/zoom_in.cur),auto");
-				navToolbar.activate(esri.toolbars.Navigation.ZOOM_OUT);
+					currIcon("Zoom Out");
+				
+					drawToolbar.deactivate();
+					navToolbar.activate(esri.toolbars.Navigation.ZOOM_OUT);	
 			    });
 				
-				/*$('#allLayersLink').on('click', function(e) {
-				loaded(false);
-				$('#timeSliderChoicesSelect').off('change');
-				console.log("hello");
-				});*/
-			});
+				$('#zoomFullExtBtn').on('click', function(e) {
+					currIcon("Zoom to Full Extent");
+
+					map.setExtent(fullExtent);
+				});
+			  
+				$('#circleSelect').on('click', function(e) {
+					currIcon("Select points within a circle");
+					
+					navToolbar.deactivate();
+					drawToolbar.activate(esri.toolbars.Draw.CIRCLE);
+				});
+				
+				$('#panBtn').on('click', function(e) {
+					currIcon("Pan Map");
+					
+					navToolbar.activate(esri.toolbars.Navigation.PAN);
+					drawToolbar.deactivate();
+				});				
+				
+				$('.showTimeSliderIcon').on('click', function(e) {
+					currIcon("Show Time Slider");
+					
+					(timeSliderVisible(!timeSliderVisible()));
+					initSlider();
+				});
 		});
 	});
+});
 }
 
 function initSlider() {
 	require([ 
-        "esri/TimeExtent", "esri/dijit/TimeSlider",
+        "esri/TimeExtent", "esri/dijit/TimeSlider", "esri/layers/ArcGISDynamicMapServiceLayer", 
         "dojo/_base/array", "dojo/dom", "dojo/domReady!"],
-		function(TimeExtent, TimeSlider, arrayUtils, dom) {
+		function(TimeExtent, TimeSlider, ArcGISDynamicMapServiceLayer, arrayUtils, dom) {
           var timeSlider = new TimeSlider({
             style: "width: 100%;"
           }, dom.byId("timeSliderDiv"));
           map.setTimeSlider(timeSlider);
 		  
-		timeSliderVisible(false);
-		timeSliderEnabled(timeLayerIds().length > 0);
-	
-		if(timeLayerIds().length == 0) {
-		timeSliderEnabled(false);
-		return;
-		}
-		else
-		{
+		  var opLayer = new ArcGISDynamicMapServiceLayer("http://tulip.gis.gatech.edu:6080/arcgis/rest/services/AtlStreetcar/PopulationAndHospitality/MapServer/23");
+		  opLayer.setVisibleLayers([0]);
+		  
+		  var layerDefinitions = [];
+		  //layerDefinitions[0] = "FIELD_SIC_YEAR=1984";
+		  //opLayer.setLayerDefinitions(layerDefinitions);
+		  
+		  map.addLayers([opLayer]);
+		  console.log('hehe');
           
           var timeExtent = new TimeExtent();
-          timeExtent.startTime = new Date("1/1/1990 UTC");
+          timeExtent.startTime = new Date("1984 UTC");
 		  map.setTimeExtent(timeExtent);
-          timeExtent.endTime = new Date("12/31/2015 UTC");
+          timeExtent.endTime = new Date("2012 UTC");
           timeSlider.setThumbCount(2);
           timeSlider.createTimeStopsByTimeInterval(timeExtent, 2, "esriTimeUnitsYears");
           timeSlider.setThumbIndexes([0,1]);
@@ -371,16 +493,16 @@ function initSlider() {
             dom.byId("daterange").innerHTML = "<i>" + startValString + " and " + endValString  + "<\/i>";
           });
 		  
-		}
+		
 		  });
-        }
+}
 
 
 	/**
 If there are time-enabled layers enumerated, turn on the time slider, etc.
 */
 /*function checkTimeLayers() {
-console.log("hello");
+	console.log("hello");
 	//timeSliderVisible(timeLayerIds().length > 0);
 	timeSliderVisible(false);
 	timeSliderEnabled(timeLayerIds().length > 0);
@@ -403,7 +525,8 @@ console.log("hello");
 			map.setTimeSlider(timeSlider);
 			timeSlider.setThumbCount(2);
 			
-			var layerTimeExtent = map.getLayer( map.layerIds[3] ).timeInfo.timeExtent;
+			var layerTimeExtent = map.getLayer( map.layerIds[5] ).timeInfo.timeExtent;
+
 			layerTimeExtent.startTime = timeExtent.startTime;
 			timeSlider.createTimeStopsByTimeInterval(layerTimeExtent, 1, 'esriTimeUnitsMonths');
 			timeSlider.setThumbMovingRate(1500);			
@@ -415,7 +538,7 @@ console.log("hello");
 			
 			$('#timeSliderChoicesSelect').change( function(ev) {
 				if(loaded()) {
-					var l = map.getLayer( map.layerIds[3] );
+					var l = map.getLayer( map.layerIds[5] );
 
 					if( l != null ) {
 						var valToShow = timeSelValue();
@@ -423,13 +546,13 @@ console.log("hello");
 						
 						console.debug(valToShow);
 						
-						for(var lll = 0; lll < tLayerIds.length; lll++) {
-							if( viewModel.isVisibleLayer( map.layerIds[3], parseInt(tLayerIds[lll].id) ) ) {
-									viewModel.toggleVisibleLayer( { "mapLayerId" : map.layerIds[3], "esriLayer" : { id: parseInt(tLayerIds[lll].id) } } )
+						for(var lllll = 0; lllll < tLayerIds.length; lllll++) {
+							if( viewModel.isVisibleLayer( map.layerIds[5], parseInt(tLayerIds[lllll].id) ) ) {
+									viewModel.toggleVisibleLayer( { "mapLayerId" : map.layerIds[5], "esriLayer" : { id: parseInt(tLayerIds[lllll].id) } } )
 								}
 						}
 						
-						viewModel.toggleVisibleLayer( { "mapLayerId" : map.layerIds[3], "esriLayer" : { id: parseInt(valToShow) } } )
+						viewModel.toggleVisibleLayer( { "mapLayerId" : map.layerIds[5], "esriLayer" : { id: parseInt(valToShow) } } )
 						l.refresh();
 					}
 				}
@@ -446,46 +569,6 @@ function initToolbar(map) {
 	//dojo.connect(tb, "onDrawEnd", findPointsInExtent);
 	//set drawing mode to extent
 	tb.activate(esri.toolbars.Draw.CIRCLE);
-	
-	tb.on("draw-complete", function(evt) {
-		if(currLayerTitle() == "" || currLayerTitle() == null) return;			
-		
-		require(["esri/tasks/query", "esri/tasks/QueryTask",
-			"esri/symbols/SimpleFillSymbol", "esri/symbols/SimpleLineSymbol",
-			"esri/Color", "esri/geometry/Circle", "esri/graphic"
-		],
-		function(Query,QueryTask,
-			SimpleFillSymbol,SimpleLineSymbol,Color,
-			Circle,Graphic) {
-//				var defaultSymbol, highlightSymbol, resultTemplate;
-//				defaultSymbol = new esri.symbol.SimpleMarkerSymbol().setColor(new dojo.Color([0,0,255]));
-//				highlightSymbol = new esri.symbol.SimpleMarkerSymbol().setColor(new dojo.Color([255,0,0]));
-
-				var qry = new Query();
-				var lyrQueryTask = new QueryTask(streetcarLayerURL + currLayerIndex());
-				
-				qry.where = "1=1";
-				qry.outFields = ["*"];
-				qry.returnGeometry = true;
-				qry.geometry = evt.geometry;
-				
-				console.debug(lyrQueryTask);
-				
-				lyrQueryTask.execute(qry);
-				lyrQueryTask.on("complete", function(results) {
-					if(results.featureSet.features.length > 0) {
-						lastDisplayField = results.featureSet.displayFieldName;
-						
-						if(results.featureSet.features.length > 1) {
-							showFeatureSet(results.featureSet, evt);
-						}
-						else {
-							showFeature(results.featureSet.features[0], evt);
-						}
-					}
-				});
-		});
-	});
 }
 
 /** Do we label the next KML file to finish loading.... */
@@ -809,19 +892,36 @@ function loadURL_UI(evt_value) {
 		"esri/tasks/query", "esri/tasks/QueryTask"],
 		function(Query,QueryTask) {
 		  
-      if(evt_value["@attributes"].chart!=undefined){
-        chart_url = evt_value["@attributes"].chart;
-        $('#map').hide();
-        currLayerIndex(-1);
-        img = document.createElement('img');
-        img.src = chart_url;
-        document.getElementById("mapContainer").appendChild(img);
-        //console.log("chart");
+      if(evt_value["@attributes"].chart != undefined){
+		isChartShowing( true );
+		chartImageData( evt_value["@attributes"].chart );
+		currLayerIndex(-1);
+		specialChart({});
+		/*
+			chart_url = evt_value["@attributes"].chart;
+			$('#map').hide();
+			currLayerIndex(-1);
+			img = document.createElement('img');
+			img.src = chart_url;
+			document.getElementById("mapContainer").appendChild(img);
+			//console.log("chart");
+		*/
         return;
-      }  
-      $('#map').show();
-     
-			if(evt_value["@attributes"].url.length == 0)
+      }
+	else if(evt_value["@attributes"].report == 1){
+		currLayerIndex(-2);
+		isChartShowing(true);
+		chartImageData( "" );
+		showCSVChart();
+	}
+	else {	  
+	  isChartShowing( false );
+	  chartImageData( "" );
+	  specialChart({});
+
+      	isCSVShowing(false);
+
+      	if(evt_value["@attributes"].url.length == 0)
 				return;
 				
 			streetcarLayer.setVisibleLayers( baseLayers .concat ( evt_value["@attributes"].url ));
@@ -839,7 +939,7 @@ function loadURL_UI(evt_value) {
 					headings(null);
 
 					currLayerTitle(evt_value["#text"]);
-					currLayerLegend(result.layers[ currLayerIndex()-1]);
+					currLayerLegend(result.layers[ currLayerIndex() - 1 ]);
 					map.setExtent(fullExtent);
 					map.resize();
 					map.graphics.clear();
@@ -847,6 +947,7 @@ function loadURL_UI(evt_value) {
 					//legendDlg = $("#legend").dialog({dialogClass: "no-close", title: currLayerTitle() });
 				}
 			});
+	}
 	});
 }
 
@@ -913,5 +1014,17 @@ function zoomToFeature( feature ){
 function doShowPrintDlg() {
 	$("#printing-popover").show();
 }
-			
+
+function showCSVChart() {
+	require(["esri/request"],
+		function(request){
+			esri.request( {
+				url: "./charts/StudentPopulation.csv",
+				handleAs: "text",
+			}).then(function(response){
+				specialChart( CSVToArray(response) );
+			});
+		});
+}
+
 init();
