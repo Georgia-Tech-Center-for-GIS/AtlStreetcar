@@ -51,7 +51,6 @@
 </Analysis>
 
 <Analysis name='Economic Development'>
-<layer url='' >Attractions</layer>
 <layer url='22'>Employment</layer>
 </Analysis>
 

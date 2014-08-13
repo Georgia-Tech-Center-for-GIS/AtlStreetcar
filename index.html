@@ -239,25 +239,29 @@
 					</div-->
 					<div class='row' style='margin-left: 5px; height:100%;'>
 						<div id="menu-accordion" style='width: 25%; margin-right: 3em; height: 100%;'>
-							<div id = "layerlist" style='height: 32.15em;'>
+							<div id = "layerlist" >
 							<h2>Data Categories</h2>
-							<!-- ko foreach: layerList().Layers.Analysis -->
+							<!-- ko foreach: layerList().Layers[0].Analysis -->
 								<h3 class='accordion-category'
 								data-bind='fadeVisible: ((currCateg() == null || currCateg() == $data["@attributes"].name )), text: $data["@attributes"].name, click: changeIt, css: { accordionCategoryOpen :(currCateg() == $data["@attributes"].name ) }'> </h3>
 								<div class='inner' data-bind='visible: ((currCateg() == $data["@attributes"].name ))'>
+                                                                    
 									<ul data-bind='foreach: $data.layer'>
+                                                                            
 										<li data-bind='click: loadURL_UI'>
 										  	<img src="./images/glyphicons_152_check.png" data-bind='visible: currLayerIndex()==$data["@attributes"].url' />
 											<img src="./images/glyphicons_153_unchecked.png" data-bind='visible: currLayerIndex()!=$data["@attributes"].url' />
                 
-										  <div data-bind='text: $data["#text"], style { color: ($data["@attributes"].url == "")? "red" : "black"}'></div>
+										  <div data-bind='text: $data["#text"], style: { color: ($data["@attributes"].url == "")? "red" : "black"}'></div>
                       
 									  </li>
 									</ul>
 
 									<!-- ko foreach: $data.Analysis -->
 										<div data-bind='text: $data["@attributes"].name'> </div>
+                                                                                
 										<ul data-bind='foreach: $data.layer'>
+                                                                                    
 											<li data-bind='click: loadURL_UI'>
 											  	<img src="./images/glyphicons_152_check.png" data-bind='visible: currLayerIndex()==$data["@attributes"].url' />
 	                    						<img src="./images/glyphicons_153_unchecked.png" data-bind='visible: currLayerIndex()!=$data["@attributes"].url' />
@@ -271,7 +275,7 @@
 							<!-- /ko -->
 							</div>
 							<div style='height: 15em; overflow: auto; width: 80%;' id='legend'
-								data-bind='attr: {title : currLayerTitle() }'>
+								data-bind='attr: {title : currLayerTitle() }, visible: !isChartShowing()'>
 								<h2 data-bind='html: getLegendTitle' style='margin-top: 1em;'></h2>
 								<!-- ko if: currLayerLegend() != null -->
 									<div data-bind="foreach: currLayerLegend().legend" style='font-size: 10pt; padding: .5em;'>

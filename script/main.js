@@ -17,7 +17,6 @@ function xmlToJson(xml) {
 	var obj = {};
 	try {
 		// Create the return object
-
 		if (xml.nodeType == 1) { // element
 		// do attributes
 		if (xml.attributes != null && xml.attributes.length > 0) {
@@ -29,6 +28,7 @@ function xmlToJson(xml) {
 		}
 		} else if (xml.nodeType == 3) { // text
 		obj = xml.nodeValue;
+                
 		}
 
 		// do children
@@ -37,14 +37,18 @@ function xmlToJson(xml) {
 		  var item = xml.childNodes[i];
 
 		  var nodeName = item.nodeName;
-		  if (typeof(obj[nodeName]) == "undefined") {
-			obj[nodeName] = xmlToJson(item);
-		  } else {
-			if (typeof(obj[nodeName].length) == "undefined") {
+		  //if (typeof(obj[nodeName]) == "undefined") {
+                  if (typeof(obj[nodeName]) == "undefined") {
+			  obj[nodeName] = xmlToJson(item);
+                          if (typeof(obj[nodeName].length) == "undefined") {
 			  var old = obj[nodeName];
 			  obj[nodeName] = [];
 			  obj[nodeName].push(old);
 			}
+                         
+		  } else 
+                  {
+			
 			obj[nodeName].push(xmlToJson(item));
 		  }
 		}
@@ -372,7 +376,12 @@ function init() {
 					handleAs: "text",
 					load: function(e) {
 						jsDom = dojox.xml.DomParser.parse(e);
+                                                
+                                                //hack to enforce 
+                                               // jsDom= parseXml(e,true);
+                                               miao=xmlToJson(jsDom);
 						layerList = ko.observable(xmlToJson(jsDom));
+                                                
 						ko.applyBindings();
 						map.resize();
 						}});
