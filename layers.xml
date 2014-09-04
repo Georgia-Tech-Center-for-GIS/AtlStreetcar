@@ -2,48 +2,199 @@
 <Layers>
 <Analysis name='Population'>
 <Analysis name='Map'>
-<layer url='4'>Residential Population</layer>
-<layer url='5'>Percentage of Home Owners</layer>
-<layer url='7'>Average Household Median Income</layer>
+<layer url='4'>
+	Residential Population
+	<details>
+	Data Source: 2010 census block data. The ID of the table is “P1” and the name of the table is “Total Population”
+	Data Summary:  The total population within the quarter mile buffer from the streetcar route is 6487
+	</details>
+</layer>
+<layer url='5'>
+	Percentage of Home Owners
+	<details>
+	Data Source: 2010 census block data. ID of the table is “QT-H3” and the name of the table is “Household Population and Household Type by Tenure: 2010” 
+	Data Summary:  There are a total of 3078 people living in the occupied housing unit. Only 711 are home owners and the rest 2367 are renters. Thus, up to 77% of the population within the study area rent the housing unit.
+	</details>
+</layer>
+<layer url='7'>
+	Average Household Median Income
+	<details>
+	Data Source: 2010 median household income is obtained from American Community Survey (ACS) 5-year estimate table. ID of the table is “S1903” and the name of the table is “household income in the past 12 months (in 2010 inflation-adjusted dollars)”
+	Data Summary:  There are a total of 3078 people living in the occupied housing unit. Only 711 are home owners and the rest 2367 are renters. Thus, up to 77% of the population within the study area rent the housing unit.
+	</details>
+</layer>
 </Analysis>
 <Analysis name='Graph'>
-<layer report='1' url ='-2'>GSU Student Population by Dorms</layer>
-<layer chart='./charts/AgeGroupChart.png' url='-1'>Age Groups by Census</layer>
+<layer report='1' url ='-2'>
+	GSU Student Population by Dorms
+	<details>
+	Data Source: GSU dorm website: http://myhousing.gsu.edu/
+	Data Summary:  There are five GSU residential properties in the study area. The total number of dorm bed is 4010. Given the assumption that all the dorm beds are occupied, we estimated that student population within the study area in 2014 is 4010.
+	</details>
+</layer>
+<layer chart='./charts/AgeGroupChart.png' url='-1'>
+	Age Groups by Census
+	<details>
+	Data Source: 2010 census tract level population age information is obtained from U.S. Census Bureau. ID of the table is “QTP1” and the name of the table is “Age Groups and Sex: 2010”
+	Data Summary:  a majority of the population fall within the age groups of 15 to 19 and 20 to 24. The proportion of middle age population, however, is quite small. This may attribute to the fact that Georgia State University occupies a large portion of the study area. 
+	</details>
+</layer>
 </Analysis>
 </Analysis>
 
 <Analysis name='Land Use/Development'>
-<layer url='8'>Land-use Type</layer>
-<layer url='9'>Floor-Area Ratio</layer>
-<layer url='23'>Years of Establishment</layer>
+<layer url='8'>
+	Land-use Type
+	<details>
+	Data Source: 2010 Fulton Parcel data
+	Estimation Method:  We aggregated parcel area by land use type to obtain the final results. For condos (with land use code “106” and “110”), we used the following formula to estimate the area, as there are duplicated records for each unit of the condo that falls on one land parcel. 
+	</details>
+</layer>
+<layer url='9'>
+	Floor-Area Ratio
+	<details>
+	</details>
+</layer>
+<layer url='23'>
+	Years of Establishment
+	<details></details>
+</layer>
 </Analysis>
 
 <Analysis name='Residential Development'>
-<layer url='10'>Single Family Homes</layer>
-<layer url='11'>Apartment / Condo</layer>
-<layer url='12'>Residential Value</layer>
-<layer url='13'>Residential Vacancy Rate</layer>
-<layer chart='./charts/GSU Dorm.jpg' url='-1'>Number of Dorm Beds</layer>
+<layer url='10'>
+	Single Family Homes
+	<details>
+	Data Source: 2013 Tax Assessor Data and Fulton Parcel Data
+	Data Summary: There is a total of 69 units on land with code “101” and 38 units on land with code “107”. Therefore, the total number of single family homes is 107. All of the single family housing locates west of the I-75.
+	</details>
+</layer>
+<layer url='11'>
+	Apartment / Condo
+	<details>
+	Data Source: 2013 Tax Assessor Data and Fulton Parcel Data
+	Data Summary: There is a total of 69 units on land with code “101” and 38 units on land with code “107”. Therefore, the total number of single family homes is 107. All of the single family housing locates west of the I-75.
+	</details>
+</layer>
+<layer url='12'>
+	Residential Value
+	<details>
+	Data Source: 2013 Tax Assessor Data and Fulton Parcel Data
+	Estimation Method:  The “Total Appraise” property value is used to present the residential property values.
+	</details>
+</layer>
+<layer url='13'>
+	Residential Vacancy Rate
+	<details>
+	Data Source: 2010 Census block level of household data
+	Data Summary: The total number of occupied housing unit is 2172 and the total number of housing unit within the study area is 3069. Thus, the vacancy rate for the housing units is approximately 29%.
+	</details>
+</layer>
+<layer chart='./charts/GSU Dorm.jpg' url='-1'>
+	Number of Dorm Beds
+	<details>
+	Data Source: GSU dorm website: http://myhousing.gsu.edu/
+	Data Summary:  There are five GSU residential properties in the study area. The total number of dorm bed is 4010. Given the assumption that all the dorm beds are occupied, we estimated that student population within the study area in 2014 is 4010.
+	</details>
+</layer>
 </Analysis>
 
 <Analysis name='Retail Development'>
 <!--layer url=''>Retail Square Footage</layer-->
-<layer url='14'>Retail Employment</layer>
-<layer url='15'>Retail Square Footage</layer>
-<layer url='16'>Retail Sales</layer>
+<layer url='14'>
+	Retail Employment
+	<details>
+	Data Source: 2010 Reference USA Data
+	Data Summary: There is a total of 680 retail trades establishments within the study area. The retail trades are further classified into eight sub categories and the count of firms for each category are tabulated in the following table. The result shows that the most prevailing type of retail establishment in the study area is “eating and drinking places” occupies up to 35.1% of the entire retail trade firms and the “miscellaneous retail” is the second most popular. 
+	</details>
+</layer>
+<layer url='15'>
+	Retail Square Footage
+	<details>
+	Data Source: 2010 Reference USA Data and 2013 Fulton Tax Assessor and Parcel Joined Dataset.
+	Data Summary: The result indicates that there is a total of 11,311,434 square footage of retail establishment in the study area. 
+	</details>
+</layer>
+<layer url='16'>
+	Retail Sales
+	<details>
+	Data Source: 2010 Reference USA Data 
+	Data Summary: The total sales revenue is 661.772 million US Dollar, as shown in the following table. Among all types of retail trades, the automotive dealers and Gasoline Service Stations have the highest sales revenue per firm, which is 10.31 million per firm. The average sales per retail firm is approximately 0.97 million. 
+	</details>
+</layer>
+<layer url=''>
+	Retail Tax Receipt
+	<details>
+	Data Source: City of Atlanta 2013 
+	Data Summary: The total of gross receipt is $984,703,074.53 for license class 3. 
+	</details>
+</layer>
 </Analysis>
 
 <Analysis name='Office Development'>
-<layer url=''>Office Employment</layer>
-<layer url=''>Office Square Footage</layer>
+<layer url=''>
+	Total Number/Type of Establishments
+	<details>
+	Data Source: Costar 2014 
+	Data Summary: There are a total of 144 Offices within the study area, located primarily on the west side of the I-75. Only 15 of them located at the east side of I-75.
+	</details>
+</layer>
+<layer url=''>
+	Office Employment
+	<details></details>
+</layer>
+<layer url='27'>
+	Total Office Square Footage
+	<details>
+	Data Source: Costar 2014
+	Data Summary: The total Available Space is 3,521,006 Square Footage, the total relent space is 3,329,740 square footage, the total sublet space is 191,266 square footage, the total vacant available relent space is 2669420 square footage, the total vacant available sublet space is 39332 square footage, and the total vacant available space is 2708752 square footage.
+	</details>
+</layer>
+<layer url='28'>
+	Quality of Office Space Available
+	<details>
+	Data Source: Costar 2014
+	Estimation Method: The “star rating” field is used to evaluate the quality of office spaces within the study area.
+	</details>
+</layer>
 </Analysis>
 
 <Analysis name='Hospitality Development'>
-<layer url='17' >Hotel Employment</layer>
-<layer url='18' >Hotel Rooms</layer>
-<layer url='19' >Hotel Square Footage</layer>
-<layer url='20' >Hotel Sales</layer>
-<layer url='21' >Attractions</layer>
+<layer url='17' >
+	Hotel Employment
+	<details>
+	Data Source: 2010 Reference USA Data 
+	Data Summary: There are a total of 4353 employment from the 19 hotels. The largest is the Omni-CNN Center Hotel with 1200 employees, located at 100 CNN Ctr.
+	</details>
+</layer>
+<layer url='18' >
+	Hotel Rooms
+	<details>
+	Data Source: Website of all the associated hotels.
+	Data Summary: The total number of hotel rooms in the study area is 7,035. This number can be a little underestimated, as it is unclear how many rooms there are in the “Hillard Street Motel”, which is the only hotel that locates east to the I-75. 
+	</details>
+</layer>
+<layer url='19' >
+	Hotel Square Footage
+	<details>
+	Data Source: 2010 Reference USA Data and 2013 Fulton Tax Assessor and Parcel Joined Dataset.
+	Data Summary: The total Assessor Square Footage for the rest of the land is 5,148,345. 
+	</details>
+</layer>
+<layer url='20' >
+	Hotel Sales
+	<details>
+	Data Source: 2010 Reference USA Data
+	Data Summary: The total hotel sales is $410,951,000. 
+	</details>
+</layer>
+<layer url='21' >
+	Attractions
+	<details>
+	Data Source: Atlanta Streetcar Official Website.
+	Data Summary: There are 6 attractions located within our study area.
+	</details>
+</layer>
 </Analysis>
 
 <Analysis name='Financial Analysis'>
@@ -55,7 +206,13 @@
 </Analysis>
 
 <Analysis name='Traffic Analysis'>
-<layer url='' >Vehicle Ownership Rates</layer>
+<layer url='29' >
+	Vehicle Ownership Rates
+	<details>
+	Data Source: Census Bureau 2012 5-year estimate ACS data. The ID of the table is DP04 and the name of the table is household characteristics.
+	Data Summary: The total number of available vehicle is approximately 2193. The household vehicle occupancy ranges from 0.84 to 1.28 at the census tract level. The average household vehicle occupancy rate is 1.01.
+	</details>
+</layer>
 <layer url='' >Vehicle Share Availability</layer>
 <layer url='' >Carpool/Vanpool Utilization</layer>
 </Analysis>
@@ -66,7 +223,13 @@
 </Analysis>
 
 <Analysis name='Transportation Network Analysis'>
-<layer url='26'>Number of Accessible Bike Lanes/Routes</layer>
+<layer url='26'>
+	Number of Accessible Bike Lanes/Routes
+	<details>
+	Data Source: Cycle Atlanta (Phase I) provided by CAP
+	Data Summary: There are four existing bike lanes in within the study area and they located at Jackson Street, Edgewood Avenue, and Marietta Street. The total length of the existing bike lanes is 0.98 mile. There are seven founded bike land projects within the study area. Some of them located along the streetcar line. The total length of the funded bike lanes is 3.47 mile. Additionally, there are 26 places of bike lanes that are planned according to the plan developed by Alta. The total length of planned bike lanes is 4.29 mile. 
+	</details>
+</layer>
 <layer url='25'>Public Accessible Parking Spaces</layer>
 </Analysis>
 

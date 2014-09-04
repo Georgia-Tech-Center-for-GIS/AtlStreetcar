@@ -183,7 +183,7 @@
 				</div>
 			</header>
 			
-			<div style="position:relative; left:320px; top:50px; z-Index:0;">
+			<div style="position:relative; left:315px; top:50px; z-Index:0; font-weight: bold; color:#7ac142; font-family: 'Lato',Helvetica,Arial,sans-serif;font-size:16px">
 				<div data-dojo-type="dijit.TitlePane" data-dojo-props="title:'Switch Basemap', closable:false, open:false">
 					<div data-dojo-type="dijit.layout.ContentPane" style="width:380px; height:280px; overflow:auto;">
 						<div id="basemapGallery"></div>
@@ -249,10 +249,12 @@
 									<ul data-bind='foreach: $data.layer'>
                                                                             
 										<li data-bind='click: loadURL_UI'>
+											<div data-bind='attr: {title:(($data.details))!=undefined? $data.details[0]["#text"]:""}' class='itemEnum'>
 										  	<img src="./images/glyphicons_152_check.png" data-bind='visible: currLayerIndex()==$data["@attributes"].url' />
 											<img src="./images/glyphicons_153_unchecked.png" data-bind='visible: currLayerIndex()!=$data["@attributes"].url' />
                 
 										  <div data-bind='text: $data["#text"], style { color: ($data["@attributes"].url == "")? "red" : "black"}'></div>
+											</div>
 									  </li>
 									</ul>
 
@@ -262,18 +264,20 @@
 										<ul data-bind='foreach: $data.layer'>
                                                                                     
 											<li data-bind='click: loadURL_UI'>
+												<div data-bind='attr: {title:(($data.details))!=undefined? $data.details[0]["#text"]:""}' class='itemEnum'>
 											  	<img src="./images/glyphicons_152_check.png" data-bind='visible: currLayerIndex()==$data["@attributes"].url' />
 	                    						<img src="./images/glyphicons_153_unchecked.png" data-bind='visible: currLayerIndex()!=$data["@attributes"].url' />
 	                
 											  <div data-bind='text: $data["#text"], style { color: ($data["@attributes"].url == "")? "red" : "black"}'></div>
 											  <img src="./charts/icon.png" data-bind='visible: $data["@attributes"].chart!=undefined || $data["@attributes"].report!=undefined' style='width: 25px;'/>
+										       </div>
 										  </li>
 										</ul>
 									<!-- /ko -->
 								</div>
 							<!-- /ko -->
 							</div>
-							<div style='height: 15em; overflow: auto; width: 80%;' id='legend'
+							<div style='height: 15em; width: 80%;' id='legend'
 								data-bind='attr: {title : currLayerTitle() }, visible: !isChartShowing()'>
 								<h2 data-bind='html: getLegendTitle' style='margin-top: 1em;'></h2>
 								<!-- ko if: currLayerLegend() != null -->
@@ -348,12 +352,19 @@
 								<!-- /ko -->
 							</div>
 						</div>
+						
+							<div style="position:relative; left:810px; bottom:35px; padding-top: 40px; z-Index:0; color:#7ac142; font-family: 'Lato',Helvetica,Arial,sans-serif;font-size:14px">
+								<img src="./images/pdf.png" />
+								<a href="http://streetcar.atlantaga.gov/"
+								target="_blank">Streetcar Data Description Summary</a>
+							</div>
+			
 					</div>
 				</article>
 				<!-- /article -->
 			</section>
 			<!-- /section -->	
-		</div>
+		</div>	
 	</div>
 	<div class="container-fluid">
 		<div class="row-fluid">

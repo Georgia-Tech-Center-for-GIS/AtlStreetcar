@@ -300,8 +300,12 @@ function init() {
 			map: map
         }, "basemapGallery");
 
-        var selectionHandler = dojo.connect(basemapGallery,"onSelectionChange",function(){
-			dojo.disconnect(selectionHandler);
+        basemapGallery.on("selection-change",function(){
+			var basemap = null;
+			console.debug( basemap = basemapGallery.getSelected() );
+			
+			map.getLayer(map.layerIds[0]).setOpacity(0.4);
+			
 			//add the esri population layer to the map
 			//var operationalLayer = new esri.layers.ArcGISDynamicMapServiceLayer("http://sampleserver1.arcgisonline.com/ArcGIS/rest/services/Demographics/ESRI_Population_World/MapServer", {"opacity":0.5});
 			//map.addLayer(operationalLayer);
