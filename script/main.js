@@ -380,7 +380,7 @@ function init() {
 				esri.request({
 					url: "http://carto.gis.gatech.edu/proxypage_net/proxy.ashx?http://carto.gis.gatech.edu/AtlStreetcar/layers.xml",
 					handleAs: "text",
-					load: function(e) { */
+					load: function(data) {
 					jsDom = dojox.xml.DomParser.parse(data);
                                                 
                                         //hack to enforce 
