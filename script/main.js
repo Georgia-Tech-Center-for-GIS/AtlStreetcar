@@ -377,20 +377,22 @@ function init() {
 				
 				$("#loadingScreen").css("display", "none");
 
-				esri.request({
-					url: "layers.xml",
+				require(["dojo/request"], function(request){
+  					request("layers.xml").then(function(data){
+				/*esri.request({
+					url: ,
 					handleAs: "text",
-					load: function(e) {
-						jsDom = dojox.xml.DomParser.parse(e);
+					load: function(e) { */
+					jsDom = dojox.xml.DomParser.parse(data);
                                                 
-                                                //hack to enforce 
-                                               // jsDom= parseXml(e,true);
-                                               miao=xmlToJson(jsDom);
-						layerList = ko.observable(xmlToJson(jsDom));
+                                        //hack to enforce 
+                                        // jsDom= parseXml(e,true);
+					miao=xmlToJson(jsDom);
+					layerList = ko.observable(xmlToJson(jsDom));
                                                 
-						ko.applyBindings();
-						map.resize();
-						}});
+					ko.applyBindings();
+					map.resize();
+				}});
 				
 				//ko.applyBindings();
 		  
