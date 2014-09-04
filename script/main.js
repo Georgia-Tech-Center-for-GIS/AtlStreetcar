@@ -377,10 +377,8 @@ function init() {
 				
 				$("#loadingScreen").css("display", "none");
 
-				require(["dojo/request"], function(request){
-  					request("layers.xml").then(function(data){
-				/*esri.request({
-					url: ,
+				esri.request({
+					url: "http://carto.gis.gatech.edu/proxypage_net/proxy.ashx?http://carto.gis.gatech.edu/AtlStreetcar/layers.xml",
 					handleAs: "text",
 					load: function(e) { */
 					jsDom = dojox.xml.DomParser.parse(data);
